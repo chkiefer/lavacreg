@@ -55,9 +55,9 @@ creg_fit_model <- function(object) {
         obj <- creg_loglikelihood_function(datalist, modellist)
         cpp_time <- round(Sys.time() - substart,3)
         
-        duration <- (Sys.time() - start.time)
-        units(duration) <- "secs"
-        cat("objective:", obj, "time:", round(duration, 1), "cpp time:", cpp_time,"\n")
+        # duration <- (Sys.time() - start.time)
+        # units(duration) <- "secs"
+        # cat("objective:", obj, "time:", round(duration, 1), "cpp time:", cpp_time,"\n")
         return(obj)
     }
     
@@ -69,15 +69,16 @@ creg_fit_model <- function(object) {
                                  iter.max = 300))
     if (!fit$convergence){
         cat("Computing standard errors.\n")
-      vcov_fit <- pracma::hessian(objective_function, fit$par)
+      vcov_fit <- solve(pracma::hessian(objective_function, fit$par))/sum(object@dataobj@n_cell)
     } else {
         vcov_fit <- NULL
         warning("CountReg warning: Estimation did not converge. Standard errors are not computed.")
     }
     
     pt$par[as.logical(pt$par_free)] <- fit$par
-    print(pt)
+    # print(pt)
     res <- list(fit = fit,
-                vcov_fit = vcov_fit)
+                vcov_fit = vcov_fit,
+                pt = pt)
     return(res)
 }

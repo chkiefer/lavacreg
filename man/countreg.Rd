@@ -4,11 +4,9 @@
 \alias{countreg}
 \title{Fitting Count Regression Models with Latent Covariates}
 \usage{
-countreg(formula, lv, group, data, family)
+countreg(forml, lv = NULL, group = NULL, data, family)
 }
 \arguments{
-\item{formula}{an object of class for \code{\link[stats]{formula}} (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under Details.}
-
 \item{lv}{Definition of the latent variables.}
 
 \item{group}{A group variable}
@@ -16,6 +14,8 @@ countreg(formula, lv, group, data, family)
 \item{data}{a data frame}
 
 \item{family}{Poisson or negative binomial}
+
+\item{formula}{an object of class for \code{\link[stats]{formula}} (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under Details.}
 }
 \value{
 An object of type \code{countreg}.
@@ -27,7 +27,14 @@ Description
 Details
 }
 \examples{
-add(1, 1)
-add(10, 1)
+\dontrun{
+fit <- countreg(forml = 'dv ~ eta1 + z41 + z42', 
+              lv = list(eta1=c('z11', 'z12')),
+              group = 'treat',
+               data = example01,
+             family = 'poisson')
+summary(fit)
+}
+
 
 }

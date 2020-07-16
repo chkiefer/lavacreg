@@ -18,7 +18,6 @@ A data frame with 871 rows and 9 variables:
 example01
 }
 \description{
-A dataset containing the prices and other attributes of almost 54,000
-diamonds.
+An ACTIVE dataset containing ... .
 }
 \keyword{datasets}

@@ -9,7 +9,3 @@ compute_groupcond_logl <- function(x, muy, sigmayw, muwz, sigmaz, ghweight, detv
     .Call(`_CountReg_compute_groupcond_logl`, x, muy, sigmayw, muwz, sigmaz, ghweight, detvarz, dims)
 }
 
-rcpp_hello_world <- function() {
-    .Call(`_CountReg_rcpp_hello_world`)
-}
-

@@ -11,11 +11,15 @@
 #' @param family Poisson or negative binomial
 #' @return An object of type \code{countreg}.
 #' @examples
-#' countreg(forml = 'dv ~ eta1 + z41 + z42', 
+#' \dontrun{
+#' fit <- countreg(forml = 'dv ~ eta1 + z41 + z42', 
 #'               lv = list(eta1=c('z11', 'z12')),
 #'               group = 'treat',
 #'                data = example01,
 #'              family = 'poisson')
+#' summary(fit)
+#' }
+#' 
 #' 
 #' @export
 countreg <- function(forml, lv = NULL, group = NULL, data, family) {
