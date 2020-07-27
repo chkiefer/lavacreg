@@ -23,7 +23,9 @@ setClass("dataobj",
     no_groups = "integer",
     no_lv = "integer",
     no_w = "integer",
-    no_z = "integer"
+    no_z = "integer",
+    eq_constraints_Q2 = "matrix",
+    con_jac = "matrix"
   )
 )
 

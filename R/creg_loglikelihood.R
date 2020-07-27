@@ -38,13 +38,26 @@ creg_loglikelihood_function <- function(datalist, modellist) {
 creg_fit_model <- function(object) {
     
     pt <- creg_partable(object)
+    x.start <- as.numeric(pt$par[pt$par_free > 0L])
+    
+    if (object@dataobj@no_lv > 0L){
+      tmp <- creg_constraints(pt)
+      object@dataobj@eq_constraints_Q2 <- tmp$Q2
+      object@dataobj@con_jac <- tmp$con_jac
+      x.start <- x.start %*% object@dataobj@eq_constraints_Q2
+    }
+    
     dataobj <- object@dataobj
     datalist <- object@dataobj@datalist
     family <- object@input@family
-    x.start <- as.numeric(pt$par[pt$par_free != 0])
     
     objective_function <- function(x) {
-        if (anyNA(x)) return(+Inf)
+      if (anyNA(x)) return(+Inf)
+      
+      if (object@dataobj@no_lv > 0L){
+        x <- as.numeric(dataobj@eq_constraints_Q2 %*% x)
+      }    
+      
         pt$par[as.logical(pt$par_free)] <- x
         
         if (any(pt$par[pt$dest == "lv_grid" & pt$type == "var"] <= 0)) return(+Inf)
@@ -69,13 +82,20 @@ creg_fit_model <- function(object) {
                                  iter.max = 300))
     if (!fit$convergence){
         cat("Computing standard errors.\n")
-      vcov_fit <- solve(pracma::hessian(objective_function, fit$par))/sum(object@dataobj@n_cell)
+      information <- pracma::hessian(objective_function, fit$par)
+      vcov_fit <- solve(information)/sum(object@dataobj@n_cell)
     } else {
         vcov_fit <- NULL
         warning("CountReg warning: Estimation did not converge. Standard errors are not computed.")
     }
     
-    pt$par[as.logical(pt$par_free)] <- fit$par
+    if (object@dataobj@no_lv){
+      pt$par[pt$par_free > 0L] <- as.numeric(dataobj@eq_constraints_Q2 %*% fit$par)
+      if (!is.null(vcov_fit))  vcov_fit <- dataobj@eq_constraints_Q2 %*% vcov_fit %*% t(dataobj@eq_constraints_Q2)
+    } else {
+      pt$par[pt$par_free > 0L] <- fit$par
+    }
+    
     # print(pt)
     res <- list(fit = fit,
                 vcov_fit = vcov_fit,

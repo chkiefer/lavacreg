@@ -31,7 +31,9 @@ creg_create_datalist <- function(object, data){
     no_groups = no_groups,
     no_lv = no_lv,
     no_w = no_w,
-    no_z = no_z)
+    no_z = no_z,
+    eq_constraints_Q2 = matrix(),
+    con_jac = matrix())
   
   return(res)
 }

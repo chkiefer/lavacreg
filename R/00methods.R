@@ -4,6 +4,7 @@ setMethod("summary", signature(object = "countReg"),
     pt <- object@fit$pt
     pt$SE <- NULL
     SE <- sqrt(diag(object@fit$vcov_fit))
+    
     pt$SE[as.logical(pt$par_free)] <- SE
     print(pt)
   }
