@@ -23,7 +23,21 @@ creg_partable <- function(object) {
     no_z_covariance <- no_z * (no_z - 1)/2
     no_lv_covariance <- no_lv * (no_lv - 1)/2
     
+    input <- object@input
+    dvname <- input@dvname
+    lvnames <- input@lvnames
+    ovnames <- input@ovnames
+    cvnames <- input@cvnames
+    groupname <- input@groupname
+    
+    if(!length(groupname)) groupname <- ""
+    
+    covnames <- c(1, cvnames, lvnames)
+    
     # Parts of the partable
+    lhs <- NULL
+    op <- NULL
+    rhs <- NULL
     dest <- NULL
     type <- NULL
     group <- NULL
@@ -36,6 +50,9 @@ creg_partable <- function(object) {
     # create partable
     for (i in 1:no_groups) {
         # Group weights
+        lhs <- c(lhs, groupname)
+        op <- c(op, "%")
+        rhs <- c(rhs, "w")
         dest <- c(dest, "groupw")
         type <- c(type, NA)
         group <- c(group, i)
@@ -45,6 +62,9 @@ creg_partable <- function(object) {
         
         # Regression coefficients
         for (j in 0:no_cov) {
+            lhs <- c(lhs, dvname)
+            op <- c(op, "~")
+            rhs <- c(rhs, covnames[j+1])
             dest <- c(dest, "regcoef")
             type <- c(type, NA)
             group <- c(group, i)
@@ -64,6 +84,9 @@ creg_partable <- function(object) {
                 
                 if (no_ind_before) {
                     for (l in 1:no_ind_before) {
+                        lhs <- c(lhs, lvnames[j])
+                        op <- c(op, "=~")
+                        rhs <- c(rhs, ovnames[l])
                         dest <- c(dest, "mm")
                         type <- c(type, "lambda")
                         group <- c(group, i)
@@ -74,6 +97,9 @@ creg_partable <- function(object) {
                 
                 for (k in 1:no_ind) {
                     # Intercepts nu
+                    lhs <- c(lhs, ovnames[no_ind_before + k])
+                    op <- c(op, "~")
+                    rhs <- c(rhs, 1)
                     dest <- c(dest, "mm")
                     type <- c(type, "nu")
                     group <- c(group, i)
@@ -89,6 +115,9 @@ creg_partable <- function(object) {
                     }
                     
                     # Factor loadings lambda
+                    lhs <- c(lhs, lvnames[j])
+                    op <- c(op, "=~")
+                    rhs <- c(rhs, ovnames[no_ind_before + k])
                     dest <- c(dest, "mm")
                     type <- c(type, "lambda")
                     group <- c(group, i)
@@ -106,6 +135,9 @@ creg_partable <- function(object) {
                 
                 if (no_ind_after) {
                     for (l in 1:no_ind_after) {
+                        lhs <- c(lhs, lvnames[j])
+                        op <- c(op, "=~")
+                        rhs <- c(rhs, ovnames[no_ind_before + no_ind + l])
                         dest <- c(dest, "mm")
                         type <- c(type, "lambda")
                         group <- c(group, i)
@@ -122,6 +154,9 @@ creg_partable <- function(object) {
         # Means and variances of latent variables
         if (no_lv){
             for (j in 1:no_lv) {
+                lhs <- c(lhs, lvnames[j])
+                op <- c(op, "~")
+                rhs <- c(rhs, 1)
                 dest <- c(dest, "lv_grid")
                 type <- c(type, "mean")
                 group <- c(group, i)
@@ -129,6 +164,9 @@ creg_partable <- function(object) {
                 par_free <- c(par_free, par_free_id)
                 par <- c(par, 0)
                 
+                lhs <- c(lhs, lvnames[j])
+                op <- c(op, "~~")
+                rhs <- c(rhs, lvnames[j])
                 dest <- c(dest, "lv_grid")
                 type <- c(type, "var")
                 group <- c(group, i)
@@ -139,7 +177,11 @@ creg_partable <- function(object) {
         }
         
         if (no_lv_covariance){
+            names_lv_cov <- combn(lvnames, 2)
             for (j in 1:no_lv_covariance) {
+                lhs <- c(lhs, names_lv_cov[1,j])
+                op <- c(op, "~~")
+                rhs <- c(rhs, names_lv_cov[2,j])
                 dest <- c(dest, "lv_grid")
                 type <- c(type, "cov")
                 group <- c(group, i)
@@ -153,6 +195,9 @@ creg_partable <- function(object) {
         # Means and variances of manifest covariates
         if (no_z){
             for (j in 1:no_z) {
+                lhs <- c(lhs, cvnames[j])
+                op <- c(op, "~")
+                rhs <- c(rhs, 1)
                 dest <- c(dest, "z")
                 type <- c(type, "mean")
                 group <- c(group, i)
@@ -160,6 +205,9 @@ creg_partable <- function(object) {
                 par_free <- c(par_free, par_free_id)
                 par <- c(par, 0)
                 
+                lhs <- c(lhs, cvnames[j])
+                op <- c(op, "~~")
+                rhs <- c(rhs, cvnames[j])
                 dest <- c(dest, "z")
                 type <- c(type, "var")
                 group <- c(group, i)
@@ -170,7 +218,11 @@ creg_partable <- function(object) {
         }
         
         if (no_z_covariance){
+            names_z_cov <- combn(cvnames, 2)
             for (j in 1:no_z_covariance) {
+                lhs <- c(lhs, names_z_cov[1,j])
+                op <- c(op, "~~")
+                rhs <- c(rhs, names_z_cov[2,j])
                 dest <- c(dest, "z")
                 type <- c(type, "cov")
                 group <- c(group, i)
@@ -183,7 +235,11 @@ creg_partable <- function(object) {
         
         # Covariances between manifest and latent covariates
         if (no_z_lv_covariance){
+            names_z_lv_cov <- expand.grid(lvnames, cvnames, stringsAsFactors = FALSE)
             for (j in 1:no_z_lv_covariance) {
+                lhs <- c(lhs, names_z_lv_cov[j,1])
+                op <- c(op, "~~")
+                rhs <- c(rhs, names_z_lv_cov[j,2])
                 dest <- c(dest, "z")
                 type <- c(type, "cov_z_lv")
                 group <- c(group, i)
@@ -197,6 +253,15 @@ creg_partable <- function(object) {
         # Overdispersion and measurement error variance
         if (no_w){
             for (j in 0:no_w) {
+                if (j){
+                    lhs <- c(lhs, ovnames[j])
+                    op <- c(op, "~~")
+                    rhs <- c(rhs, ovnames[j])
+                } else {
+                    lhs <- c(lhs, dvname)
+                    op <- c(op, "~~")
+                    rhs <- c(rhs, dvname)
+                }
                 dest <- c(dest, "sigmaw")
                 type <- c(type, ifelse(j, "veps", "size"))
                 group <- c(group, i)
@@ -213,6 +278,9 @@ creg_partable <- function(object) {
                 par <- c(par, ifelse(j, 1, ifelse(family == "poisson", 0, 1)))
             }
         } else {
+            lhs <- c(lhs, dvname)
+            op <- c(op, "~~")
+            rhs <- c(rhs, dvname)
             dest <- c(dest, "sigmaw")
             type <- c(type,  "size")
             group <- c(group, i)
@@ -228,7 +296,7 @@ creg_partable <- function(object) {
         }
         
     }
-    pt <- data.frame(dest, type, group, par_free, par)
+    pt <- data.frame(lhs, op, rhs, dest, type, group, par_free, par)
     return(pt)
 }
 
