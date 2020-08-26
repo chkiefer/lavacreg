@@ -36,9 +36,29 @@ creg_loglikelihood_function <- function(datalist, modellist) {
 
 
 creg_fit_model <- function(object) {
-    
+    silent <- object@input@silent
+    se <- object@input@se
+  
+  
     pt <- creg_partable(object)
-    x.start <- as.numeric(pt$par[pt$par_free > 0L])
+    
+    if (object@dataobj@no_lv > 0L){
+      if (!silent){
+        cat("Computing starting values...")
+        time_start <- Sys.time()
+      } 
+      
+      x.start <- creg_starts_lv(object, pt)
+      
+      if (!silent){
+        time_diff <- Sys.time() - time_start
+        units(time_diff) <- "secs"
+        cat("done. Took:", round(time_diff,1), "s\n")
+      } 
+    } else {
+      x.start <- matrix(pt$par[pt$par_free > 0L], nrow = 1)
+    }
+    
     
     if (object@dataobj@no_lv > 0L){
       tmp <- creg_constraints(pt)
@@ -50,44 +70,65 @@ creg_fit_model <- function(object) {
     dataobj <- object@dataobj
     datalist <- object@dataobj@datalist
     family <- object@input@family
+
     
     objective_function <- function(x) {
       if (anyNA(x)) return(+Inf)
+      x <- matrix(x, ncol = 1)
       
       if (object@dataobj@no_lv > 0L){
         x <- as.numeric(dataobj@eq_constraints_Q2 %*% x)
       }    
       
-        pt$par[as.logical(pt$par_free)] <- x
+      pt$par[pt$par_free > 0L] <- x
+      
+      if (any(pt$par[pt$dest == "lv_grid" & pt$type == "var"] <= 0)) return(+Inf)
         
-        if (any(pt$par[pt$dest == "lv_grid" & pt$type == "var"] <= 0)) return(+Inf)
+      modellist <- creg_modellist(pt = pt, dataobj = dataobj, family = family)
         
-        modellist <- creg_modellist(pt = pt, dataobj = dataobj, family = family)
-        
-        substart <- Sys.time()
-        obj <- creg_loglikelihood_function(datalist, modellist)
-        cpp_time <- round(Sys.time() - substart,3)
-        
-        # duration <- (Sys.time() - start.time)
-        # units(duration) <- "secs"
-        # cat("objective:", obj, "time:", round(duration, 1), "cpp time:", cpp_time,"\n")
-        return(obj)
+      obj <- creg_loglikelihood_function(datalist, modellist)
+      # cat(t(round(obj, 3)),"\r")
+      return(obj)
     }
     
-    cat("Fitting the model.\n")
-    start.time <- Sys.time()
+    if (!silent){
+      cat("Fitting the model...")
+      time_start <- Sys.time()
+    } 
+    
     fit <- nlminb(x.start, objective_function, 
                   control = list(rel.tol = 1e-6,
                                  eval.max = 500,
                                  iter.max = 300))
-    if (!fit$convergence){
-        cat("Computing standard errors.\n")
+    if (!silent){
+      time_diff <- Sys.time() - time_start
+      units(time_diff) <- "secs"
+      cat("done. Took:", round(time_diff,1), "s\n")
+    } 
+    
+    if (!fit$convergence & se){
+      if (!silent){
+        cat("Computing standard errors...")
+        time_start <- Sys.time()
+      } 
       information <- pracma::hessian(objective_function, fit$par)
-      vcov_fit <- solve(information)/sum(object@dataobj@n_cell)
-    } else {
+      eigvals <- eigen(information, symmetric = TRUE,
+                       only.values = TRUE)$values
+      if(any(eigvals < -1 * .Machine$double.eps^(3/4))) {
+        warning("lavaan WARNING: information matrix is not positive definite; the model may not be identified")
+      }
+      vcov_fit <- try(solve(information)/sum(object@dataobj@n_cell), silent = TRUE)
+      if (!silent){
+        time_diff <-  Sys.time() - time_start
+        units(time_diff) <- "secs"
+        cat("done. Took:", round(time_diff,1), "s\n")
+      } 
+    } else if (fit$convergence & se){
         vcov_fit <- NULL
         warning("CountReg warning: Estimation did not converge. Standard errors are not computed.")
-    }
+    } else (
+      vcov_fit <- NULL
+    )
     
     if (object@dataobj@no_lv){
       pt$par[pt$par_free > 0L] <- as.numeric(dataobj@eq_constraints_Q2 %*% fit$par)
@@ -97,8 +138,8 @@ creg_fit_model <- function(object) {
     }
     
     # print(pt)
-    res <- list(fit = fit,
+    object@fit <- list(fit = fit,
                 vcov_fit = vcov_fit,
                 pt = pt)
-    return(res)
+    return(object)
 }

@@ -9,7 +9,10 @@ setClass("input",
     ovnames = "character",
     cvnames = "character",
     groupname = "character",
-    family = "character"
+    family = "character",
+    data = "data.frame",
+    silent = "logical",
+    se = "logical"
     )
 )
 

@@ -50,7 +50,7 @@ creg_partable <- function(object) {
             group <- c(group, i)
             par_free_id <- par_free_id + 1L
             par_free <- c(par_free, par_free_id)
-            par <- c(par, 0.1)
+            par <- c(par, 0.0)
         }
         
         # Measurement model
@@ -231,3 +231,41 @@ creg_partable <- function(object) {
     pt <- data.frame(dest, type, group, par_free, par)
     return(pt)
 }
+
+
+creg_starts_lv <- function(object, pt){
+   
+    dvname <- object@input@dvname
+    cvnames <- object@input@cvnames
+    lvnames <- object@input@lvnames
+    lvlist <- object@input@lvlist
+    groupname <- object@input@groupname
+    data <- object@input@data
+    for (lv in names(lvlist)){
+        data[lv] <- rowMeans(data[lvlist[[lv]]], na.rm = TRUE)
+    }
+    d_ov_starts <-  data[c(dvname, groupname, cvnames, lvnames)]
+    forml <- paste(dvname,"~",paste(cvnames, collapse = "+"), "+", paste(lvnames, collapse = "+"))
+    fit_starts <- countreg(forml = forml, 
+             lv = NULL,
+             group = groupname,
+             data = d_ov_starts,
+             family = object@input@family,
+             silent = TRUE,
+             se = FALSE)
+    pt_starts <- fit_starts@fit$pt
+    pt$par[pt$dest == "groupw"] <- pt_starts$par[pt_starts$dest == "groupw"]
+    pt$par[pt$dest == "regcoef"] <- pt_starts$par[pt_starts$dest == "regcoef"]
+    pt$par[!is.na(pt$type) & pt$type == "mean"] <- pt_starts$par[!is.na(pt_starts$type) & pt_starts$type == "mean"]
+    pt$par[!is.na(pt$type) & pt$type == "var"] <- pt_starts$par[!is.na(pt_starts$type) & pt_starts$type == "var"]
+    pt$par[!is.na(pt$type) & (pt$type == "cov" | pt$type == "cov_z_lv")] <- pt_starts$par[!is.na(pt_starts$type) & pt_starts$type == "cov"]
+    x.start_lv <- pt$par[pt$par_free > 0L]
+    return(x.start_lv)
+    
+}
+
+
+
+
+
+

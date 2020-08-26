@@ -1,4 +1,4 @@
-creg_create_input <- function(forml, lv, group, data, family){
+creg_create_input <- function(forml, lv, group, data, family, silent, se){
   # Convert formula and extract terms
   forml <- as.formula(forml)
   
@@ -52,7 +52,10 @@ creg_create_input <- function(forml, lv, group, data, family){
     ovnames = ovnames,
     cvnames = cvnames,
     groupname = group,
-    family = family)
+    family = family,
+    data = data,
+    silent = silent,
+    se = se)
   
   return(res)
 }

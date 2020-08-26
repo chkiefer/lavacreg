@@ -12,6 +12,7 @@ creg_modellist <- function(pt, dataobj, family) {
     groupw <- pt$par[pt$dest == "groupw"]
     
     modellist_g <- lapply(1:no_groups, function(g) {
+        
         pt_g <- subset(pt, group == g)
         data <- datalist[[g]]
         N_g <- n_cell[g]
@@ -103,7 +104,7 @@ creg_modellist <- function(pt, dataobj, family) {
         # 2.3 Conditional expectation and variance Z
         # Note that the inverse is needed in multivariate density
         if (no_lv & no_z){
-            muz <- t(z_mu + z_lv_cov %*% solve(lv_sigma) %*% t(lv_gauss_hermite_grid$X - lv_mu))
+            muz <- t(z_mu + z_lv_cov %*% solve(lv_sigma) %*% (t(lv_gauss_hermite_grid$X) - lv_mu))
             sigmaz <- solve(z_sigma - z_lv_cov %*% solve(lv_sigma) %*% t(z_lv_cov))
             detvarz <- 1/det(sigmaz)  # inverse, because matrix has been inversed
         } else if (no_z & !no_lv){

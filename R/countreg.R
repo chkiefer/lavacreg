@@ -22,14 +22,16 @@
 #' 
 #' 
 #' @export
-countreg <- function(forml, lv = NULL, group = NULL, data, family) {
+countreg <- function(forml, lv = NULL, group = NULL, data, family, silent = FALSE, se = TRUE) {
+  
   object <- new("countReg")
-  object@input <- creg_create_input(forml, lv, group, data, family)
+  object@input <- creg_create_input(forml, lv, group, data, family, silent, se)
     
   # Create datalist
   # i.e., split data in group-conditional datasets of dv and covariates
   object@dataobj <- creg_create_datalist(object, data)
     
-  object@fit <- creg_fit_model(object)
+  object <- creg_fit_model(object)
+  
   return(object)
 }
