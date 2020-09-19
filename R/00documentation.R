@@ -1,6 +1,6 @@
 #' A first example to illustrate 
 #'
-#' An ACTIVE dataset containing ... .
+#' A dataset containing ... .
 #'
 #' @format A data frame with 871 rows and 9 variables:
 #' \describe{

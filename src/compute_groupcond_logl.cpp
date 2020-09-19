@@ -25,8 +25,12 @@ double compute_groupcond_logl(NumericMatrix x,
   // the indicator is set to FALSE (i.e., NOT Poisson), otherwise Poisson is used 
   bool poisson = sigmayw[0] ? 0 : 1;
   double size;
+  double isize;
+  double gamisize;
   if (!poisson){
     size = 1/sigmayw[0];
+    isize = 1/size;
+    gamisize = tgamma(isize);
   }
   
   
@@ -79,8 +83,9 @@ double compute_groupcond_logl(NumericMatrix x,
         prod = ghweight[g] * pow(mu0, y0) * exp(-mu0) / tgamma(y0 + 1);
       } else {
         // Negative binomial density
-        // Note: large parts of density drawn to outer sum to avoid repeated computation
-        prod = ghweight[g] * tgamma(y0 + 1/size)/(tgamma(y0 + 1) * tgamma(1/size)) * pow(1/(1 + mu0*size), 1/size) * pow(1-1/(1 + mu0*size), y0);
+        // Note: parts of density drawn to outer sum to avoid repeated computation
+        double musize = 1/(mu0*size + 1);
+        prod = ghweight[g] * tgamma(y0 + isize)/tgamma(y0 + 1) * pow(musize, isize) * pow(1-musize, y0);
       }
       
       // Product for latent variable indicators W
@@ -110,10 +115,11 @@ double compute_groupcond_logl(NumericMatrix x,
       
       isum += prod * exp(-expsumw/2) * exp(-expsumz/2);
     }
+    if (!poisson){
+      isum = isum/gamisize;
+    }
     out += log(isum);
   }
   
   return out - N*log(cz*sqrt(detveps)*cw*sqrt(detvarz));
-  //return out;
-  //return expsumz;
 }
