@@ -1,10 +1,11 @@
 ---
-title: "Introduction to CountReg"
+title: "Introduction to lavacreg"
+subtitle: "Latent Variable Count Regression Models in R"
 author: "Christoph Kiefer"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction to CountReg}
+  %\VignetteIndexEntry{Introduction to lavacreg}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -21,7 +22,7 @@ knitr::opts_chunk$set(
 In this article, I will mainly focus on introducing the main function `countreg()`. The other functions available in this package are helper functions for `countreg()`. However, you might take a look at the documentation of the `example01` dataset, which we will use throughout this article to fit some count regression models. 
 
 ```{r setup}
-library(CountReg)
+library(lavacreg)
 ```
 After loading the library, we can use `example01`, a dataset from the ACTIVE cognitive trial. The variables are:
 
