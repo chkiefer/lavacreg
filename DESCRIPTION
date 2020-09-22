@@ -1,4 +1,4 @@
-Package: CountReg
+Package: lavacreg
 Type: Package
 Title: Estimation of Count Regression Models with Latent Covariates
 Version: 0.0-1
