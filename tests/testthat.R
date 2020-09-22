@@ -1,4 +1,4 @@
 library(testthat)
-library(CountReg)
+library(lavacreg)
 
-test_check("CountReg")
+test_check("lavacreg")

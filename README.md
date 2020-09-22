@@ -15,5 +15,5 @@ library(devtools)
 install_github("chkiefer/lavacreg")
 ```
 
-## Run CountReg
+## Run lavacreg
 The main function of the package is `countreg()`. There is an article available here on GitHub (https://chkiefer.github.io/lavacreg/articles/intro.html) to introduce you to its functionality.

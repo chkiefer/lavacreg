@@ -18,6 +18,6 @@ A data frame with 871 rows and 9 variables:
 example01
 }
 \description{
-An ACTIVE dataset containing ... .
+A dataset containing ... .
 }
 \keyword{datasets}

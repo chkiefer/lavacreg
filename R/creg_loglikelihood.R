@@ -23,7 +23,7 @@ creg_loglikelihood_function <- function(datalist, modellist) {
         if (any(sigmayw[-1] <= 0)) return(-Inf)
         if (family == "nbinom" & sigmayw[1] <= 0) return(-Inf)
         
-        obj.i <- CountReg::compute_groupcond_logl(x = data, muy = muy, sigmayw = sigmayw, muwz = muwz, 
+        obj.i <- compute_groupcond_logl(x = data, muy = muy, sigmayw = sigmayw, muwz = muwz, 
                                       sigmaz = sigmaz, ghweight = ghweight, detvarz = detvarz, dims = dims)
         return(obj.i)
     })
@@ -115,7 +115,7 @@ creg_fit_model <- function(object) {
       eigvals <- eigen(information, symmetric = TRUE,
                        only.values = TRUE)$values
       if(any(eigvals < -1 * .Machine$double.eps^(3/4))) {
-        warning("lavaan WARNING: information matrix is not positive definite; the model may not be identified")
+        warning("lavacreg WARNING: information matrix is not positive definite; the model may not be identified")
       }
       vcov_fit <- try(solve(information)/sum(object@dataobj@n_cell), silent = TRUE)
       if (!silent){
@@ -125,7 +125,7 @@ creg_fit_model <- function(object) {
       } 
     } else if (fit$convergence & se){
         vcov_fit <- NULL
-        warning("CountReg warning: Estimation did not converge. Standard errors are not computed.")
+        warning("lavacreg warning: Estimation did not converge. Standard errors are not computed.")
     } else (
       vcov_fit <- NULL
     )

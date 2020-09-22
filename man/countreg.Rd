@@ -4,7 +4,15 @@
 \alias{countreg}
 \title{Fitting Count Regression Models with Latent Covariates}
 \usage{
-countreg(forml, lv = NULL, group = NULL, data, family)
+countreg(
+  forml,
+  lv = NULL,
+  group = NULL,
+  data,
+  family,
+  silent = FALSE,
+  se = TRUE
+)
 }
 \arguments{
 \item{lv}{Definition of the latent variables.}
