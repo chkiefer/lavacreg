@@ -24,7 +24,7 @@
 #' @export
 countreg <- function(forml, lv = NULL, group = NULL, data, family, silent = FALSE, se = TRUE) {
   
-  object <- new("countReg")
+  object <- new("lavacreg")
   object@input <- creg_create_input(forml, lv, group, data, family, silent, se)
     
   # Create datalist

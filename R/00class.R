@@ -36,7 +36,7 @@ setClass("dataobj",
 
 
 #' @export
-setClass("countReg",
+setClass("lavacreg",
   representation(
     input              = "input",
     dataobj           = "dataobj",
