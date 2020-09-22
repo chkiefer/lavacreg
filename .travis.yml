@@ -1,0 +1,5 @@
+language: R
+r:
+  - oldrel
+  - release
+  - devel
