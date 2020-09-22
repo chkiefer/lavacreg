@@ -1,7 +1,7 @@
 Package: lavacreg
 Type: Package
 Title: Estimation of Count Regression Models with Latent Covariates
-Version: 0.0-1
+Version: 0.1-0.9000
 Date: 2020-07-09
 Author: Christoph Kiefer
 Maintainer: Christoph Kiefer <kiefer@psych.rwth-aachen.de>
