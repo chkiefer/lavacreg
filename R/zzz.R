@@ -5,5 +5,5 @@
 }
 
 .onUnload <- function(libpath) {
-    library.dynam.unload("CountReg", libpath)
+    library.dynam.unload("lavacreg", libpath)
 }

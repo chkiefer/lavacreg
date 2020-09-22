@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // compute_groupcond_logl
 double compute_groupcond_logl(NumericMatrix x, NumericMatrix muy, NumericVector sigmayw, NumericMatrix muwz, NumericMatrix sigmaz, NumericVector ghweight, double detvarz, IntegerVector dims);
-RcppExport SEXP _CountReg_compute_groupcond_logl(SEXP xSEXP, SEXP muySEXP, SEXP sigmaywSEXP, SEXP muwzSEXP, SEXP sigmazSEXP, SEXP ghweightSEXP, SEXP detvarzSEXP, SEXP dimsSEXP) {
+RcppExport SEXP _lavacreg_compute_groupcond_logl(SEXP xSEXP, SEXP muySEXP, SEXP sigmaywSEXP, SEXP muwzSEXP, SEXP sigmazSEXP, SEXP ghweightSEXP, SEXP detvarzSEXP, SEXP dimsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -25,11 +25,11 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_CountReg_compute_groupcond_logl", (DL_FUNC) &_CountReg_compute_groupcond_logl, 8},
+    {"_lavacreg_compute_groupcond_logl", (DL_FUNC) &_lavacreg_compute_groupcond_logl, 8},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_CountReg(DllInfo *dll) {
+RcppExport void R_init_lavacreg(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }
