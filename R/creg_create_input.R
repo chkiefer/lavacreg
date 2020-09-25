@@ -72,6 +72,8 @@ creg_create_input <- function(forml, lv, group, data, family, silent, se){
 #' 
 #' Checks if the variable is a count variable
 #' 
+#' Details
+#' 
 #'  @param x vector to be checked
 #'  @param tol Tolerance
 #'  

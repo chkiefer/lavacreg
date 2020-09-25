@@ -10,6 +10,8 @@ is.count(x, tol = .Machine$double.eps^0.5)
 Checks if the variable is a count variable
 }
 \details{
-@param x vector to be checked
+Details
+
+ @param x vector to be checked
  @param tol Tolerance
 }
