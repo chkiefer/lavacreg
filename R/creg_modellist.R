@@ -1,6 +1,6 @@
-#' Transform Partable to Modellist
-#'
-#' Modellist contains mu, sigmaw, sigmaz for each group
+# Transform Partable to Modellist
+#
+# Modellist contains mu, sigmaw, sigmaz for each group
 
 creg_modellist <- function(pt, dataobj, family) {
     datalist <- dataobj@datalist
@@ -142,7 +142,7 @@ creg_modellist <- function(pt, dataobj, family) {
     
 }
 
-#' Taken from lavaan
+# Taken from lavaan
 creg_matrix_vech_reverse <- function(x, diagonal = TRUE) {
     if (diagonal) {
         p <- (sqrt(1 + 8 * length(x)) - 1)/2
@@ -156,7 +156,7 @@ creg_matrix_vech_reverse <- function(x, diagonal = TRUE) {
     S
 }
 
-#' Taken from lavaan
+# Taken from lavaan
 creg_matrix_vech_idx <- function(n = 1L, diagonal = TRUE) {
     n <- as.integer(n)
     ROW <- matrix(seq_len(n), n, n)
@@ -165,7 +165,7 @@ creg_matrix_vech_idx <- function(n = 1L, diagonal = TRUE) {
         which(ROW >= COL) else which(ROW > COL)
 }
 
-#' Taken from lavaan
+# Taken from lavaan
 creg_matrix_vechru_idx <- function(n = 1L, diagonal = TRUE) {
     n <- as.integer(n)
     ROW <- matrix(seq_len(n), n, n)

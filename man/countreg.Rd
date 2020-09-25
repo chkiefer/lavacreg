@@ -15,6 +15,8 @@ countreg(
 )
 }
 \arguments{
+\item{forml}{an object of class for \code{\link[stats]{formula}} (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under Details.}
+
 \item{lv}{Definition of the latent variables.}
 
 \item{group}{A group variable}
@@ -23,7 +25,9 @@ countreg(
 
 \item{family}{Poisson or negative binomial}
 
-\item{formula}{an object of class for \code{\link[stats]{formula}} (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under Details.}
+\item{silent}{Should informations about the estimation process be suppressed?}
+
+\item{se}{Should standard errors be computed? (Can take a while for complex models)}
 }
 \value{
 An object of type \code{countreg}.

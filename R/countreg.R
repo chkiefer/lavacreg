@@ -4,11 +4,13 @@
 #' 
 #' Details
 #' 
-#' @param formula an object of class for \code{\link[stats]{formula}} (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under Details.
+#' @param forml an object of class for \code{\link[stats]{formula}} (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under Details.
 #' @param lv Definition of the latent variables.
 #' @param group A group variable
 #' @param data a data frame
 #' @param family Poisson or negative binomial
+#' @param silent Should informations about the estimation process be suppressed?
+#' @param se Should standard errors be computed? (Can take a while for complex models)
 #' @return An object of type \code{countreg}.
 #' @examples
 #' \dontrun{

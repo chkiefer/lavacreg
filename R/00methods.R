@@ -1,4 +1,3 @@
-#' @export
 setMethod("summary", signature(object = "lavacreg"),
   function(object, ...) {
     pt <- object@fit$pt

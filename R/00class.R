@@ -1,4 +1,3 @@
-#' @export
 setClass("input",
   representation(
     forml = "formula",
@@ -16,8 +15,6 @@ setClass("input",
     )
 )
 
-
-#' @export
 setClass("dataobj",
   representation(
     datalist           = "list",
@@ -33,9 +30,6 @@ setClass("dataobj",
 )
 
 
-
-
-#' @export
 setClass("lavacreg",
   representation(
     input              = "input",
