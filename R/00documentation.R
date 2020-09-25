@@ -15,3 +15,16 @@
 #'   \item{z43}{Third indicator of depression}
 #' }
 "example01"
+
+
+#' lavacreg
+#' 
+#' Latent Variable Count Regression Models
+#' 
+#' @docType package
+#' @author Christoph Kiefer <kiefer@psych.rwth-aachen.de>
+#' @import Rcpp MultiGHQuad pracma
+#' @importFrom Rcpp evalCpp
+#' @useDynLib lavacreg
+#' @name lavacreg
+NULL  
