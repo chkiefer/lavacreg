@@ -300,7 +300,14 @@ creg_partable <- function(object) {
     return(pt)
 }
 
-
+#' Start values
+#' 
+#' Compute starting values for a latent variable model
+#' 
+#'  @param object a lavacreg object
+#'  @param pt a parameter table with initial starting values
+#'  
+#' @noRd
 creg_starts_lv <- function(object, pt){
    
     dvname <- object@input@dvname

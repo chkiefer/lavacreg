@@ -1,3 +1,8 @@
+#' Input object 
+#' 
+#' Takes the lavacreg input
+#'  
+#' @noRd
 setClass("input",
   representation(
     forml = "formula",
@@ -15,6 +20,11 @@ setClass("input",
     )
 )
 
+#' Data object 
+#' 
+#' Takes the lavacreg data structure
+#'  
+#' @noRd
 setClass("dataobj",
   representation(
     datalist           = "list",
@@ -29,7 +39,11 @@ setClass("dataobj",
   )
 )
 
-
+#' lavacreg object 
+#' 
+#' The overall object holding all information
+#'  
+#' @noRd
 setClass("lavacreg",
   representation(
     input              = "input",

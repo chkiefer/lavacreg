@@ -1,3 +1,10 @@
+#' Create input
+#' 
+#' Turns the input into an input object
+#' 
+#'  @inheritParams countreg
+#'  
+#' @noRd
 creg_create_input <- function(forml, lv, group, data, family, silent, se){
   # Convert formula and extract terms
   forml <- as.formula(forml)
@@ -61,7 +68,14 @@ creg_create_input <- function(forml, lv, group, data, family, silent, se){
 }
 
 
-
+#' Count variable check
+#' 
+#' Checks if the variable is a count variable
+#' 
+#'  @param x vector to be checked
+#'  @param tol Tolerance
+#'  
+#' @export
 is.count <- function(x, tol = .Machine$double.eps^0.5){
     x <- na.omit(x)
     x <- unlist(x)

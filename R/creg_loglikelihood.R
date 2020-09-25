@@ -1,3 +1,11 @@
+#' lavacreg log-likelihood function
+#' 
+#' Computes the likelihood function using the C++ function for group-conditional likelihoods
+#' 
+#'  @param datalist Datalist
+#'  @param modellist Modellist
+#'  
+#' @noRd
 creg_loglikelihood_function <- function(datalist, modellist) {
     kappas <- modellist$groupw
     n_cell <- modellist$n_cell
@@ -34,7 +42,13 @@ creg_loglikelihood_function <- function(datalist, modellist) {
 }
 
 
-
+#' Fit the lavacreg model
+#' 
+#' A wrapper for starting values, optimizing loglik and computatin of standard errors
+#' 
+#'  @param object A lavacreg object
+#'  
+#' @noRd
 creg_fit_model <- function(object) {
     silent <- object@input@silent
     se <- object@input@se

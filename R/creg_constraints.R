@@ -1,3 +1,10 @@
+#' Add linear constraints
+#' 
+#' Adds linear constraints for group-invariant measurement models
+#' 
+#' @param pt Parameter table
+#' 
+#' @noRd
 creg_constraints <- function(pt){
   # What I need:
   # constraint matrix A

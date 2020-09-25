@@ -1,7 +1,12 @@
-# Transform Partable to Modellist
-#
-# Modellist contains mu, sigmaw, sigmaz for each group
-
+#' Transform Partable to Modellist
+#'
+#' Modellist contains mu, sigmaw, sigmaz for each group
+#' 
+#' @param pt Parameter table
+#' @param dataobj Data object (including the data list)
+#' @param family Poisson or negative binomial
+#' 
+#' @noRd
 creg_modellist <- function(pt, dataobj, family) {
     datalist <- dataobj@datalist
     no_groups <- dataobj@no_groups
@@ -142,7 +147,14 @@ creg_modellist <- function(pt, dataobj, family) {
     
 }
 
-# Taken from lavaan
+#' Matrix to Vech reverse
+#' 
+#' Turns a Vech to a symmetric matrix. Taken from the lavaan package
+#' 
+#' @param x Vech to be transformed
+#' @param diagonal Is the diagonal of the matrix included in x?
+#' 
+#' @noRd
 creg_matrix_vech_reverse <- function(x, diagonal = TRUE) {
     if (diagonal) {
         p <- (sqrt(1 + 8 * length(x)) - 1)/2
@@ -156,7 +168,14 @@ creg_matrix_vech_reverse <- function(x, diagonal = TRUE) {
     S
 }
 
-# Taken from lavaan
+#' Helper for: Matrix to Vech revers
+#' 
+#' Helper function. Taken from the lavaan package
+#' 
+#' @param n dimension of matrix
+#' @param diagonal Is the diagonal of the matrix included in x?
+#' 
+#' @noRd
 creg_matrix_vech_idx <- function(n = 1L, diagonal = TRUE) {
     n <- as.integer(n)
     ROW <- matrix(seq_len(n), n, n)
@@ -165,7 +184,14 @@ creg_matrix_vech_idx <- function(n = 1L, diagonal = TRUE) {
         which(ROW >= COL) else which(ROW > COL)
 }
 
-# Taken from lavaan
+#' Helper for Matrix to Vech reverse
+#' 
+#' helper function. Taken from the lavaan package
+#' 
+#' @param n number
+#' @param diagonal Is the diagonal of the matrix included in x?
+#' 
+#' @noRd
 creg_matrix_vechru_idx <- function(n = 1L, diagonal = TRUE) {
     n <- as.integer(n)
     ROW <- matrix(seq_len(n), n, n)

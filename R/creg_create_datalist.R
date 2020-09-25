@@ -1,3 +1,11 @@
+#' Create a datalist object
+#' 
+#' Creates the dataobject required for computations
+#' 
+#' @param object a lavacreg object
+#' @param data the dataframe
+#' 
+#' @noRd
 creg_create_datalist <- function(object, data){
   input <- object@input
   dvname <- input@dvname
