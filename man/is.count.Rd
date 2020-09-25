@@ -6,12 +6,14 @@
 \usage{
 is.count(x, tol = .Machine$double.eps^0.5)
 }
+\arguments{
+\item{x}{vector to be checked}
+
+\item{tol}{Tolerance}
+}
 \description{
 Checks if the variable is a count variable
 }
 \details{
 Details
-
- @param x vector to be checked
- @param tol Tolerance
 }

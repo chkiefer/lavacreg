@@ -74,8 +74,8 @@ creg_create_input <- function(forml, lv, group, data, family, silent, se){
 #' 
 #' Details
 #' 
-#'  @param x vector to be checked
-#'  @param tol Tolerance
+#' @param x vector to be checked
+#' @param tol Tolerance
 #'  
 #' @export
 is.count <- function(x, tol = .Machine$double.eps^0.5){
