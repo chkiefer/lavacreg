@@ -26,14 +26,12 @@ double compute_groupcond_logl(NumericMatrix x,
   bool poisson = sigmayw[0] ? 0 : 1;
   double size;
   double isize;
-  double gamisize;
+  double gamisize = 1.0;
   if (!poisson){
     size = 1/sigmayw[0];
     isize = 1/size;
-    gamisize = tgamma(isize);
+    gamisize = std::tgamma(isize);
   }
-  
-  
   
   // loop dimensions
   int N = dims[0];
@@ -42,13 +40,14 @@ double compute_groupcond_logl(NumericMatrix x,
   int wn = dims[3];
   
   // constants
-  double cz = pow(sqrt(2*PI), zn); 
-  double cw = pow(sqrt(2*PI), wn); 
+  double sqrtpi = std::sqrt(2*PI);
+  double cz = std::pow(sqrtpi, zn);
+  double cw = std::pow(sqrtpi, wn);
   
   // If latent variables present, precompute determinant for veps-matrix 
   // (note: measurement errors are independent, multiplicate diagonal elements)
   // else it is 1 and does not hurt in later multiplications
-  double detveps = 1;
+  double detveps = 1.0;
   if (wn){
     for (int v=0; v < wn; ++v){
       detveps *= sigmayw[v + 1];
@@ -62,31 +61,37 @@ double compute_groupcond_logl(NumericMatrix x,
   double prod;
   
   // Loops for computing densities and summing things up
-  double out = 0;
+  long double out = 0.0;
   
   for (int i = 0; i < N; ++i){
     // Outer sum of log-likelihood (sums over individual observations)
-    isum = 0;
+    isum = 0.0;
     
     for (int g = 0; g < ghpoints; ++g){
       // Inner sum for Gauss-Hermite quadrature, if latent variables present
       // else: only 1 summand/point, weight = 1
-      expsumz = 0;
-      expsumw = 0;
-      prod = 1;
+      expsumz = 0.0;
+      expsumw = 0.0;
+      prod = 0.0;
       double y0 = x(i, 0);
       double mu0 = muy(g, i);
 
       // Product starts with GH-weight and choosen count density
       if (poisson){
         // Poisson density
-        prod = ghweight[g] * pow(mu0, y0) * exp(-mu0) / tgamma(y0 + 1);
+        // prod = ghweight[g] * std::pow(mu0, y0) * exp(-mu0) / std::tgamma(y0 + 1);
+        prod = std::log(ghweight[g]) + y0 * std::log(mu0) - mu0 - std::lgamma(y0 + 1) ;
       } else {
         // Negative binomial density
         // Note: parts of density drawn to outer sum to avoid repeated computation
-        double musize = 1/(mu0*size + 1);
-        prod = ghweight[g] * tgamma(y0 + isize)/(tgamma(y0 + 1) * gamisize) * pow(musize, isize) * pow(1-musize, y0);
-        //prod = ghweight[g] * tgamma(y0 + isize)/(tgamma(y0 + 1) * gamisize) * pow(musize, isize) * pow(1-musize, y0);
+        
+        // Version with differences between 32 and 64bit systems
+        // double musize = 1/(mu0*size + 1);
+        // prod = ghweight[g] * std::tgamma(y0 + isize)/std::tgamma(y0 + 1) * std::pow(musize, isize) * std::pow(1-musize, y0);
+        
+        // Test of numerical stable versions
+        double musize = mu0*size + 1;
+        prod = std::log(ghweight[g]) + y0 * std::log(1-1/musize) - isize * std::log(musize) + std::lgamma(y0 + isize) - std::lgamma(y0 + 1);
       }
       
       // Product for latent variable indicators W
@@ -114,13 +119,12 @@ double compute_groupcond_logl(NumericMatrix x,
         }
       }
       
-      isum += prod * exp(-expsumw/2) * exp(-expsumz/2);
+      //isum +=  prod * std::exp(-expsumw/2) * std::exp(-expsumz/2);
+      isum += std::exp(prod - expsumw/2 - expsumz/2);
     }
-    // if (!poisson){
-    //   isum = isum/gamisize;
-    // }
-    out += log(isum);
+
+    out += std::log(isum);
   }
   
-  return out - N*log(cz*sqrt(detveps)*cw*sqrt(detvarz));
+  return out - N*std::log(cz*std::sqrt(detveps)*cw*std::sqrt(detvarz)*gamisize);
 }

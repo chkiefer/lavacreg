@@ -13,6 +13,6 @@
 #' @param dims Integer vector with dimensional information, in order group size, integration points, number of Z, and number of W
 #' @export
 compute_groupcond_logl <- function(x, muy, sigmayw, muwz, sigmaz, ghweight, detvarz, dims) {
-    .Call('_lavacreg_compute_groupcond_logl', PACKAGE = 'lavacreg', x, muy, sigmayw, muwz, sigmaz, ghweight, detvarz, dims)
+    .Call(`_lavacreg_compute_groupcond_logl`, x, muy, sigmayw, muwz, sigmaz, ghweight, detvarz, dims)
 }
 
