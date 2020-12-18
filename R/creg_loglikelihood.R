@@ -44,7 +44,7 @@ creg_loglikelihood_function <- function(datalist, modellist) {
 
 #' Fit the lavacreg model
 #' 
-#' A wrapper for starting values, optimizing loglik and computatin of standard errors
+#' A wrapper for starting values, optimizing loglik and computation of standard errors
 #' 
 #'  @param object A lavacreg object
 #'  
@@ -73,8 +73,8 @@ creg_fit_model <- function(object) {
       x.start <- matrix(pt$par[pt$par_free > 0L], nrow = 1)
     }
     
-    
-    if (object@dataobj@no_lv > 0L){
+    # Constraints currently only used for measurement invariance in latent variables
+    if (object@dataobj@no_lv > 0L & object@dataobj@no_groups >= 2L){
       tmp <- creg_constraints(pt)
       object@dataobj@eq_constraints_Q2 <- tmp$Q2
       object@dataobj@con_jac <- tmp$con_jac
@@ -90,7 +90,7 @@ creg_fit_model <- function(object) {
       if (anyNA(x)) return(+Inf)
       x <- matrix(x, ncol = 1)
       
-      if (object@dataobj@no_lv > 0L){
+      if (object@dataobj@no_lv > 0L & object@dataobj@no_groups >= 2L){
         x <- as.numeric(dataobj@eq_constraints_Q2 %*% x)
       }    
       
@@ -144,7 +144,7 @@ creg_fit_model <- function(object) {
       vcov_fit <- NULL
     )
     
-    if (object@dataobj@no_lv){
+    if (object@dataobj@no_lv & object@dataobj@no_groups >= 2){
       pt$par[pt$par_free > 0L] <- as.numeric(dataobj@eq_constraints_Q2 %*% fit$par)
       if (!is.null(vcov_fit))  vcov_fit <- dataobj@eq_constraints_Q2 %*% vcov_fit %*% t(dataobj@eq_constraints_Q2)
     } else {
