@@ -14,9 +14,9 @@ creg_loglikelihood_function <- function(datalist, modellist) {
     
     obj.group <- sum(dpois(n_cell, exp(kappas), log = TRUE))
     
-    obj.ingroups <- sapply(1:no_groups, function(g) {
-        data <- datalist[[g]]
-        modellist_g <- modellist$modellist_g[[g]]
+    obj.ingroups <- mapply(function(data, modellist_g) {
+        #data <- datalist[[g]]
+        #modellist_g <- modellist$modellist_g[[g]]
         muy <- modellist_g$muy
         sigmayw <- modellist_g$sigmayw
         muwz <- modellist_g$muwz
@@ -34,7 +34,7 @@ creg_loglikelihood_function <- function(datalist, modellist) {
         obj.i <- compute_groupcond_logl(x = data, muy = muy, sigmayw = sigmayw, muwz = muwz, 
                                       sigmaz = sigmaz, ghweight = ghweight, detvarz = detvarz, dims = dims)
         return(obj.i)
-    })
+    }, data = datalist, modellist_g = modellist$modellist_g, SIMPLIFY = TRUE)
     
     obj <- -(obj.group + sum(obj.ingroups))/sum(n_cell)
     return(obj)

@@ -35,7 +35,8 @@ setClass("dataobj",
     no_w = "integer",
     no_z = "integer",
     eq_constraints_Q2 = "matrix",
-    con_jac = "matrix"
+    con_jac = "matrix",
+    init_grid = "list"
   )
 )
 

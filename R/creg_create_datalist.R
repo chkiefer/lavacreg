@@ -31,6 +31,8 @@ creg_create_datalist <- function(object, data){
   no_w <- length(ovnames)
   no_z <- length(cvnames)
   
+  init_grid <- list()
+  if (no_lv) init_grid <- creg_init_grid(Q = no_lv, ip = 15L)
   
   res <- new("dataobj",
     datalist           = datalist,
@@ -41,7 +43,8 @@ creg_create_datalist <- function(object, data){
     no_w = no_w,
     no_z = no_z,
     eq_constraints_Q2 = matrix(),
-    con_jac = matrix())
+    con_jac = matrix(),
+    init_grid = init_grid)
   
   return(res)
 }
