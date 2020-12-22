@@ -33,7 +33,7 @@ creg_loglikelihood_function <- function(datalist, modellist) {
         
         obj.i <- compute_groupcond_logl(x = data, muy = muy, sigmayw = sigmayw, muwz = muwz, 
                                       sigmaz = sigmaz, ghweight = ghweight, detvarz = detvarz, dims = dims)
-        if(is.na(obj.i)) obj.i <- +Inf
+        if(is.na(obj.i)) obj.i <- -Inf
         return(obj.i)
     }, data = datalist, modellist_g = modellist$modellist_g, SIMPLIFY = TRUE)
     

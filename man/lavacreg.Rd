@@ -8,5 +8,5 @@
 Latent Variable Count Regression Models
 }
 \author{
-Christoph Kiefer <kiefer@psych.rwth-aachen.de>
+Christoph Kiefer <christoph.kiefer@uni-bielefeld.de>
 }

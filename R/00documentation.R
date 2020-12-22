@@ -22,8 +22,8 @@
 #' Latent Variable Count Regression Models
 #' 
 #' @docType package
-#' @author Christoph Kiefer <kiefer@psych.rwth-aachen.de>
-#' @import Rcpp MultiGHQuad pracma
+#' @author Christoph Kiefer <christoph.kiefer@uni-bielefeld.de>
+#' @import Rcpp fastGHQuad pracma
 #' @importFrom Rcpp evalCpp
 #' @useDynLib lavacreg
 #' @name lavacreg
