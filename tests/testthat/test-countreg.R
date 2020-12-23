@@ -308,7 +308,7 @@ test_that("two-group one latent, one manifest covariate negative binomial", {
                   lv = list(eta1 = c("z41", "z42", "z43")),
                   group = 'treat',
                   data = example01,
-                  family = 'negbin',
+                  family = 'nbinom',
                   se = FALSE)
   # Converged?
   conv <- fit@fit$fit$convergence
@@ -327,7 +327,7 @@ test_that("two-group one latent, one manifest covariate negative binomial", {
             6.09355591,  2.86146567, -0.13330789, -0.02223673,  0.00000000,  1.00000000, 
            -0.11744052,  1.29223974, -0.85183243,  1.59771173,  1.67656884,  1.89033247,  
             1.40280054,  1.48848257,  0.60500366, 16.32127791,  1.68752564,  2.05397280,  0.26490092)
-  expect_equal(par, comp, tolerance = 1e-5)
+  expect_equal(par, comp, tolerance = 1e-2)
 })
 
 
@@ -409,7 +409,6 @@ test_that("two-group two latent, one manifest covariates Poisson", {
                   data = example01,
                   family = 'poisson',
                   se = FALSE)
-  
   
   # Converged?
   conv <- fit@fit$fit$convergence
