@@ -80,7 +80,7 @@ double compute_groupcond_logl(NumericMatrix x,
       if (poisson){
         // Poisson density
         // prod = ghweight[g] * std::pow(mu0, y0) * exp(-mu0) / std::tgamma(y0 + 1);
-        prod = std::log(ghweight[g]) + y0 * std::log(mu0) - mu0 - std::lgamma(y0 + 1) ;
+        prod = std::log(ghweight[g]) + y0 * mu0 - std::exp(mu0) - std::lgamma(y0 + 1) ;
       } else {
         // Negative binomial density
         // Note: parts of density drawn to outer sum to avoid repeated computation
@@ -90,7 +90,7 @@ double compute_groupcond_logl(NumericMatrix x,
         // prod = ghweight[g] * std::tgamma(y0 + isize)/std::tgamma(y0 + 1) * std::pow(musize, isize) * std::pow(1-musize, y0);
         
         // Test of numerical stable versions
-        double musize = mu0*size + 1;
+        double musize = std::exp(mu0)*size + 1;
         prod = std::log(ghweight[g]) + y0 * std::log(1-1/musize) - isize * std::log(musize) + std::lgamma(y0 + isize) - std::lgamma(y0 + 1);
       }
       

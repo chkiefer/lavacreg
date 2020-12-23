@@ -16,7 +16,7 @@ test_that("intercept-only negative binomial", {
   fit <- countreg(forml='dv ~ 1',
                   group = NULL,
                   data = example01,
-                  family = 'negbin')
+                  family = 'nbinom')
   par <- fit@fit$pt$par
   comp <- c(6.769614, 2.555453, 8.626471)
   expect_equal(length(par), 3)
@@ -44,7 +44,7 @@ test_that("two-group intercept-only negative binomial", {
   fit <- countreg(forml='dv ~ 1',
                   group = "treat",
                   data = example01,
-                  family = 'negbin')
+                  family = 'nbinom')
   pt <- fit@fit$pt
   par <- pt$par
   comp <- c(6.060023, 2.445382, 9.247623, 6.092560, 2.651660, 9.600843)
@@ -75,7 +75,7 @@ test_that("two-group one manifest covariate negative binomial", {
   fit <- countreg(forml='dv ~ z12',
                   group = "treat",
                   data = example01,
-                  family = 'negbin',
+                  family = 'nbinom',
                   se = FALSE)
   pt <- fit@fit$pt
   par <- pt$par
@@ -121,7 +121,7 @@ test_that("two-group three manifest covariates negative binomial", {
   fit <- countreg(forml='dv ~ z12 + z11 + z21',
                   group = "treat",
                   data = example01,
-                  family = 'negbin',
+                  family = 'nbinom',
                   se = FALSE)
   # Converged?
   conv <- fit@fit$fit$convergence
@@ -180,7 +180,7 @@ test_that("two-group one latent covariate negative binomial", {
                   lv = list(eta1 = c("z21", "z22")),
                   group = 'treat',
                   data = example01,
-                  family = 'negbin',
+                  family = 'nbinom',
                   se = FALSE)
   # Converged?
   conv <- fit@fit$fit$convergence
@@ -197,7 +197,7 @@ test_that("two-group one latent covariate negative binomial", {
             1.31764183, 3.8767443, 0.43434811, 11.15574397, 0.66700314, 
             0.03291596, 6.09356999, 1.46169048, 0.29855387, 0, 1, -0.88976068, 
             1.31764183, 3.95304398, 0.22302417, 12.90964003, 0.5821887, 0.14893486)
-  expect_equal(par, comp, tolerance = 1e-5)
+  expect_equal(par, comp, tolerance = 1e-2)
 })
 
 
@@ -244,8 +244,8 @@ test_that("two-group two latent covariates negative binomial", {
                             eta2 = c("z41", "z42", "z43")),
                   group = 'treat',
                   data = example01,
-                  family = 'negbin',
-                  se = TRUE)
+                  family = 'nbinom',
+                  se = FALSE)
   # Converged?
   conv <- fit@fit$fit$convergence
   expect_equal(conv, 0)
@@ -304,7 +304,6 @@ test_that("two-group one latent, one manifest covariate Poisson", {
 
 
 test_that("two-group one latent, one manifest covariate negative binomial", {
-  skip("This test can take up to 10 minutes.")
   fit <- countreg(forml='dv ~ eta1 + z12',
                   lv = list(eta1 = c("z41", "z42", "z43")),
                   group = 'treat',

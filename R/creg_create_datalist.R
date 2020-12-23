@@ -32,7 +32,9 @@ creg_create_datalist <- function(object, data){
   no_z <- length(cvnames)
   
   init_grid <- list()
-  if (no_lv) init_grid <- creg_init_grid(Q = no_lv, ip = 15L)
+  no_integration_points <- 15L
+  if (no_lv) init_grid <- creg_init_grid(Q = no_lv, ip = no_integration_points)
+  
   
   res <- new("dataobj",
     datalist           = datalist,
