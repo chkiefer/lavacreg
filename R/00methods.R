@@ -1,4 +1,5 @@
 # Summary
+#' @noRd
 #' @export
 setMethod("summary", "lavacreg",
   function(object, ...) {
