@@ -1,9 +1,6 @@
-#' Summary
-#' 
-#' Summarize results
-#'  
-#' @noRd
-setMethod("summary", signature(object = "lavacreg"),
+# Summary
+#' @export
+setMethod("summary", "lavacreg",
   function(object, ...) {
     pt <- object@fit$pt
     pt$SE <- NULL
