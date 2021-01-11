@@ -4,7 +4,7 @@
 \alias{summary,lavacreg-method}
 \title{Summary of a lavacreg object}
 \usage{
-\S4method{summary}{lavacreg}(object, ...)
+\S4method{summary}{lavacreg}(object)
 }
 \arguments{
 \item{object}{lavacreg object}

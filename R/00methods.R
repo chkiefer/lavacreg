@@ -2,7 +2,7 @@
 #' @export
 #' @param object lavacreg object
 setMethod("summary", signature(object="lavacreg"),
-  function(object, ...) {
+  function(object) {
     pt <- object@fit$pt
     pt$SE <- NULL
     SE <- sqrt(diag(object@fit$vcov_fit))
