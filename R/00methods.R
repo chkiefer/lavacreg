@@ -1,7 +1,7 @@
-# Summary
-#' @noRd
+#' Summary of a lavacreg object
 #' @export
-setMethod("summary", "lavacreg",
+#' @param object lavacreg object
+setMethod("summary", signature(object="lavacreg"),
   function(object, ...) {
     pt <- object@fit$pt
     pt$SE <- NULL
