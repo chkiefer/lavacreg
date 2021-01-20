@@ -12,6 +12,7 @@ using namespace Rcpp;
 //' @param detvarz Determinant of sigmaz (easier to compute in R...)
 //' @param dims Integer vector with dimensional information, in order group size, integration points, number of Z, and number of W
 //' @export
+// [[Rcpp::plugins(cpp11)]]
 // [[Rcpp::export]]
 double compute_groupcond_logl(NumericMatrix x, 
                               NumericMatrix muy, 
