@@ -2,9 +2,9 @@ Package: lavacreg
 Type: Package
 Title: Estimation of Count Regression Models with Latent Covariates
 Version: 0.1-0.9003
-Date: 2020-11-22
+Date: 2021-01-20
 Authors@R: c(person("Christoph", "Kiefer", email = "christoph.kiefer@uni-bielefeld.de", role = c("cre", "aut"))) 
-Description: Estimation of a multigroup count regression models (i.e., Poisson, negative binomial) with latent covariates.
+Description: Estimation of a multi-group count regression models (i.e., Poisson, negative binomial) with latent covariates.
 License: GPL (>= 2)
 URL: https://github.com/chkiefer/lavacreg
 BugReports: https://github.com/chkiefer/lavacreg/issues
