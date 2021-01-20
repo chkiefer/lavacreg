@@ -8,7 +8,8 @@
 #' Details
 #'    
 #' @param object An object of class \code{countReg}, which contains input and datalist at this point
-#'  
+#' 
+#' @importFrom utils combn
 #' @export
 creg_partable <- function(object) {
     no_groups <- object@dataobj@no_groups

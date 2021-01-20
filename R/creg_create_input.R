@@ -2,9 +2,11 @@
 #' 
 #' Turns the input into an input object
 #' 
-#'  @inheritParams countreg
-#'  
-#' @noRd
+#' @inheritParams countreg
+#' 
+#' @importFrom stats as.formula
+#' @importFrom stats terms.formula
+#' @keywords internal
 creg_create_input <- function(forml, lv, group, data, family, silent, se){
   # Convert formula and extract terms
   forml <- as.formula(forml)
@@ -76,7 +78,8 @@ creg_create_input <- function(forml, lv, group, data, family, silent, se){
 #' 
 #' @param x vector to be checked
 #' @param tol Tolerance
-#'  
+#' 
+#' @importFrom stats na.omit
 #' @export
 is.count <- function(x, tol = .Machine$double.eps^0.5){
     x <- na.omit(x)

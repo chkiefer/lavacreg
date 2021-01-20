@@ -1,7 +1,7 @@
 Package: lavacreg
 Type: Package
 Title: Estimation of Count Regression Models with Latent Covariates
-Version: 0.1-0.9003
+Version: 0.1-0
 Date: 2021-01-20
 Authors@R: c(person("Christoph", "Kiefer", email = "christoph.kiefer@uni-bielefeld.de", role = c("cre", "aut"))) 
 Description: Estimation of a multi-group count regression models (i.e., Poisson, negative binomial) with latent covariates.
@@ -13,7 +13,9 @@ Depends:
     R (>= 3.5.0)
 Imports: Rcpp (>= 1.0.5), 
     fastGHQuad,
-    pracma
+    pracma,
+    methods,
+    stats
 LinkingTo: Rcpp
 RoxygenNote: 7.1.1
 Suggests: 
@@ -21,3 +23,4 @@ Suggests:
     rmarkdown,
     testthat
 VignetteBuilder: knitr
+SystemRequirements: C++11

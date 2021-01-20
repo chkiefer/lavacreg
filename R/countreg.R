@@ -22,7 +22,7 @@
 #' summary(fit)
 #' }
 #' 
-#' 
+#' @importFrom methods new
 #' @export
 countreg <- function(forml, lv = NULL, group = NULL, data, family, silent = FALSE, se = TRUE) {
   

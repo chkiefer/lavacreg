@@ -2,10 +2,11 @@
 #' 
 #' Computes the likelihood function using the C++ function for group-conditional likelihoods
 #' 
-#'  @param datalist Datalist
-#'  @param modellist Modellist
+#' @param datalist Datalist
+#' @param modellist Modellist
 #'  
-#' @noRd
+#' @importFrom stats dpois
+#' @keywords internal
 creg_loglikelihood_function <- function(datalist, modellist) {
     kappas <- modellist$groupw
     n_cell <- modellist$n_cell
@@ -50,7 +51,9 @@ creg_loglikelihood_function <- function(datalist, modellist) {
 #' 
 #'  @param object A lavacreg object
 #'  
-#' @noRd
+#' @importFrom stats nlminb
+#' @importFrom pracma hessian
+#' @keywords internal
 creg_fit_model <- function(object) {
     silent <- object@input@silent
     se <- object@input@se
@@ -127,7 +130,7 @@ creg_fit_model <- function(object) {
         cat("Computing standard errors...")
         time_start <- Sys.time()
       } 
-      information <- pracma::hessian(objective_function, fit$par)
+      information <- hessian(objective_function, fit$par)
       eigvals <- eigen(information, symmetric = TRUE,
                        only.values = TRUE)$values
       if(any(eigvals < -1 * .Machine$double.eps^(3/4))) {

@@ -6,3 +6,8 @@
 ^\.github$
 ^cran-comments\.md$
 ^\.travis\.yml$
+^dACTIVE\.rds$
+^data\.RDS$
+^mbr_thing\.RDS$
+^mplus$
+^workflow\.R$

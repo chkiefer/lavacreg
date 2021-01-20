@@ -15,6 +15,9 @@ creg_constraints <- function(pt){
   # x.red <- x %*% Q2
   # x <- Q2 %*% x.red
   
+  # Binding variables locally to the function
+  dest <- par_free <- NULL
+  
   no_par <- max(pt$par_free)
   no_groups <- max(pt$group)
   pt_mm <- subset(pt, dest == "mm" & par_free > 0L)
