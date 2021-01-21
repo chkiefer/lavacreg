@@ -1,8 +1,7 @@
 #' Fitting Count Regression Models with Latent Covariates
 #' 
-#' Description
-#' 
-#' Details
+#' This function is the main function of the package and can be used to estimate
+#' latent variable count regression models in one or multiple group(s).
 #' 
 #' @param forml an object of class for \code{\link[stats]{formula}} (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under Details.
 #' @param lv Definition of the latent variables.
