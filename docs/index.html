@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Estimation of Count Regression Models with Latent Covariates">
-<meta property="og:description" content="Estimation of a multigroup count regression models (i.e., Poisson, negative binomial) with latent covariates.">
+<meta property="og:description" content="Estimation of a multi-group count regression models (i.e., Poisson, negative binomial) with latent covariates.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">lavacreg</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1-0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1-0</span>
       </span>
     </div>
 
@@ -39,7 +39,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -54,12 +54,22 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="articles/intro.html">Introduction to lavacreg</a>
+      <a href="articles/intro.html">intro</a>
     </li>
   </ul>
 </li>
+<li>
+  <a href="news/index.html">Changelog</a>
+</li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/chkiefer/lavacreg/">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -79,7 +89,7 @@
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
-<p><code>lavacreg</code> is currently not on CRAN. The development version of <code>lavacreg</code> can be installed directly from this GitHub repository using the additional package <code>devtools</code>. Under Windows, please make sure Rtools (<a href="http://cran.r-project.org/bin/windows/Rtools" class="uri">http://cran.r-project.org/bin/windows/Rtools</a>) are installed and no odler version of <code>lavacreg</code> is currently loaded:</p>
+<p><code>lavacreg</code> is currently not on CRAN. The development version of <code>lavacreg</code> can be installed directly from this GitHub repository using the additional package <code>devtools</code>. Under Windows, please make sure Rtools (<a href="http://cran.r-project.org/bin/windows/Rtools" class="uri">http://cran.r-project.org/bin/windows/Rtools</a>) are installed and no older version of <code>lavacreg</code> is currently loaded:</p>
 <pre><code><a href="https://rdrr.io/r/utils/install.packages.html">install.packages("devtools")
 library(devtools)
 
@@ -94,7 +104,16 @@ install_github("chkiefer/lavacreg")</a></code></pre>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-    <div class="license">
+    <div class="links">
+<h2>Links</h2>
+<ul class="list-unstyled">
+<li>Browse source code at <br><a href="https://github.com/chkiefer/lavacreg/">https://​github.com/​chkiefer/​lavacreg/​</a>
+</li>
+<li>Report a bug at <br><a href="https://github.com/chkiefer/lavacreg/issues">https://​github.com/​chkiefer/​lavacreg/​issues</a>
+</li>
+</ul>
+</div>
+<div class="license">
 <h2>License</h2>
 <ul class="list-unstyled">
 <li>GPL (&gt;= 2)</li>
@@ -103,7 +122,7 @@ install_github("chkiefer/lavacreg")</a></code></pre>
 <div class="developers">
 <h2>Developers</h2>
 <ul class="list-unstyled">
-<li>Christoph Kiefer <br><small class="roles"> Maintainer </small>  </li>
+<li>Christoph Kiefer <br><small class="roles"> Maintainer, author </small>  </li>
 </ul>
 </div>
 
@@ -112,7 +131,6 @@ install_github("chkiefer/lavacreg")</a></code></pre>
 <ul class="list-unstyled">
 <li><a href="https://www.repostatus.org/#wip"><img src="https://www.repostatus.org/badges/latest/wip.svg" alt="Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public."></a></li>
 <li><a href="https://travis-ci.com/chkiefer/lavacreg"><img src="https://travis-ci.com/chkiefer/lavacreg.svg?branch=master" alt="Build Status"></a></li>
-<li><a href="http://hits.dwyl.com/chkiefer/lavacreg"><img src="http://hits.dwyl.com/chkiefer/lavacreg.svg" alt="HitCount"></a></li>
 </ul>
 </div>
 </div>

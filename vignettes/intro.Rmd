@@ -1,11 +1,8 @@
 ---
-title: "Introduction to lavacreg"
-subtitle: "Latent Variable Count Regression Models in R"
-author: "Christoph Kiefer"
-date: "`r Sys.Date()`"
+title: "intro"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction to lavacreg}
+  %\VignetteIndexEntry{intro}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,35 +14,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-
-# First steps
-In this article, I will mainly focus on introducing the main function `countreg()`. The other functions available in this package are helper functions for `countreg()`. However, you might take a look at the documentation of the `example01` dataset, which we will use throughout this article to fit some count regression models. 
-
 ```{r setup}
 library(lavacreg)
 ```
-After loading the library, we can use `example01`, a dataset from the ACTIVE cognitive trial. The variables are:
-
-* Dependent variable `dv`: count of correctly answered items
-* Treatment variable `treat`: with values `treat=0` for control and `treat=2` for treatment
-* Latent covariate *external locus of control* measured by
-    * indicator variable `z11`
-    * indicator variable `z12`
-* Latent covariate *internal locus of control* measured by
-    * indicator variable `z21`
-    * indicator variable `z22`
-* Latent covariate *depression* measured by
-    * indicator variable `z41`
-    * indicator variable `z42`
-    * indicator variable `z43`
-    
-# 1. Scenario: Intercept-only in a single group
-This scenario could also be named *mean of dv*, because that is exactly, what `countreg()` will return. Its a good start, to explain the arguments that `countreg()` accepts. We have to specify a formula, which is `forml='dv ~ 1'`, a dataset (which is `data=example01`), and a family, which is a character variable `family = 'poisson'` (taking `poisson` or `nbinom` as arguments). The arguments `lv` and `group` are for latent covariates and multi-group analysis.
-
-```{r}
-fit <- countreg(forml = 'dv ~ 1', lv = NULL, group = NULL, data = example01, family = "poisson")
-summary(fit)
-```
-The `summary` function provides parameter estimates and standard error for the specified model.
-    
-    

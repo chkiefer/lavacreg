@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Fitting Count Regression Models with Latent Covariates — countreg • lavacreg</title>
+<title>Fit the lavacreg model — creg_fit_model • lavacreg</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Fitting Count Regression Models with Latent Covariates — countreg" />
-<meta property="og:description" content="Description" />
+<meta property="og:title" content="Fit the lavacreg model — creg_fit_model" />
+<meta property="og:description" content="A wrapper for starting values, optimizing loglik and computation of standard errors" />
 
 
 
@@ -123,76 +123,22 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Fitting Count Regression Models with Latent Covariates</h1>
-    <small class="dont-index">Source: <a href='https://github.com/chkiefer/lavacreg/blob/master/R/countreg.R'><code>R/countreg.R</code></a></small>
-    <div class="hidden name"><code>countreg.Rd</code></div>
+    <h1>Fit the lavacreg model</h1>
+    <small class="dont-index">Source: <a href='https://github.com/chkiefer/lavacreg/blob/master/R/creg_loglikelihood.R'><code>R/creg_loglikelihood.R</code></a></small>
+    <div class="hidden name"><code>creg_fit_model.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Description</p>
+    <p>A wrapper for starting values, optimizing loglik and computation of standard errors</p>
     </div>
 
-    <pre class="usage"><span class='fu'>countreg</span><span class='op'>(</span>
-  <span class='va'>forml</span>,
-  lv <span class='op'>=</span> <span class='cn'>NULL</span>,
-  group <span class='op'>=</span> <span class='cn'>NULL</span>,
-  <span class='va'>data</span>,
-  <span class='va'>family</span>,
-  silent <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  se <span class='op'>=</span> <span class='cn'>TRUE</span>
-<span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>creg_fit_model</span><span class='op'>(</span><span class='va'>object</span><span class='op'>)</span></pre>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>forml</th>
-      <td><p>an object of class for <code><a href='https://rdrr.io/r/stats/formula.html'>formula</a></code> (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under Details.</p></td>
-    </tr>
-    <tr>
-      <th>lv</th>
-      <td><p>Definition of the latent variables.</p></td>
-    </tr>
-    <tr>
-      <th>group</th>
-      <td><p>A group variable</p></td>
-    </tr>
-    <tr>
-      <th>data</th>
-      <td><p>a data frame</p></td>
-    </tr>
-    <tr>
-      <th>family</th>
-      <td><p>Poisson or negative binomial</p></td>
-    </tr>
-    <tr>
-      <th>silent</th>
-      <td><p>Should informations about the estimation process be suppressed?</p></td>
-    </tr>
-    <tr>
-      <th>se</th>
-      <td><p>Should standard errors be computed? (Can take a while for complex models)</p></td>
-    </tr>
-    </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>An object of type <code>countreg</code>.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Details</p>
+    <p>@param object A lavacreg object</p>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='va'>fit</span> <span class='op'>&lt;-</span> <span class='fu'>countreg</span><span class='op'>(</span>forml <span class='op'>=</span> <span class='st'>'dv ~ eta1 + z41 + z42'</span>, 
-              lv <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>eta1<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'z11'</span>, <span class='st'>'z12'</span><span class='op'>)</span><span class='op'>)</span>,
-              group <span class='op'>=</span> <span class='st'>'treat'</span>,
-               data <span class='op'>=</span> <span class='va'>example01</span>,
-             family <span class='op'>=</span> <span class='st'>'poisson'</span><span class='op'>)</span>
-<span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>fit</span><span class='op'>)</span>
-<span class='op'>}</span>
-
-</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

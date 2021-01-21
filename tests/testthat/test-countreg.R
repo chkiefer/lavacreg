@@ -206,6 +206,7 @@ test_that("two-group one latent covariate negative binomial", {
 # ---------------------------------------------------
 test_that("two-group two latent covariates Poisson", {
   print("This test can take up to 6 minutes.")
+  skip_on_cran()
   fit <- countreg(forml='dv ~ eta1 + eta2',
                   lv = list(eta1 = c("z21", "z22"),
                             eta2 = c("z41", "z42", "z43")),
@@ -304,6 +305,7 @@ test_that("two-group one latent, one manifest covariate Poisson", {
 
 
 test_that("two-group one latent, one manifest covariate negative binomial", {
+  skip_on_cran()
   fit <- countreg(forml='dv ~ eta1 + z12',
                   lv = list(eta1 = c("z41", "z42", "z43")),
                   group = 'treat',
@@ -368,6 +370,7 @@ test_that("two-group one latent, two manifest covariates Poisson", {
 
 
 test_that("two-group one latent, two manifest covariate negative binomial", {
+  skip_on_cran()
   fit <- countreg(forml='dv ~ eta1 + z12 + z21',
                   lv = list(eta1 = c("z41", "z42", "z43")),
                   group = 'treat',

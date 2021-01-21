@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">lavacreg</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1-0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1-0</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -95,13 +95,21 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/intro.html">Introduction to lavacreg</a>
+      <a href="../articles/intro.html">intro</a>
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">Changelog</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/chkiefer/lavacreg/">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -116,7 +124,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>A first example to illustrate</h1>
-    
+    <small class="dont-index">Source: <a href='https://github.com/chkiefer/lavacreg/blob/master/R/00documentation.R'><code>R/00documentation.R</code></a></small>
     <div class="hidden name"><code>example01.Rd</code></div>
     </div>
 
@@ -124,7 +132,7 @@
     <p>A dataset containing ... .</p>
     </div>
 
-    <pre class="usage"><span class='kw'>example01</span></pre>
+    <pre class="usage"><span class='va'>example01</span></pre>
 
 
     <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
@@ -132,9 +140,13 @@
     <p>A data frame with 871 rows and 9 variables:</p><dl>
   <dt>dv</dt><dd><p>Count of correctly-answered items (dependent variable)</p></dd>
   <dt>treat</dt><dd><p>Treatment group variable, where <code>0</code> is control and <code>2</code> is treatment</p></dd>
-  <dt>z11-z12</dt><dd><p>Indicators of LoC</p></dd>
-  <dt>z21-z22</dt><dd><p>Indicators of LoC</p></dd>
-  <dt>z41-z43</dt><dd><p>Indicators of depression</p></dd>
+  <dt>z11</dt><dd><p>First indicator of internal LoC</p></dd>
+  <dt>z12</dt><dd><p>Second indicator of internal LoC</p></dd>
+  <dt>z21</dt><dd><p>First indicator of external LoC</p></dd>
+  <dt>z22</dt><dd><p>Second indicator of external LoC</p></dd>
+  <dt>z41</dt><dd><p>First indicator of depression</p></dd>
+  <dt>z42</dt><dd><p>Second indicator of depression</p></dd>
+  <dt>z43</dt><dd><p>Third indicator of depression</p></dd>
 
 </dl>
 

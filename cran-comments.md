@@ -9,8 +9,6 @@
   checking CRAN incoming feasibility ... NOTE
   Maintainer: 'Christoph Kiefer <christoph.kiefer@uni-bielefeld.de>'
   
-  
-  Version contains large components (0.1-0.9003)
-  New submission
+  Re-submission: Now,  time-intensive tests are skipped on CRAN and the overall check time should be faster.
 
-0 errors √ | 0 warnings √ | 1 note x
+0 errors √ | 0 warnings √ | 1 note (new submission)
