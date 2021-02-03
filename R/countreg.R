@@ -10,9 +10,10 @@
 #' @param family Poisson or negative binomial
 #' @param silent Should informations about the estimation process be suppressed?
 #' @param se Should standard errors be computed? (Can take a while for complex models)
-#' @return An object of type \code{countreg}.
+#' @return An object of type \code{lavacreg}. Use \code{summary(object)} to print results
+#' containing parameter estimates and their standard errors.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' fit <- countreg(forml = 'dv ~ eta1 + z41 + z42', 
 #'               lv = list(eta1=c('z11', 'z12')),
 #'               group = 'treat',

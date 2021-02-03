@@ -10,7 +10,7 @@
 #' @param object An object of class \code{countReg}, which contains input and datalist at this point
 #' 
 #' @importFrom utils combn
-#' @export
+#' @noRd
 creg_partable <- function(object) {
     no_groups <- object@dataobj@no_groups
     no_lv <- object@dataobj@no_lv

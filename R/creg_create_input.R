@@ -70,14 +70,14 @@ creg_create_input <- function(forml, lv, group, data, family, silent, se){
 }
 
 
-#' Count variable check
+#' Check for count variable
 #' 
 #' Checks if the variable is a count variable
 #' 
-#' Details
-#' 
 #' @param x vector to be checked
 #' @param tol Tolerance
+#' @return Function returns logical value indicating whether x can be considered
+#' a count variable or not.
 #' 
 #' @importFrom stats na.omit
 #' @export
