@@ -30,18 +30,17 @@ countreg(
 \item{se}{Should standard errors be computed? (Can take a while for complex models)}
 }
 \value{
-An object of type \code{countreg}.
+An object of type \code{lavacreg}. Use \code{summary(object)} to print results
+containing parameter estimates and their standard errors.
 }
 \description{
-Description
-}
-\details{
-Details
+This function is the main function of the package and can be used to estimate
+latent variable count regression models in one or multiple group(s).
 }
 \examples{
-\dontrun{
-fit <- countreg(forml = 'dv ~ eta1 + z41 + z42', 
-              lv = list(eta1=c('z11', 'z12')),
+\donttest{
+fit <- countreg(forml = 'dv ~ eta1 + z11 + z21', 
+              lv = list(eta1=c('z41', 'z42', 'z43')),
               group = 'treat',
                data = example01,
              family = 'poisson')

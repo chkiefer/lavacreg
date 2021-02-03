@@ -7,8 +7,15 @@
 ## R CMD check results
 > On windows-x86_64-devel (r-devel), ubuntu-gcc-release (r-release), fedora-clang-devel (r-devel)
   checking CRAN incoming feasibility ... NOTE
+
   Maintainer: 'Christoph Kiefer <christoph.kiefer@uni-bielefeld.de>'
   
-  Re-submission: Now,  time-intensive tests are skipped on CRAN and the overall check time should be faster.
+  Re-submission: I addressed your three requests:
+  1. A reference was added to the description field of the DESCRIPTION
+  2. documentation for functions is.count and summary was added. function creg_partable is no longer exported
+  3. replaced dontrun with donttest for the examples, which run for 2-3 minutes
+  
+  The remaining note concerns that I submit the package to CRAN for the first time.
 
-0 errors √ | 0 warnings √ | 1 note (new submission)
+
+0 errors √ | 0 warnings √ | 1 note x

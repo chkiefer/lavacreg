@@ -2,7 +2,7 @@
 % Please edit documentation in R/creg_create_input.R
 \name{is.count}
 \alias{is.count}
-\title{Count variable check}
+\title{Check for count variable}
 \usage{
 is.count(x, tol = .Machine$double.eps^0.5)
 }
@@ -11,9 +11,10 @@ is.count(x, tol = .Machine$double.eps^0.5)
 
 \item{tol}{Tolerance}
 }
+\value{
+Function returns logical value indicating whether x can be considered
+a count variable or not.
+}
 \description{
 Checks if the variable is a count variable
-}
-\details{
-Details
 }

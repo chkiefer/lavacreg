@@ -14,8 +14,8 @@
 #' containing parameter estimates and their standard errors.
 #' @examples
 #' \donttest{
-#' fit <- countreg(forml = 'dv ~ eta1 + z41 + z42', 
-#'               lv = list(eta1=c('z11', 'z12')),
+#' fit <- countreg(forml = 'dv ~ eta1 + z11 + z21', 
+#'               lv = list(eta1=c('z41', 'z42', 'z43')),
 #'               group = 'treat',
 #'                data = example01,
 #'              family = 'poisson')
