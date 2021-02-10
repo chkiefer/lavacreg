@@ -38,6 +38,9 @@ This function is the main function of the package and can be used to estimate
 latent variable count regression models in one or multiple group(s).
 }
 \examples{
+fit <- countreg(forml = 'dv ~ z11', data = example01, family = 'poisson')
+summary(fit)
+
 \donttest{
 fit <- countreg(forml = 'dv ~ eta1 + z11 + z21', 
               lv = list(eta1=c('z41', 'z42', 'z43')),

@@ -1,5 +1,5 @@
 ---
-title: "intro"
+title: "Introduction"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{intro}
@@ -14,6 +14,51 @@ knitr::opts_chunk$set(
 )
 ```
 
+
+The package can be used to estimate latent variable count regression models in one or multiple groups. In its simplest form, it can estimate ordinary Poisson or negative binomial regression models with manifest covariates in one group (similar to the glm()-function from the stats package or the glm.nb()-function from the MASS package). In its most complex form, it can regress a count variable on multiple manifest and latent covariates within multiple groups. Let's see, how it works!
 ```{r setup}
 library(lavacreg)
 ```
+
+## Simple Poisson Regression Model
+As said before, the simplest case that can be estimated with lavacrag is an ordinary Poisson regression model, regressing a count outcome Y on a manifest covariate Z with
+$$
+\begin{align*}
+E(Y|Z) &= \mu_Y = \exp(\beta_0 + \beta_1 \cdot Z)\\
+Y &\sim \mathcal{P}(\lambda = \mu_Y)
+\end{align*}
+$$
+In our example dataset, we can fit this model and compare it to the output of the glm()-function from the stats package:
+```{r}
+# Usage of main function: countreg(y ~ z, data = d, family = "poisson")
+m0 <- countreg(dv ~ z11, data = example01, family = "poisson")
+m1 <- glm(dv ~ z11, data = example01, family = poisson())
+				
+summary(m0)
+summary(m1)
+```
+
+
+## Negative Binomial Regression with Latent Covariate
+
+In the next step, we add a latent covariate to the model. That is, we use the option *lv* to specify a list of latent variables giving the names of the latent variables and a character vector of indicators measuring the latent variable. We can use the name of the latent variable within the *forml* option. In addition, we change *family* to be "nbinom" in oder to estimate a negative binomial regression, that is, adding a dispersion parameter to the model:
+```{r}
+m2 <- countreg(dv ~ eta1, 
+				       lv = list(eta1 = c("z41", "z42", "z43")), 
+				       data = example01, 
+				       family = "nbinom")
+summary(m2)
+```
+
+## Multi-group Poisson Regression with Latent and Manifest Covariates
+In this final model, we use a combination of manifest and latent covariates in the *forml* option, that is, one of the covariates is defined in the *lv* and the other is observed in the dataset. In addition, we specify a multi-group structural equation model using the *group* option.
+
+```{r}
+m3 <- countreg(dv ~ eta1 + z11, 
+				               lv = list(eta1 = c("z41", "z42", "z43")), 
+				               group = "treat",
+				               data = example01, 
+				               family = "poisson")
+summary(m3)
+```
+

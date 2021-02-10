@@ -13,6 +13,9 @@
 #' @return An object of type \code{lavacreg}. Use \code{summary(object)} to print results
 #' containing parameter estimates and their standard errors.
 #' @examples
+#' fit <- countreg(forml = 'dv ~ z11', data = example01, family = 'poisson')
+#' summary(fit)
+#' 
 #' \donttest{
 #' fit <- countreg(forml = 'dv ~ eta1 + z11 + z21', 
 #'               lv = list(eta1=c('z41', 'z42', 'z43')),

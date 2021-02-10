@@ -10,10 +10,10 @@
 
   Maintainer: 'Christoph Kiefer <christoph.kiefer@uni-bielefeld.de>'
   
-  Re-submission: I addressed your three requests:
-  1. A reference was added to the description field of the DESCRIPTION
-  2. documentation for functions is.count and summary was added. function creg_partable is no longer exported
-  3. replaced dontrun with donttest for the examples, which run for 2-3 minutes
+  Re-submission: I addressed your two requests:
+  1. removed the space in the doi
+  2. added an executable example to my main function
+
   
   The remaining note concerns that I submit the package to CRAN for the first time.
 
