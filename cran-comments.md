@@ -10,9 +10,8 @@
 
   Maintainer: 'Christoph Kiefer <christoph.kiefer@uni-bielefeld.de>'
   
-  Re-submission: I addressed your two requests:
-  1. removed the space in the doi
-  2. added an executable example to my main function
+  Re-submission: I addressed your requests:
+  1. the functions you mentioned are internal functions. I removed the Rd-files for clarification
 
   
   The remaining note concerns that I submit the package to CRAN for the first time.
