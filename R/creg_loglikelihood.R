@@ -7,6 +7,7 @@
 #'  
 #' @importFrom stats dpois
 #' @keywords internal
+#' @noRd
 creg_loglikelihood_function <- function(datalist, modellist) {
     kappas <- modellist$groupw
     n_cell <- modellist$n_cell
@@ -54,6 +55,7 @@ creg_loglikelihood_function <- function(datalist, modellist) {
 #' @importFrom stats nlminb
 #' @importFrom pracma hessian
 #' @keywords internal
+#' @noRd
 creg_fit_model <- function(object) {
     silent <- object@input@silent
     se <- object@input@se
