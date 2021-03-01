@@ -107,7 +107,7 @@ double compute_groupcond_logl(NumericMatrix x,
       
       // Product for manifest covariates Z
       for (int v = 0; v < zn; ++v){
-        for (int w = 0; w < zn; ++ w){
+        for (int w = 0; w < zn; ++w){
           //inner product over normally distributed indicator variables
           double z0 = x(i, v+wn+1);
           double z1 = x(i, w+wn+1);

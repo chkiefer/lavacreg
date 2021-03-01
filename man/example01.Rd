@@ -3,7 +3,7 @@
 \docType{data}
 \name{example01}
 \alias{example01}
-\title{A first example to illustrate}
+\title{A first example dataset to illustrate the use of lavacreg}
 \format{
 A data frame with 871 rows and 9 variables:
 \describe{
@@ -22,6 +22,7 @@ A data frame with 871 rows and 9 variables:
 example01
 }
 \description{
-A dataset containing ... .
+A dataset containing 9 variables: a dependent variable dv, a group variable treat
+and 7 indicators for 3 latent covariates.
 }
 \keyword{datasets}

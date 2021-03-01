@@ -1,6 +1,7 @@
-#' A first example to illustrate 
+#' A first example dataset to illustrate the use of lavacreg
 #'
-#' A dataset containing ... .
+#' A dataset containing 9 variables: a dependent variable dv, a group variable treat
+#' and 7 indicators for 3 latent covariates.
 #'
 #' @format A data frame with 871 rows and 9 variables:
 #' \describe{

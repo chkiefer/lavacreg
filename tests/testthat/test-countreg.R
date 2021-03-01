@@ -94,7 +94,7 @@ test_that("two-group three manifest covariates Poisson", {
                   group = "treat",
                   data = example01,
                   family = 'poisson',
-                  se = TRUE)
+                  se = FALSE)
   
   # Converged?
   conv <- fit@fit$fit$convergence
@@ -113,7 +113,7 @@ test_that("two-group three manifest covariates Poisson", {
             1.56318072, 1.36078961, 3.99384264, 0.83179534, 0.86117941, -0.56710374, 
             -0.46501115, 0)
   
-  expect_equal(par, comp, tolerance = 1e-5)
+  expect_equal(par, comp, tolerance = 1e-4)
 })
 
 
@@ -150,12 +150,13 @@ test_that("two-group three manifest covariates negative binomial", {
 # TEST 5 - one latent covariate - two groups
 # ---------------------------------------------------
 test_that("two-group one latent covariate Poisson", {
+  skip_on_os("mac")
   fit <- countreg(forml='dv ~ eta1',
                   lv = list(eta1 = c("z21", "z22")),
                   group = 'treat',
                   data = example01,
                   family = 'poisson',
-                  se = FALSE)
+                  se = TRUE)
   
   # Converged?
   conv <- fit@fit$fit$convergence
@@ -306,6 +307,7 @@ test_that("two-group one latent, one manifest covariate Poisson", {
 
 test_that("two-group one latent, one manifest covariate negative binomial", {
   skip_on_cran()
+  
   fit <- countreg(forml='dv ~ eta1 + z12',
                   lv = list(eta1 = c("z41", "z42", "z43")),
                   group = 'treat',
@@ -472,11 +474,13 @@ test_that("two-group two latent, one manifest covariate negative binomial", {
 # TEST 10 - one latent variable - one group
 # ---------------------------------------------------
 test_that("one latent variable in one group - Poisson", {
+  skip_on_os("mac")
   fit <- countreg(forml='dv ~ eta',
     lv = list(eta = c("z41", "z42", "z43")),
     group = NULL,
     data = example01,
-    family = 'poisson')
+    family = 'poisson',
+    se = FALSE)
   par <- fit@fit$pt$par
   comp <- c(6.769642, 2.72414, -0.109569, 0, 1, -0.054137, 
             1.256452, -0.343201, 1.29337, 1.61712, 2.004875, 0, 
@@ -484,4 +488,3 @@ test_that("one latent variable in one group - Poisson", {
   expect_equal(length(par), 15)
   expect_equal(par, comp, tolerance = 1e-5)
 })
-

@@ -23,9 +23,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// creg_group_logl_cpp
+NumericVector creg_group_logl_cpp(List datalist, List modellist);
+RcppExport SEXP _lavacreg_creg_group_logl_cpp(SEXP datalistSEXP, SEXP modellistSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type datalist(datalistSEXP);
+    Rcpp::traits::input_parameter< List >::type modellist(modellistSEXP);
+    rcpp_result_gen = Rcpp::wrap(creg_group_logl_cpp(datalist, modellist));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_lavacreg_compute_groupcond_logl", (DL_FUNC) &_lavacreg_compute_groupcond_logl, 8},
+    {"_lavacreg_creg_group_logl_cpp", (DL_FUNC) &_lavacreg_creg_group_logl_cpp, 2},
     {NULL, NULL, 0}
 };
 

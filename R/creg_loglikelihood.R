@@ -9,6 +9,7 @@
 #' @keywords internal
 #' @noRd
 creg_loglikelihood_function <- function(datalist, modellist) {
+  # browser()
     kappas <- modellist$groupw
     n_cell <- modellist$n_cell
     no_groups <- length(kappas)
@@ -16,9 +17,9 @@ creg_loglikelihood_function <- function(datalist, modellist) {
     
     obj.group <- sum(dpois(n_cell, exp(kappas), log = TRUE))
     
+    # obj.ingroups <- creg_group_logl_cpp(datalist, modellist$modellist_g)
+    
     obj.ingroups <- mapply(function(data, modellist_g) {
-        #data <- datalist[[g]]
-        #modellist_g <- modellist$modellist_g[[g]]
         muy <- modellist_g$muy
         sigmayw <- modellist_g$sigmayw
         muwz <- modellist_g$muwz
@@ -26,21 +27,22 @@ creg_loglikelihood_function <- function(datalist, modellist) {
         ghweight <- modellist_g$ghweight
         detvarz <- modellist_g$detvarz
         dims <- modellist_g$dims
-        
+
         if (any(!is.na(sigmaz))){
           if (any(diag(solve(sigmaz)) <= 0)) return(-Inf)
-        } 
+        }
         if (any(sigmayw[-1] <= 0)) return(-Inf)
         if (family == "nbinom" & sigmayw[1] <= 0) return(-Inf)
-        
-        obj.i <- compute_groupcond_logl(x = data, muy = muy, sigmayw = sigmayw, muwz = muwz, 
-                                      sigmaz = sigmaz, ghweight = ghweight, detvarz = detvarz, dims = dims)
+
+        obj.i <- compute_groupcond_logl(x = data, muy = muy, sigmayw = sigmayw, muwz = muwz,
+                                      sigmaz = sigmaz, ghweight = ghweight, detvarz = detvarz,
+                                      dims = dims)
         if(is.na(obj.i)) return(-Inf)
         return(obj.i)
     }, data = datalist, modellist_g = modellist$modellist_g, SIMPLIFY = TRUE)
     
     obj <- -(obj.group + sum(obj.ingroups))/sum(n_cell)
-    if (is.na(obj)) browser()
+    if (is.na(obj)) return(+Inf)
     return(obj)
     
 }

@@ -73,7 +73,7 @@ latent variable count regression models in one or multiple group(s)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">lavacreg</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1-0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1-1.9000</span>
       </span>
     </div>
 
@@ -184,73 +184,109 @@ containing parameter estimates and their standard errors.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='va'>fit</span> <span class='op'>&lt;-</span> <span class='fu'>countreg</span><span class='op'>(</span>forml <span class='op'>=</span> <span class='st'>'dv ~ z11'</span>, data <span class='op'>=</span> <span class='va'>example01</span>, family <span class='op'>=</span> <span class='st'>'poisson'</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; Fitting the model...done. Took: 0.6 s
-#&gt; Computing standard errors...done. Took: 0.2 s</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>fit</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;   lhs op rhs    dest type group par_free        par          SE
-#&gt; 1      %   w  groupw &lt;NA&gt;     1        1  6.7691671 0.033891754
-#&gt; 2  dv  ~   1 regcoef &lt;NA&gt;     1        2  2.7590148 0.014636007
-#&gt; 3  dv  ~ z11 regcoef &lt;NA&gt;     1        3 -0.1376593 0.008095389
-#&gt; 4 z11  ~   1       z mean     1        4  1.5792611 0.041792618
-#&gt; 5 z11 ~~ z11       z  var     1        5  1.5213083 0.072912680
-#&gt; 6  dv ~~  dv  sigmaw size     1        0  0.0000000          NA</div><div class='input'>
+</div><div class='output co'>#&gt; Fitting the model...done. Took: 0.3 s
+#&gt; Computing standard errors...done. Took: 0.1 s</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>fit</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; 
+#&gt; 
+#&gt; --------------------- Group 1 --------------------- 
+#&gt; 
+#&gt; Regression:
+#&gt;       Estimate       SE   Est./SE   p-value
+#&gt; 1        2.759   0.0146       189         0
+#&gt; z11     -0.138   0.0081       -17         0
+#&gt; 
+#&gt; Means:
+#&gt;       Estimate       SE   Est./SE   p-value
+#&gt; z11       1.58   0.0418      37.8         0
+#&gt; 
+#&gt; Variances:
+#&gt;       Estimate       SE   Est./SE   p-value
+#&gt; z11       1.52   0.0729      20.9         0</div><div class='input'>
 <span class='co'># \donttest{</span>
 <span class='va'>fit</span> <span class='op'>&lt;-</span> <span class='fu'>countreg</span><span class='op'>(</span>forml <span class='op'>=</span> <span class='st'>'dv ~ eta1 + z11 + z21'</span>, 
               lv <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>eta1<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'z41'</span>, <span class='st'>'z42'</span>, <span class='st'>'z43'</span><span class='op'>)</span><span class='op'>)</span>,
               group <span class='op'>=</span> <span class='st'>'treat'</span>,
                data <span class='op'>=</span> <span class='va'>example01</span>,
              family <span class='op'>=</span> <span class='st'>'poisson'</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; Computing starting values...done. Took: 13.3 s
-#&gt; Fitting the model...done. Took: 56.2 s
-#&gt; Computing standard errors...done. Took: 74.8 s</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>fit</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;      lhs op  rhs    dest     type group par_free         par         SE
-#&gt; 1  treat  %    w  groupw     &lt;NA&gt;     1        1  6.05912137 0.04833685
-#&gt; 2     dv  ~    1 regcoef     &lt;NA&gt;     1        2  2.30528023 0.08445265
-#&gt; 3     dv  ~  z11 regcoef     &lt;NA&gt;     1        3 -0.09874118 0.01326205
-#&gt; 4     dv  ~  z21 regcoef     &lt;NA&gt;     1        4  0.10447775 0.01748868
-#&gt; 5     dv  ~ eta1 regcoef     &lt;NA&gt;     1        5 -0.08845632 0.01507367
-#&gt; 6    z41  ~    1      mm       nu     1        0  0.00000000         NA
-#&gt; 7   eta1 =~  z41      mm   lambda     1        0  1.00000000         NA
-#&gt; 8    z42  ~    1      mm       nu     1        6 -0.05920591 0.11097849
-#&gt; 9   eta1 =~  z42      mm   lambda     1        7  1.26332157 0.05464126
-#&gt; 10   z43  ~    1      mm       nu     1        8 -0.39775807 0.11737796
-#&gt; 11  eta1 =~  z43      mm   lambda     1        9  1.32903552 0.05934484
-#&gt; 12  eta1  ~    1 lv_grid     mean     1       10  1.57899293 0.07983147
-#&gt; 13  eta1 ~~ eta1 lv_grid      var     1       11  1.91178153 0.19838243
-#&gt; 14   z11  ~    1       z     mean     1       12  1.59490764 0.06259526
-#&gt; 15   z11 ~~  z11       z      var     1       13  1.68065470 0.11466445
-#&gt; 16   z21  ~    1       z     mean     1       14  3.91040943 0.04709782
-#&gt; 17   z21 ~~  z21       z      var     1       15  0.95049392 0.06499231
-#&gt; 18   z11 ~~  z21       z      cov     1       16 -0.50270092 0.06566092
-#&gt; 19  eta1 ~~  z11       z cov_z_lv     1       17  0.46661547 0.09907566
-#&gt; 20  eta1 ~~  z21       z cov_z_lv     1       18 -0.26976916 0.07399080
-#&gt; 21    dv ~~   dv  sigmaw     size     1        0  0.00000000         NA
-#&gt; 22   z41 ~~  z41  sigmaw     veps     1       19  1.51636705 0.13350153
-#&gt; 23   z42 ~~  z42  sigmaw     veps     1       20  1.45057967 0.15926675
-#&gt; 24   z43 ~~  z43  sigmaw     veps     1       21  1.46747715 0.16706319
-#&gt; 25 treat  %    w  groupw     &lt;NA&gt;     2       22  6.09357092 0.04751139
-#&gt; 26    dv  ~    1 regcoef     &lt;NA&gt;     2       23  2.47040338 0.08111459
-#&gt; 27    dv  ~  z11 regcoef     &lt;NA&gt;     2       24 -0.07936100 0.01316611
-#&gt; 28    dv  ~  z21 regcoef     &lt;NA&gt;     2       25  0.08603090 0.01657661
-#&gt; 29    dv  ~ eta1 regcoef     &lt;NA&gt;     2       26 -0.03120840 0.01166398
-#&gt; 30   z41  ~    1      mm       nu     2        0  0.00000000         NA
-#&gt; 31  eta1 =~  z41      mm   lambda     2        0  1.00000000         NA
-#&gt; 32   z42  ~    1      mm       nu     2       27 -0.05920591 0.11097849
-#&gt; 33  eta1 =~  z42      mm   lambda     2       28  1.26332157 0.05464126
-#&gt; 34   z43  ~    1      mm       nu     2       29 -0.39775807 0.11737796
-#&gt; 35  eta1 =~  z43      mm   lambda     2       30  1.32903552 0.05934484
-#&gt; 36  eta1  ~    1 lv_grid     mean     2       31  1.64358864 0.07421284
-#&gt; 37  eta1 ~~ eta1 lv_grid      var     2       32  2.21627193 0.24496354
-#&gt; 38   z11  ~    1       z     mean     2       33  1.54988336 0.05475422
-#&gt; 39   z11 ~~  z11       z      var     2       34  1.38395545 0.09488959
-#&gt; 40   z21  ~    1       z     mean     2       35  4.00197663 0.04304441
-#&gt; 41   z21 ~~  z21       z      var     2       36  0.84138356 0.05724378
-#&gt; 42   z11 ~~  z21       z      cov     2       37 -0.48033267 0.05728611
-#&gt; 43  eta1 ~~  z11       z cov_z_lv     2       38  0.66184701 0.10469065
-#&gt; 44  eta1 ~~  z21       z cov_z_lv     2       39 -0.40334532 0.07935062
-#&gt; 45    dv ~~   dv  sigmaw     size     2        0  0.00000000         NA
-#&gt; 46   z41 ~~  z41  sigmaw     veps     2       40  1.33561275 0.11782273
-#&gt; 47   z42 ~~  z42  sigmaw     veps     2       41  1.53723790 0.15016451
-#&gt; 48   z43 ~~  z43  sigmaw     veps     2       42  1.09534083 0.17179259</div><div class='input'><span class='co'># }</span>
+</div><div class='output co'>#&gt; Computing starting values...done. Took: 5.8 s
+#&gt; Fitting the model...done. Took: 42.8 s
+#&gt; Computing standard errors...done. Took: 75.4 s</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>fit</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; 
+#&gt; 
+#&gt; --------------------- Group 1 --------------------- 
+#&gt; 
+#&gt; Regression:
+#&gt;        Estimate       SE   Est./SE    p-value
+#&gt; 1        2.3053   0.0845     27.30   0.00e+00
+#&gt; z11     -0.0987   0.0133     -7.45   9.66e-14
+#&gt; z21      0.1045   0.0175      5.97   2.31e-09
+#&gt; eta1    -0.0885   0.0151     -5.87   4.40e-09
+#&gt; 
+#&gt; Means:
+#&gt;        Estimate       SE   Est./SE   p-value
+#&gt; eta1       1.58   0.0798      19.8         0
+#&gt; z11        1.59   0.0626      25.5         0
+#&gt; z21        3.91   0.0471      83.0         0
+#&gt; 
+#&gt; Variances:
+#&gt;        Estimate      SE   Est./SE   p-value
+#&gt; eta1       1.91   0.198      9.64         0
+#&gt; z11        1.68   0.115     14.66         0
+#&gt; z21        0.95   0.065     14.62         0
+#&gt; 
+#&gt; Covariances:
+#&gt;               Estimate       SE   Est./SE    p-value
+#&gt; z11 ~~ z21      -0.503   0.0657     -7.66   1.91e-14
+#&gt; eta1 ~~ z11      0.467   0.0991      4.71   2.48e-06
+#&gt; eta1 ~~ z21     -0.270   0.0740     -3.65   2.66e-04
+#&gt; 
+#&gt; Measurement Model:
+#&gt;               Estimate       SE   Est./SE    p-value
+#&gt; z42 ~ 1        -0.0592   0.1110    -0.533   0.593694
+#&gt; eta1 =~ z42     1.2633   0.0546    23.120   0.000000
+#&gt; z43 ~ 1        -0.3978   0.1174    -3.389   0.000702
+#&gt; eta1 =~ z43     1.3290   0.0593    22.395   0.000000
+#&gt; z41 ~~ z41      1.5164   0.1335    11.358   0.000000
+#&gt; z42 ~~ z42      1.4506   0.1593     9.108   0.000000
+#&gt; z43 ~~ z43      1.4675   0.1671     8.784   0.000000
+#&gt; 
+#&gt; 
+#&gt; --------------------- Group 2 --------------------- 
+#&gt; 
+#&gt; Regression:
+#&gt;        Estimate       SE   Est./SE    p-value
+#&gt; 1        2.4704   0.0811     30.46   0.00e+00
+#&gt; z11     -0.0794   0.0132     -6.03   1.66e-09
+#&gt; z21      0.0860   0.0166      5.19   2.10e-07
+#&gt; eta1    -0.0312   0.0117     -2.68   7.46e-03
+#&gt; 
+#&gt; Means:
+#&gt;        Estimate       SE   Est./SE   p-value
+#&gt; eta1       1.64   0.0742      22.1         0
+#&gt; z11        1.55   0.0548      28.3         0
+#&gt; z21        4.00   0.0430      93.0         0
+#&gt; 
+#&gt; Variances:
+#&gt;        Estimate       SE   Est./SE   p-value
+#&gt; eta1      2.216   0.2450      9.05         0
+#&gt; z11       1.384   0.0949     14.58         0
+#&gt; z21       0.841   0.0572     14.70         0
+#&gt; 
+#&gt; Covariances:
+#&gt;               Estimate       SE   Est./SE    p-value
+#&gt; z11 ~~ z21      -0.480   0.0573     -8.38   0.00e+00
+#&gt; eta1 ~~ z11      0.662   0.1047      6.32   2.58e-10
+#&gt; eta1 ~~ z21     -0.403   0.0794     -5.08   3.71e-07
+#&gt; 
+#&gt; Measurement Model:
+#&gt;               Estimate       SE   Est./SE    p-value
+#&gt; z42 ~ 1        -0.0592   0.1110    -0.533   5.94e-01
+#&gt; eta1 =~ z42     1.2633   0.0546    23.120   0.00e+00
+#&gt; z43 ~ 1        -0.3978   0.1174    -3.389   7.02e-04
+#&gt; eta1 =~ z43     1.3290   0.0593    22.395   0.00e+00
+#&gt; z41 ~~ z41      1.3356   0.1178    11.336   0.00e+00
+#&gt; z42 ~~ z42      1.5372   0.1502    10.237   0.00e+00
+#&gt; z43 ~~ z43      1.0953   0.1718     6.376   1.82e-10</div><div class='input'><span class='co'># }</span>
 
 </div></pre>
   </div>

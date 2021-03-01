@@ -5,3 +5,7 @@ compute_groupcond_logl <- function(x, muy, sigmayw, muwz, sigmaz, ghweight, detv
     .Call('_lavacreg_compute_groupcond_logl', PACKAGE = 'lavacreg', x, muy, sigmayw, muwz, sigmaz, ghweight, detvarz, dims)
 }
 
+creg_group_logl_cpp <- function(datalist, modellist) {
+    .Call('_lavacreg_creg_group_logl_cpp', PACKAGE = 'lavacreg', datalist, modellist)
+}
+
