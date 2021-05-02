@@ -123,6 +123,10 @@ creg_fit_model <- function(object) {
                   control = list(rel.tol = 1e-6,
                                  eval.max = 500,
                                  iter.max = 300))
+    
+    # L-BFGS-S option
+    # fit <- optim
+    
     if (!silent){
       time_diff <- Sys.time() - time_start
       units(time_diff) <- "secs"

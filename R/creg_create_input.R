@@ -8,7 +8,7 @@
 #' @importFrom stats terms.formula
 #' @keywords internal
 #' @noRd
-creg_create_input <- function(forml, lv, group, data, family, silent, se){
+creg_create_input <- function(forml, lv, group, data, family, silent, se, cregOptions){
   # Convert formula and extract terms
   forml <- as.formula(forml)
   
@@ -40,6 +40,9 @@ creg_create_input <- function(forml, lv, group, data, family, silent, se){
     group <- character()
   }
   
+  if (is.null(cregOptions)){
+    cregOptions <- list()
+  }
   
   # Do some checking before returning the input object
   # CountReg does not support interactions or higher-order terms
@@ -65,7 +68,8 @@ creg_create_input <- function(forml, lv, group, data, family, silent, se){
     family = family,
     data = data,
     silent = silent,
-    se = se)
+    se = se,
+    cregOptions = cregOptions)
   
   return(res)
 }

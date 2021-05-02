@@ -10,6 +10,7 @@
 #' @param family Poisson or negative binomial
 #' @param silent Should informations about the estimation process be suppressed?
 #' @param se Should standard errors be computed? (Can take a while for complex models)
+#' @param cregOptions optional list of additional options for the estimation procedure
 #' @return An object of type \code{lavacreg}. Use \code{summary(object)} to print results
 #' containing parameter estimates and their standard errors.
 #' @examples
@@ -27,10 +28,17 @@
 #' 
 #' @importFrom methods new
 #' @export
-countreg <- function(forml, lv = NULL, group = NULL, data, family, silent = FALSE, se = TRUE) {
+countreg <- function(forml, lv = NULL, group = NULL, data, family, silent = FALSE, se = TRUE, cregOptions = NULL) {
   
   object <- new("lavacreg")
-  object@input <- creg_create_input(forml, lv, group, data, family, silent, se)
+  object@input <- creg_create_input(forml = forml, 
+                                    lv = lv, 
+                                    group = group, 
+                                    data = data, 
+                                    family = family, 
+                                    silent = silent, 
+                                    se = se, 
+                                    cregOptions = cregOptions)
     
   # Create datalist
   # i.e., split data in group-conditional datasets of dv and covariates

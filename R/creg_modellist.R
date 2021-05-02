@@ -261,18 +261,25 @@ creg_matrix_vechru_idx <- function(n = 1L, diagonal = TRUE) {
 #' @param ip Number of integration points per dimension
 #' 
 #' @noRd
-creg_init_grid <- function (Q = 2, ip = 6) 
+creg_init_grid <- function (Q = 2, ip = 6, type = "GH") 
 {
-    x <- fastGHQuad::gaussHermiteData(ip)
-    w <- x$w/sqrt(pi)
-    x <- x$x * sqrt(2)
-    X <- as.matrix(expand.grid(lapply(apply(replicate(Q, x), 2, list), unlist)))
-    g <- as.matrix(expand.grid(lapply(apply(replicate(Q, w), 
-                                            2, list), unlist)))
-    W <- apply(g, 1, function(x) sum(log(x)))
+    if (type == "GH"){
+        x <- fastGHQuad::gaussHermiteData(ip)
+        w <- x$w/sqrt(pi)
+        x <- x$x * sqrt(2)
+        X <- as.matrix(expand.grid(lapply(apply(replicate(Q, x), 2, list), unlist)))
+        g <- as.matrix(expand.grid(lapply(apply(replicate(Q, w), 
+                                                2, list), unlist)))
+        W <- apply(g, 1, function(x) sum(log(x)))   
+    } else if (type == "Sparse"){
+        x <- SparseGrid::createSparseGrid("KPN", Q, 5L)
+        X <- x$nodes
+        W <- log(x$weights)
+        w <- NULL
+    }
     
     
-    return(invisible(list(X = X, W = W, w=w)))
+    return(invisible(list(X = X, W = W, w=w, type=type)))
 }
 
 creg_adapt_grid <- function (mu, Sigma, init_grid, prune = FALSE) 
@@ -280,6 +287,7 @@ creg_adapt_grid <- function (mu, Sigma, init_grid, prune = FALSE)
     X <- init_grid$X
     W <- init_grid$W
     w <- init_grid$w
+    type <- init_grid$type
     Q <- length(mu)
     
     trans <- function(X, Sigma) {
@@ -296,7 +304,7 @@ creg_adapt_grid <- function (mu, Sigma, init_grid, prune = FALSE)
     X <- trans(X, Sigma)
     X <- t(t(X) + mu)
     
-    if (prune) {
+    if (prune & type == "GH") {
         threshold <- log(min(w)^(Q - 1) * max(w))
         relevant <- W >= threshold
         W <- W[relevant]

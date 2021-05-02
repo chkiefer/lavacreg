@@ -16,7 +16,8 @@ setClass("input",
     family = "character",
     data = "data.frame",
     silent = "logical",
-    se = "logical"
+    se = "logical",
+    cregOptions = "list"
     )
 )
 

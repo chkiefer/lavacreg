@@ -14,6 +14,7 @@ creg_create_datalist <- function(object, data){
   cvnames <- input@cvnames
   groupname <- input@groupname
   family <- input@family
+  cregOptions <- input@cregOptions
   
   if (length(groupname)){
     groupvar <- as.factor(unlist(data[groupname]))
@@ -32,8 +33,13 @@ creg_create_datalist <- function(object, data){
   no_z <- length(cvnames)
   
   init_grid <- list()
-  no_integration_points <- 15L
-  if (no_lv) init_grid <- creg_init_grid(Q = no_lv, ip = no_integration_points)
+  if (is.null(cregOptions$intPoints) | !is.integer(cregOptions$intPoints)){
+    no_integration_points <- 15L
+  } else {
+    no_integration_points <- cregOptions$intPoints
+  }
+  
+  if (no_lv) init_grid <- creg_init_grid(Q = no_lv, ip = no_integration_points, type = "GH")
   
   
   res <- new("dataobj",
