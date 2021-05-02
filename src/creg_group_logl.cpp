@@ -1,3 +1,4 @@
+#define STRICT_R_HEADERS
 #include <Rcpp.h>
 using namespace Rcpp;
 
@@ -54,7 +55,7 @@ NumericVector creg_group_logl_cpp(List datalist, List modellist){
         int wn = dims[3];
         
         // constants
-        double sqrtpi = std::sqrt(2*PI);
+        double sqrtpi = std::sqrt(2*M_PI);
         double cz = std::pow(sqrtpi, zn);
         double cw = std::pow(sqrtpi, wn);
         
