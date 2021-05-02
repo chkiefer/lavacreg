@@ -11,7 +11,8 @@ countreg(
   data,
   family,
   silent = FALSE,
-  se = TRUE
+  se = TRUE,
+  cregOptions = NULL
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ countreg(
 \item{silent}{Should informations about the estimation process be suppressed?}
 
 \item{se}{Should standard errors be computed? (Can take a while for complex models)}
+
+\item{cregOptions}{optional list of additional options for the estimation procedure}
 }
 \value{
 An object of type \code{lavacreg}. Use \code{summary(object)} to print results

@@ -259,6 +259,8 @@ creg_matrix_vechru_idx <- function(n = 1L, diagonal = TRUE) {
 #' 
 #' @param Q How many dimensions should the grid have?
 #' @param ip Number of integration points per dimension
+#' @importFrom fastGHQuad gaussHermiteData
+#' @importFrom SparseGrid createSparseGrid
 #' 
 #' @noRd
 creg_init_grid <- function (Q = 2, ip = 6, type = "GH") 

@@ -1,7 +1,7 @@
 Package: lavacreg
 Type: Package
 Title: Latent Variable Count Regression Models
-Version: 0.1-2-9001
+Version: 0.1-2-9002
 Date: 2021-03-03
 Authors@R: c(person("Christoph", "Kiefer", 
                     email = "christoph.kiefer@uni-bielefeld.de", 
@@ -24,7 +24,8 @@ Imports: Rcpp (>= 1.0.5),
     fastGHQuad,
     pracma,
     methods,
-    stats
+    stats,
+    SparseGrid
 LinkingTo: Rcpp
 RoxygenNote: 7.1.1
 Suggests: 

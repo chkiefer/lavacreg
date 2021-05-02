@@ -24,7 +24,7 @@
 #' 
 #' @docType package
 #' @author Christoph Kiefer <christoph.kiefer@uni-bielefeld.de>
-#' @import Rcpp fastGHQuad pracma
+#' @import Rcpp fastGHQuad pracma SparseGrid
 #' @importFrom Rcpp evalCpp
 #' @useDynLib lavacreg
 #' @name lavacreg
