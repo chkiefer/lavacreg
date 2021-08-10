@@ -5,7 +5,7 @@
 lavacreg is an R package for fitting count regression models (i.e., Poisson, negative binomial) with manifest as well as latent covariates and within multiple groups. It can be installed via GitHub.
 
 ## Installation
-`lavacreg` is currently not on CRAN. The development version of `lavacreg` can be installed directly from this GitHub repository using the additional package `devtools`. Under Windows, please make sure Rtools (http://cran.r-project.org/bin/windows/Rtools) are installed and no older version of `lavacreg` is currently loaded:
+`lavacreg` is currently on CRAN. The development version of `lavacreg` can be installed directly from this GitHub repository using the additional package `devtools`. Under Windows, please make sure Rtools (http://cran.r-project.org/bin/windows/Rtools) are installed and no older version of `lavacreg` is currently loaded:
 
 ```
 install.packages("devtools")
