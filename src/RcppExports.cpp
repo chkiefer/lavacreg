@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // compute_groupcond_logl
 double compute_groupcond_logl(NumericMatrix x, NumericMatrix muy, NumericVector sigmayw, NumericMatrix muwz, NumericMatrix sigmaz, NumericVector ghweight, double detvarz, IntegerVector dims);
 RcppExport SEXP _lavacreg_compute_groupcond_logl(SEXP xSEXP, SEXP muySEXP, SEXP sigmaywSEXP, SEXP muwzSEXP, SEXP sigmazSEXP, SEXP ghweightSEXP, SEXP detvarzSEXP, SEXP dimsSEXP) {

@@ -1,9 +1,10 @@
-#' Input object 
-#' 
+#' Input object
+#'
 #' Takes the lavacreg input
-#'  
+#'
 #' @noRd
-setClass("input",
+setClass(
+  "input",
   representation(
     forml = "formula",
     lvlist = "list",
@@ -17,19 +18,20 @@ setClass("input",
     data = "data.frame",
     silent = "logical",
     se = "logical",
-    cregOptions = "list"
-    )
+    creg_options = "list"
+  )
 )
 
-#' Data object 
-#' 
+#' Data object
+#'
 #' Takes the lavacreg data structure
-#'  
+#'
 #' @noRd
-setClass("dataobj",
+setClass(
+  "dataobj",
   representation(
-    datalist           = "list",
-    groupvar           = "factor",
+    datalist = "list",
+    groupvar = "factor",
     n_cell = "integer",
     no_groups = "integer",
     no_lv = "integer",
@@ -41,15 +43,16 @@ setClass("dataobj",
   )
 )
 
-#' lavacreg object 
-#' 
+#' lavacreg object
+#'
 #' The overall object holding all information
-#'  
+#'
 #' @noRd
-setClass("lavacreg",
+setClass(
+  "lavacreg",
   representation(
-    input              = "input",
-    dataobj           = "dataobj",
+    input = "input",
+    dataobj = "dataobj",
     fit = "list"
   )
 )

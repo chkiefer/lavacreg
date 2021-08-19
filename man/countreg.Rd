@@ -6,50 +6,65 @@
 \usage{
 countreg(
   forml,
+  data,
   lv = NULL,
   group = NULL,
-  data,
-  family,
+  family = "poisson",
   silent = FALSE,
   se = TRUE,
-  cregOptions = NULL
+  creg_options = NULL
 )
 }
 \arguments{
-\item{forml}{an object of class for \code{\link[stats]{formula}} (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under Details.}
+\item{forml}{An object of class \code{\link[stats]{formula}} (or one
+that can be coerced to that class): a symbolic description of the model to
+be fitted. The details of model specification are given under Details.}
 
-\item{lv}{Definition of the latent variables.}
+\item{data}{A data frame containing all variables specified in \code{forml}
+and/or indicators of the latent variables specified in \code{lv} (if
+applicable).}
 
-\item{group}{A group variable}
+\item{lv}{A named list, where names of elements represent the names of the
+ latent variables and each element consists of a character vector containing
+variable names of indicators for the respective latent variable, e.g.,
+\code{list(eta1 = c("z1", "z2", "z3"))}.}
 
-\item{data}{a data frame}
+\item{group}{A group variable. If specified, the regression model specified
+in \code{forml} is estimated as multi-group model (i.e., within each group).}
 
-\item{family}{Poisson or negative binomial}
+\item{family}{A character indicating the family of the generalized linear
+model to be estimated. At the moment, \code{"poisson"} (for Poisson
+regression; default) or \code{"nbinom"} (for negative binomial regression)
+are available.}
 
-\item{silent}{Should informations about the estimation process be suppressed?}
+\item{silent}{Logical. Should informations about the estimation process
+be suppressed? (Defaults to FALSE)}
 
-\item{se}{Should standard errors be computed? (Can take a while for complex models)}
+\item{se}{Logical. Should standard errors be computed? Defaults to TRUE.
+(Can take a while for complex models)}
 
-\item{cregOptions}{optional list of additional options for the estimation procedure}
+\item{creg_options}{optional list of additional options for the estimation
+procedure}
 }
 \value{
-An object of type \code{lavacreg}. Use \code{summary(object)} to print results
-containing parameter estimates and their standard errors.
+An object of type \code{lavacreg}. Use \code{summary(object)} to
+print results containing parameter estimates and their standard errors.
 }
 \description{
 This function is the main function of the package and can be used to estimate
 latent variable count regression models in one or multiple group(s).
 }
 \examples{
-fit <- countreg(forml = 'dv ~ z11', data = example01, family = 'poisson')
+fit <- countreg(forml = "dv ~ z11", data = example01, family = "poisson")
 summary(fit)
-
 \donttest{
-fit <- countreg(forml = 'dv ~ eta1 + z11 + z21', 
-              lv = list(eta1=c('z41', 'z42', 'z43')),
-              group = 'treat',
-               data = example01,
-             family = 'poisson')
+fit <- countreg(
+  forml = "dv ~ eta1 + z11 + z21",
+  lv = list(eta1 = c("z41", "z42", "z43")),
+  group = "treat",
+  data = example01,
+  family = "poisson"
+)
 summary(fit)
 }
 
