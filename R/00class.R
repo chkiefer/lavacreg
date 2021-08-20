@@ -14,6 +14,9 @@ setClass(
     ovnames = "character",
     cvnames = "character",
     groupname = "character",
+    no_lv = "integer",
+    no_w = "integer",
+    no_z = "integer",
     family = "character",
     data = "data.frame",
     silent = "logical",
@@ -34,9 +37,6 @@ setClass(
     groupvar = "factor",
     n_cell = "integer",
     no_groups = "integer",
-    no_lv = "integer",
-    no_w = "integer",
-    no_z = "integer",
     eq_constraints_Q2 = "matrix",
     con_jac = "matrix",
     init_grid = "list"
@@ -53,6 +53,7 @@ setClass(
   representation(
     input = "input",
     dataobj = "dataobj",
+    partable = "data.frame",
     fit = "list"
   )
 )

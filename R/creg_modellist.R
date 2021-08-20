@@ -7,7 +7,7 @@
 #' @param family Poisson or negative binomial
 #'
 #' @noRd
-creg_modellist <- function(pt, dataobj, family) {
+creg_modellist <- function(pt, dataobj, family, input) {
     # Information passed to mapply
     datalist <- dataobj@datalist
     pt_list <- split(pt$par, pt$group)
@@ -16,9 +16,9 @@ creg_modellist <- function(pt, dataobj, family) {
 
     # Additional information required for actual modellist-function
     modellist_info <- list()
-    modellist_info$no_lv <- dataobj@no_lv
-    modellist_info$no_w <- dataobj@no_w
-    modellist_info$no_z <- dataobj@no_z
+    modellist_info$no_lv <- input@no_lv
+    modellist_info$no_w <- input@no_w
+    modellist_info$no_z <- input@no_z
     modellist_info$init_grid <- dataobj@init_grid
 
 
@@ -119,8 +119,8 @@ creg_matrix_vech_idx <- function(n = 1L, diagonal = TRUE) {
     ROW <- matrix(seq_len(n), n, n)
     COL <- matrix(seq_len(n), n, n, byrow = TRUE)
     if (diagonal) {
-          which(ROW >= COL)
-      } else {
+        which(ROW >= COL)
+    } else {
         which(ROW > COL)
     }
 }
@@ -139,45 +139,13 @@ creg_matrix_vechru_idx <- function(n = 1L, diagonal = TRUE) {
     COL <- matrix(seq_len(n), n, n, byrow = TRUE)
     tmp <- matrix(seq_len(n * n), n, n, byrow = TRUE)
     if (diagonal) {
-          tmp[ROW >= COL]
-      } else {
+        tmp[ROW >= COL]
+    } else {
         tmp[ROW > COL]
     }
 }
 
-#' Create Gauss-Hermite grid
-#'
-#' Computes a standard Gauss-Hermite grid for Q dimensions with ip integration points
-#'
-#' @param Q How many dimensions should the grid have?
-#' @param ip Number of integration points per dimension
-#' @importFrom fastGHQuad gaussHermiteData
-#' @importFrom SparseGrid createSparseGrid
-#'
-#' @noRd
-creg_init_grid <- function(Q = 2, ip = 6, type = "GH") {
-    if (type == "GH") {
-        x <- fastGHQuad::gaussHermiteData(ip)
-        w <- x$w / sqrt(pi)
-        x <- x$x * sqrt(2)
-        X <- as.matrix(expand.grid(lapply(apply(
-            replicate(Q, x), 2, list
-        ), unlist)))
-        g <- as.matrix(expand.grid(lapply(apply(
-            replicate(Q, w),
-            2, list
-        ), unlist)))
-        W <- apply(g, 1, function(x) sum(log(x)))
-    } else if (type == "Sparse") {
-        x <- SparseGrid::createSparseGrid("KPN", Q, 5L)
-        X <- x$nodes
-        W <- log(x$weights)
-        w <- NULL
-    }
 
-
-    return(invisible(list(X = X, W = W, w = w, type = type)))
-}
 
 creg_adapt_grid <- function(mu, Sigma, init_grid, prune = FALSE) {
     X <- init_grid$X
@@ -189,11 +157,11 @@ creg_adapt_grid <- function(mu, Sigma, init_grid, prune = FALSE) {
     trans <- function(X, Sigma) {
         lambda <- with(eigen(Sigma), {
             if (any(values < 0)) {
-                  warning("Matrix is not positive definite.")
-              }
+                warning("Matrix is not positive definite.")
+            }
             if (length(values) > 1) {
-                  vectors %*% diag(sqrt(values))
-              } else {
+                vectors %*% diag(sqrt(values))
+            } else {
                 vectors * sqrt(values)
             }
         })

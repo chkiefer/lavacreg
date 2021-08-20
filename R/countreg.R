@@ -70,6 +70,9 @@ countreg <- function(forml,
   # i.e., split data in group-conditional datasets of dv and covariates
   object@dataobj <- creg_create_datalist(object, data)
 
+  # Create partable
+  object@partable <- creg_create_partable(object)
+
   # Start estimation process
   # TODO: seperate model and standard error estimation
   object <- creg_fit_model(object)

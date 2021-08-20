@@ -60,7 +60,13 @@ creg_create_input <- function(forml,
     cvnames <- vnames[!vnames %in% c(lvnames, dvname)]
   }
 
+  # Get number of each covariate type
+  no_lv <- length(lvnames)
+  no_w <- length(ovnames)
+  no_z <- length(cvnames)
+
   # If no group variable is specified: group name = ""
+  # Get number of groups and respective group sizes
   if (is.null(group)) {
     group <- character()
   }
@@ -69,6 +75,7 @@ creg_create_input <- function(forml,
   if (is.null(creg_options)) {
     creg_options <- list()
   }
+
 
   #############
   # CHECKS
@@ -79,6 +86,14 @@ creg_create_input <- function(forml,
     stop(
       "lavacreg Error: Please do not use higher-order terms in your formula."
     )
+  }
+
+  # Check if all variables are in data (or empty "")
+  if (!all(
+    c(dvname, ovnames, cvnames, group) %in% c(names(data), "")
+  )) {
+    stop("lavacreg Error: At least one of the specified variables
+    ist not included within your dataset.")
   }
 
   # Check if dv is count variable
@@ -96,6 +111,9 @@ creg_create_input <- function(forml,
     ovnames = ovnames,
     cvnames = cvnames,
     groupname = group,
+    no_lv = no_lv,
+    no_w = no_w,
+    no_z = no_z,
     family = family,
     data = data,
     silent = silent,
