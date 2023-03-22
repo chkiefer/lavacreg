@@ -4,26 +4,17 @@
 #' the further computations. It serves the following purposes:
 #' 1. Generate model matrix (df with only relevant variables)
 #' 2. Split data into groupwise matrices
-#' 3. Generate GH grid (if latent variables are specified)
-#' # TODO: maybe 1 and 2 suffice, and this would be more of a step
-#' # for data wrangling
 #'
-#' @param object a lavacreg object
-#' @param data the dataframe
+#' @param input a lavacreg input object
 #'
 #' @noRd
-creg_create_datalist <- function(object) {
-  input <- object@input
+creg_datalist <- function(input) {
   dvname <- input@dvname
-  lvnames <- input@lvnames
   ovnames <- input@ovnames
   cvnames <- input@cvnames
-  groupvar <- input@groupvar
-  no_lv <- input@no_lv
-  family <- input@family
-  data <- input@data
-  creg_options <- input@creg_options
 
+  groupvar <- input@groupvar
+  data <- input@data
 
   # Select observed variables for model
   model_vars <- c(dvname, ovnames, cvnames)
@@ -31,6 +22,16 @@ creg_create_datalist <- function(object) {
 
   # Split data into group-wise datasets
   datalist <- lapply(split(model_matrix, groupvar), as.matrix)
+
+  return(datalist)
+}
+
+
+
+creg_gh_grid <- function(input) {
+  no_lv <- input@no_lv
+  creg_options <- input@creg_options
+
 
   # Initialize empty grid of integration points and
   # define number of integration points per dimension
@@ -51,20 +52,8 @@ creg_create_datalist <- function(object) {
     )
   }
 
-  # Return new dataobj
-  # TODO: placeholder for constraints, maybe not a suitable location
-  # TODO: maybe own section for constraints, for increasing complexity
-  res <- new("dataobj",
-    datalist = datalist,
-    eq_constraints_Q2 = matrix(),
-    con_jac = matrix(),
-    init_grid = init_grid
-  )
-
-  return(res)
+  return(init_grid)
 }
-
-
 
 #' Create Gauss-Hermite grid
 #'

@@ -17,14 +17,14 @@
 #' @importFrom stats terms.formula
 #' @keywords internal
 #' @noRd
-creg_create_input <- function(forml,
-                              lv,
-                              group,
-                              data,
-                              family,
-                              silent,
-                              se,
-                              creg_options) {
+creg_input <- function(forml,
+                       lv,
+                       group,
+                       data,
+                       family,
+                       silent,
+                       se,
+                       creg_options) {
   # Convert formula and extract terms
   forml <- as.formula(forml)
 

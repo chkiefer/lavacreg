@@ -16,9 +16,9 @@
 #' @importFrom utils combn
 #' @keywords internal
 #' @noRd
-creg_create_partable <- function(object) {
+creg_partable <- function(input) {
     # Import required information from input object
-    input <- object@input
+    # input <- object@input
     dvname <- input@dvname
     lvnames <- input@lvnames
     ovnames <- input@ovnames
@@ -243,7 +243,11 @@ creg_create_partable <- function(object) {
 
         # Covariances between manifest and latent covariates
         if (no_z_lv_covariance) {
-            names_z_lv_cov <- expand.grid(lvnames, cvnames, stringsAsFactors = FALSE)
+            names_z_lv_cov <- expand.grid(
+                lvnames,
+                cvnames,
+                stringsAsFactors = FALSE
+            )
             for (j in 1:no_z_lv_covariance) {
                 lhs <- c(lhs, names_z_lv_cov[j, 1])
                 op <- c(op, "~~")
@@ -304,66 +308,4 @@ creg_create_partable <- function(object) {
     }
     pt <- data.frame(lhs, op, rhs, dest, type, group, par_free, par)
     return(pt)
-}
-
-#' Start values
-#'
-#' Compute starting values for a latent variable model
-#'
-#'  @param object a lavacreg object
-#'  @param pt a parameter table with initial starting values
-#'
-#' @noRd
-creg_starts_lv <- function(object) {
-    input <- object@input
-    dvname <- input@dvname
-    cvnames <- input@cvnames
-    lvnames <- input@lvnames
-    lvlist <- input@lvlist
-    groupname <- input@groupname
-    data <- input@data
-    pt <- object@partable
-
-    # Compute (manifest) mean scores for latent variables
-    for (lv in names(lvlist)) {
-        data[lv] <- rowMeans(data[lvlist[[lv]]], na.rm = TRUE)
-    }
-
-    # Dataset of all model variables including mean score variables
-    d_ov_starts <- data[c(dvname, groupname, cvnames, lvnames)]
-
-    # Model formula for "all-observed" case
-    forml <- paste(
-        dvname,
-        "~",
-        paste(cvnames, collapse = "+"),
-        "+",
-        paste(lvnames, collapse = "+")
-    )
-
-    # Run the "all-observed" model through countreg
-    fit_starts <- countreg(
-        forml = forml,
-        lv = NULL,
-        group = groupname,
-        data = d_ov_starts,
-        family = object@input@family,
-        silent = TRUE,
-        se = FALSE
-    )
-
-    # Extract "manifest" results for coefficients, means, variance, and
-    # covariances and return as start values for latent model
-    pt_starts <- fit_starts@fit$pt
-    pt$par[pt$dest == "groupw"] <- pt_starts$par[pt_starts$dest == "groupw"]
-    pt$par[pt$dest == "regcoef"] <- pt_starts$par[pt_starts$dest == "regcoef"]
-    pt$par[!is.na(pt$type) & pt$type == "mean"] <-
-        pt_starts$par[!is.na(pt_starts$type) & pt_starts$type == "mean"]
-    pt$par[!is.na(pt$type) & pt$type == "var"] <-
-        pt_starts$par[!is.na(pt_starts$type) & pt_starts$type == "var"]
-    pt$par[!is.na(pt$type) & (pt$type == "cov" | pt$type == "cov_z_lv")] <-
-        pt_starts$par[!is.na(pt_starts$type) & pt_starts$type == "cov"]
-
-    x_start_lv <- pt$par[pt$par_free > 0L]
-    return(x_start_lv)
 }

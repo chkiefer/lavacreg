@@ -43,6 +43,20 @@ setClass(
   )
 )
 
+#' Constraints object
+#'
+#' Takes the lavacreg constraints
+#'
+#' @noRd
+setClass(
+  "constraints",
+  representation(
+    con_logical = "logical",
+    eq_constraints_Q2 = "matrix",
+    con_jac = "matrix"
+  )
+)
+
 #' lavacreg object
 #'
 #' The overall object holding all information
@@ -52,8 +66,11 @@ setClass(
   "lavacreg",
   representation(
     input = "input",
-    dataobj = "dataobj",
     partable = "data.frame",
+    constraints = "constraints",
+    datalist = "list",
+    gh_grid = "list",
+    x_start = "matrix",
     fit = "list"
   )
 )

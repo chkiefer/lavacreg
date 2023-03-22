@@ -56,7 +56,7 @@ countreg <- function(forml,
 
   # Create, process and save function input
   # TODO: maybe use matchcall or something similar
-  object@input <- creg_create_input(
+  object@input <- creg_input(
     forml = forml,
     lv = lv,
     group = group,
@@ -68,15 +68,21 @@ countreg <- function(forml,
   )
 
   # Create partable
-  object@partable <- creg_create_partable(object)
+  object@partable <- creg_partable(object@input)
 
-  # Create datalist
+  # Constraints
+  object@constraints <- creg_constraints(object)
+
+  # Datalist
   # i.e., split data in group-conditional datasets of dv and covariates
-  object@dataobj <- creg_create_datalist(object)
+  object@datalist <- creg_datalist(object@input)
 
-
+  # GH grid
+  object@gh_grid <- creg_gh_grid(object@input)
 
   # Start estimation process
+  object@x_start <- creg_startvals(object)
+
   # TODO: seperate model and standard error estimation
   object <- creg_fit_model(object)
 

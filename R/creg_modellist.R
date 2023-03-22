@@ -7,9 +7,8 @@
 #' @param family Poisson or negative binomial
 #'
 #' @noRd
-creg_modellist <- function(pt, dataobj, family, input) {
+creg_modellist <- function(pt, datalist, gh_grid, family, input) {
     # Information passed to mapply
-    datalist <- dataobj@datalist
     pt_list <- split(pt$par, pt$group)
     n_cell <- input@n_cell
     groupw <- pt$par[pt$dest == "groupw"] # just used for list afterwards
@@ -19,7 +18,7 @@ creg_modellist <- function(pt, dataobj, family, input) {
     modellist_info$no_lv <- input@no_lv
     modellist_info$no_w <- input@no_w
     modellist_info$no_z <- input@no_z
-    modellist_info$init_grid <- dataobj@init_grid
+    modellist_info$init_grid <- gh_grid
 
 
     # row indicators for subsetting

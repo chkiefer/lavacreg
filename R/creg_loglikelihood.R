@@ -17,46 +17,18 @@ creg_fit_model <- function(object) {
   silent <- input@silent
   se <- input@se
 
-  dataobj <- object@dataobj
-  datalist <- dataobj@datalist
-
+  datalist <- object@datalist
+  constraints <- object@constraints
+  gh_grid <- object@gh_grid
   pt <- object@partable
-
-  # Computation of start values
-  if (no_lv > 0L) {
-    # Start of Timer
-    if (!silent) {
-      cat("Computing starting values...")
-      time_start <- Sys.time()
-    }
-
-    # Actual computation of start values if latent variables are involved
-    # TODO: verschieben nach countreg
-    x_start <- creg_starts_lv(object)
-
-    # End of Timer
-    if (!silent) {
-      time_diff <- Sys.time() - time_start
-      units(time_diff) <- "secs"
-      cat("done. Took:", round(time_diff, 1), "s\n")
-    }
-  } else {
-    # Use default starting values
-    x_start <- matrix(pt$par[pt$par_free > 0L], nrow = 1)
-  }
+  x_start <- object@x_start
 
 
   # Constraints currently only used for measurement invariance
   # in latent variables
-  # TODO: das kann schon viel frueher passieren und in eigenem Schritt
-  if (no_lv > 0L & no_groups >= 2L) {
-    # Get matrices for constraints
-    tmp <- creg_constraints(pt)
-    dataobj@eq_constraints_Q2 <- tmp$Q2
-    dataobj@con_jac <- tmp$con_jac
-
+  if (constraints@con_logical) {
     # Transform x-vector to "shorter" version
-    x_start <- x_start %*% dataobj@eq_constraints_Q2
+    x_start <- x_start %*% constraints@eq_constraints_Q2
   }
 
   ##################
@@ -73,11 +45,11 @@ creg_fit_model <- function(object) {
     x <- matrix(x, ncol = 1)
 
     # If equality constraints exist, re-expand x to full length
-    if (no_lv > 0L & no_groups >= 2L) {
-      x <- as.numeric(dataobj@eq_constraints_Q2 %*% x)
+    if (constraints@con_logical) {
+      x <- as.numeric(constraints@eq_constraints_Q2 %*% x)
     }
 
-    # Save currents iteration values to partable (connect to meaning)
+    # Save current iteration values to partable (connect to meaning)
     pt$par[pt$par_free > 0L] <- x
 
     # NO variances equal or smaller to 0
@@ -89,7 +61,8 @@ creg_fit_model <- function(object) {
     # TODO: skip modellist and hand pt directly over to C++ likelihood function
     modellist <- creg_modellist(
       pt = pt,
-      dataobj = dataobj,
+      datalist = datalist,
+      gh_grid = gh_grid,
       family = family,
       input = input
     )
@@ -162,13 +135,15 @@ creg_fit_model <- function(object) {
     )
   }
 
-  if (no_lv & no_groups >= 2) {
+  if (constraints@con_logical) {
     pt$par[pt$par_free > 0L] <- as.numeric(
-      dataobj@eq_constraints_Q2 %*% fit$par
+      constraints@eq_constraints_Q2 %*% fit$par
     )
     if (!is.null(vcov_fit)) {
       vcov_fit <-
-        dataobj@eq_constraints_Q2 %*% vcov_fit %*% t(dataobj@eq_constraints_Q2)
+        constraints@eq_constraints_Q2 %*%
+        vcov_fit %*%
+        t(constraints@eq_constraints_Q2)
     }
   } else {
     pt$par[pt$par_free > 0L] <- fit$par
