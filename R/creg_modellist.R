@@ -11,7 +11,7 @@ creg_modellist <- function(pt, dataobj, family, input) {
     # Information passed to mapply
     datalist <- dataobj@datalist
     pt_list <- split(pt$par, pt$group)
-    n_cell <- dataobj@n_cell
+    n_cell <- input@n_cell
     groupw <- pt$par[pt$dest == "groupw"] # just used for list afterwards
 
     # Additional information required for actual modellist-function

@@ -14,6 +14,9 @@ setClass(
     ovnames = "character",
     cvnames = "character",
     groupname = "character",
+    groupvar = "factor",
+    n_cell = "integer",
+    no_groups = "integer",
     no_lv = "integer",
     no_w = "integer",
     no_z = "integer",
@@ -34,9 +37,6 @@ setClass(
   "dataobj",
   representation(
     datalist = "list",
-    groupvar = "factor",
-    n_cell = "integer",
-    no_groups = "integer",
     eq_constraints_Q2 = "matrix",
     con_jac = "matrix",
     init_grid = "list"

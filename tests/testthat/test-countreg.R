@@ -1,3 +1,9 @@
+# TODO: ADD log-likelihood values for comparison
+# if parameters change, but likelihood is better
+# then old solution was wrong?
+
+# TODO: ADD Standard errors to tests
+
 # ---------------------------------------------------
 # TEST 1 - intercept only - one group
 # ---------------------------------------------------

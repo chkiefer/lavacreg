@@ -1,29 +1,29 @@
-#' Create a datalist object
+#' @title Create a lavacreg datalist object based on the input
 #'
-#' Creates the dataobject required for computations
+#' @description  This function creates the datalist object required for
+#' the further computations. It serves the following purposes:
+#' 1. Generate model matrix (df with only relevant variables)
+#' 2. Split data into groupwise matrices
+#' 3. Generate GH grid (if latent variables are specified)
+#' # TODO: maybe 1 and 2 suffice, and this would be more of a step
+#' # for data wrangling
 #'
 #' @param object a lavacreg object
 #' @param data the dataframe
 #'
 #' @noRd
-creg_create_datalist <- function(object, data) {
+creg_create_datalist <- function(object) {
   input <- object@input
   dvname <- input@dvname
   lvnames <- input@lvnames
   ovnames <- input@ovnames
   cvnames <- input@cvnames
-  groupname <- input@groupname
+  groupvar <- input@groupvar
   no_lv <- input@no_lv
   family <- input@family
+  data <- input@data
   creg_options <- input@creg_options
 
-  # If group variable is specified select corresponding variable
-  if (length(groupname)) {
-    groupvar <- as.factor(unlist(data[groupname]))
-  } else {
-    # Else group variable contains only 1s (single-group model)
-    groupvar <- as.factor(rep(1, nrow(data)))
-  }
 
   # Select observed variables for model
   model_vars <- c(dvname, ovnames, cvnames)
@@ -31,10 +31,6 @@ creg_create_datalist <- function(object, data) {
 
   # Split data into group-wise datasets
   datalist <- lapply(split(model_matrix, groupvar), as.matrix)
-
-  # Get group sizes and numbers of variables
-  n_cell <- as.integer(table(groupvar))
-  no_groups <- length(levels(groupvar))
 
   # Initialize empty grid of integration points and
   # define number of integration points per dimension
@@ -56,11 +52,10 @@ creg_create_datalist <- function(object, data) {
   }
 
   # Return new dataobj
+  # TODO: placeholder for constraints, maybe not a suitable location
+  # TODO: maybe own section for constraints, for increasing complexity
   res <- new("dataobj",
     datalist = datalist,
-    groupvar = groupvar,
-    n_cell = n_cell,
-    no_groups = no_groups,
     eq_constraints_Q2 = matrix(),
     con_jac = matrix(),
     init_grid = init_grid

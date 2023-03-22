@@ -12,19 +12,18 @@
 creg_fit_model <- function(object) {
   input <- object@input
   family <- input@family
+  no_groups <- input@no_groups
   no_lv <- input@no_lv
   silent <- input@silent
   se <- input@se
 
   dataobj <- object@dataobj
   datalist <- dataobj@datalist
-  no_groups <- dataobj@no_groups
 
   pt <- object@partable
 
   # Computation of start values
   if (no_lv > 0L) {
-
     # Start of Timer
     if (!silent) {
       cat("Computing starting values...")
@@ -32,6 +31,7 @@ creg_fit_model <- function(object) {
     }
 
     # Actual computation of start values if latent variables are involved
+    # TODO: verschieben nach countreg
     x_start <- creg_starts_lv(object)
 
     # End of Timer
@@ -48,6 +48,7 @@ creg_fit_model <- function(object) {
 
   # Constraints currently only used for measurement invariance
   # in latent variables
+  # TODO: das kann schon viel frueher passieren und in eigenem Schritt
   if (no_lv > 0L & no_groups >= 2L) {
     # Get matrices for constraints
     tmp <- creg_constraints(pt)
@@ -105,6 +106,7 @@ creg_fit_model <- function(object) {
   }
 
   # Pass start values x and objective function to optimizer
+  # TODO: maybe allow for different optimizers
   fit <- nlminb(x_start, objective_function,
     control = list(
       rel.tol = 1e-6,
@@ -140,7 +142,7 @@ creg_fit_model <- function(object) {
       )
     }
     vcov_fit <- try(
-      solve(information) / sum(object@dataobj@n_cell),
+      solve(information) / sum(object@input@n_cell),
       silent = TRUE
     )
     if (!silent) {

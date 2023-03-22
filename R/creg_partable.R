@@ -1,16 +1,17 @@
-#' Create An Initial Partable for Count Regression Model
+#' @title Create An Initial Parameter Table for Count Regression Model
 #'
-#' The partable serves three purposes:
+#' @description This function turns the input into a parameter table.
+#' The paramater table (partable) serves three purposes:
 #' 1. Translating the input into the required parameters
 #' 2. The initial \code{par} column contains starting values for each free
 #' parameter
-#' 3. Holds the values of each iteration within the fitting process and
-#' connects them to model
+#' 3. Later, it holds the values of each iteration within the fitting
+#' process and connects them to model
 #'
-#' Details
+#' @details Details
 #'
-#' @param object An object of class \code{countReg}, which contains input and
-#' datalist at this point
+#' @param object An object of class \code{data.frame}, which contains an
+#' overview of parameters to be estimated
 #'
 #' @importFrom utils combn
 #' @keywords internal
@@ -23,14 +24,12 @@ creg_create_partable <- function(object) {
     ovnames <- input@ovnames
     cvnames <- input@cvnames
     groupname <- input@groupname
+    no_groups <- input@no_groups
     no_lv <- input@no_lv
     no_w <- input@no_w
     no_z <- input@no_z
     lv <- input@lvlist
     family <- input@family
-
-    # Import required information from
-    no_groups <- object@dataobj@no_groups
 
     # Compute number of different covariances types
     no_cov <- no_lv + no_z

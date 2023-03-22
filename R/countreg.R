@@ -55,6 +55,7 @@ countreg <- function(forml,
   object <- new("lavacreg")
 
   # Create, process and save function input
+  # TODO: maybe use matchcall or something similar
   object@input <- creg_create_input(
     forml = forml,
     lv = lv,
@@ -66,12 +67,14 @@ countreg <- function(forml,
     creg_options = creg_options
   )
 
-  # Create datalist
-  # i.e., split data in group-conditional datasets of dv and covariates
-  object@dataobj <- creg_create_datalist(object, data)
-
   # Create partable
   object@partable <- creg_create_partable(object)
+
+  # Create datalist
+  # i.e., split data in group-conditional datasets of dv and covariates
+  object@dataobj <- creg_create_datalist(object)
+
+
 
   # Start estimation process
   # TODO: seperate model and standard error estimation

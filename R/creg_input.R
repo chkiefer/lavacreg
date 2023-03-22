@@ -1,6 +1,15 @@
-#' Create input
+#' @title Create lavacreg input object from call
 #'
-#' Turns the input into an input object
+#' @description This function turns the input from the lavacreg function
+#' into an input object. It serves three purposes:
+#' 1. Save input information for reuse in further steps
+#' 2. Compute and extract additional information required for further steps
+#' 3. Conduct checks (i.e., misspecification, wrong inputs, etc.)
+#'
+#' @details The input object should contain
+#' (a) the call,
+#' (b) all newly computed information,
+#' (c) maybe a short information of the checks
 #'
 #' @inheritParams countreg
 #'
@@ -71,6 +80,19 @@ creg_create_input <- function(forml,
     group <- character()
   }
 
+  # If group variable is specified select corresponding variable
+  if (length(group)) {
+    groupvar <- as.factor(unlist(data[group]))
+  } else {
+    # Else group variable contains only 1s (single-group model)
+    groupvar <- as.factor(rep(1, nrow(data)))
+  }
+
+  # Get group sizes and numbers of variables
+  n_cell <- as.integer(table(groupvar))
+  no_groups <- length(levels(groupvar))
+
+
   # at the moment no specific creg_options are implemented
   if (is.null(creg_options)) {
     creg_options <- list()
@@ -93,7 +115,7 @@ creg_create_input <- function(forml,
     c(dvname, ovnames, cvnames, group) %in% c(names(data), "")
   )) {
     stop("lavacreg Error: At least one of the specified variables
-    ist not included within your dataset.")
+    is not included within your dataset.")
   }
 
   # Check if dv is count variable
@@ -111,6 +133,9 @@ creg_create_input <- function(forml,
     ovnames = ovnames,
     cvnames = cvnames,
     groupname = group,
+    groupvar = groupvar,
+    n_cell = n_cell,
+    no_groups = no_groups,
     no_lv = no_lv,
     no_w = no_w,
     no_z = no_z,
