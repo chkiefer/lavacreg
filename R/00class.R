@@ -57,6 +57,22 @@ setClass(
   )
 )
 
+#' Fit object
+#'
+#' Takes the lavacreg fit information
+#'
+#' @noRd
+setClass(
+  "creg_fit",
+  representation(
+    fit = "list",
+    objective = "function"
+  )
+)
+
+
+setClassUnion("MatrixOrNULL", c("matrix", "NULL"))
+
 #' lavacreg object
 #'
 #' The overall object holding all information
@@ -71,6 +87,7 @@ setClass(
     datalist = "list",
     gh_grid = "list",
     x_start = "matrix",
-    fit = "list"
+    fit = "creg_fit",
+    vcov = "MatrixOrNULL"
   )
 )

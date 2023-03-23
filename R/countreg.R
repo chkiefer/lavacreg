@@ -83,8 +83,11 @@ countreg <- function(forml,
   # Start estimation process
   object@x_start <- creg_startvals(object)
 
-  # TODO: seperate model and standard error estimation
-  object <- creg_fit_model(object)
+  # model estimation
+  object <- creg_model_estimate(object)
+
+  # Standard error estimation
+  object@vcov <- creg_vcov(object)
 
   # Return all information back to the user
   return(object)

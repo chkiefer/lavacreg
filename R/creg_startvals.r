@@ -9,6 +9,7 @@ creg_startvals <- function(object) {
     no_lv <- object@input@no_lv
     silent <- object@input@silent
     pt <- object@partable
+    constraints <- object@constraints
 
     # Start of Timer
     if (!silent) {
@@ -22,6 +23,13 @@ creg_startvals <- function(object) {
     } else {
         # Use default starting values
         x_start <- pt$par[pt$par_free > 0L] |> matrix(nrow = 1)
+    }
+
+    # Constraints currently only used for measurement invariance
+    # in latent variables
+    if (constraints@con_logical) {
+        # Transform x-vector to "shorter" version
+        x_start <- x_start %*% constraints@eq_constraints_Q2
     }
 
     # End of Timer
@@ -38,15 +46,24 @@ creg_startvals <- function(object) {
 
 
 
-#' Start values
+#' Starting values for latent variable countreg models
 #'
-#' Compute starting values for a latent variable model
+#' This function computes starting values for countreg models
+#' involving latent covariates. Starting values are computed
+#' as follows:
+#' 1. Mean scores for latent variable indicators are computed
+#' 2. A count regression with these mean scores are estimated
+#' 3. Parameters of manifest model are returned as starting values
+#'
+#' This procedure is not perfect and is meant to reduce the time spent
+#' in numerical integration, by getting as close to the plausible estimates
+#' as possible without the MML estimation.
 #'
 #'  @param object a lavacreg object
-#'  @param pt a parameter table with initial starting values
 #'
 #' @noRd
 creg_starts_lv <- function(object) {
+    # TODO: integrate starting values for measurement model as well
     input <- object@input
     dvname <- input@dvname
     cvnames <- input@cvnames
@@ -85,18 +102,29 @@ creg_starts_lv <- function(object) {
     )
 
     # Extract "manifest" results for coefficients, means, variance, and
-    # covariances and return as start values for latent model
-    pt_starts <- fit_starts@fit$pt
+    # covariances
+    pt_starts <- fit_starts@partable
+
+    # STARTING VALUES FOR
+    # 1. Group weight
     pt$par[pt$dest == "groupw"] <- pt_starts$par[pt_starts$dest == "groupw"]
+
+    # 2. Regression coefficients
     pt$par[pt$dest == "regcoef"] <- pt_starts$par[pt_starts$dest == "regcoef"]
+
+    # 3. Covariate Means
     pt$par[!is.na(pt$type) & pt$type == "mean"] <-
         pt_starts$par[!is.na(pt_starts$type) & pt_starts$type == "mean"]
+
+    # 4. Covariate Variances
     pt$par[!is.na(pt$type) & pt$type == "var"] <-
         pt_starts$par[!is.na(pt_starts$type) & pt_starts$type == "var"]
+
+    # 5. Covariate Covariances
     pt$par[!is.na(pt$type) & (pt$type == "cov" | pt$type == "cov_z_lv")] <-
         pt_starts$par[!is.na(pt_starts$type) & pt_starts$type == "cov"]
 
+    # Return starting values
     x_start_lv <- pt$par[pt$par_free > 0L] |> matrix(nrow = 1)
-
     return(x_start_lv)
 }

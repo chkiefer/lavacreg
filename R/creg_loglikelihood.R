@@ -9,7 +9,7 @@
 #' @importFrom pracma hessian
 #' @keywords internal
 #' @noRd
-creg_fit_model <- function(object) {
+creg_model_estimate <- function(object) {
   input <- object@input
   family <- input@family
   no_groups <- input@no_groups
@@ -24,16 +24,6 @@ creg_fit_model <- function(object) {
   x_start <- object@x_start
 
 
-  # Constraints currently only used for measurement invariance
-  # in latent variables
-  if (constraints@con_logical) {
-    # Transform x-vector to "shorter" version
-    x_start <- x_start %*% constraints@eq_constraints_Q2
-  }
-
-  ##################
-  # ESTIMATION PART
-  ##################
   # Objective function
   objective_function <- function(x) {
     # CHECK for missing values in x
@@ -68,7 +58,7 @@ creg_fit_model <- function(object) {
     )
 
     # Call loglikelihood function to compute actual likelihood
-    obj <- creg_loglikelihood_function(datalist, modellist)
+    obj <- creg_model_objective(datalist, modellist)
     return(obj)
   }
 
@@ -88,6 +78,15 @@ creg_fit_model <- function(object) {
     )
   )
 
+  # Save parameters back to partable
+  if (constraints@con_logical) {
+    pt$par[pt$par_free > 0L] <- as.numeric(
+      constraints@eq_constraints_Q2 %*% fit$par
+    )
+  } else {
+    pt$par[pt$par_free > 0L] <- fit$par
+  }
+
   # End of Timer
   if (!silent) {
     time_diff <- Sys.time() - time_start
@@ -95,65 +94,13 @@ creg_fit_model <- function(object) {
     cat("done. Took:", round(time_diff, 1), "s\n")
   }
 
-  #####################################
-  # Here starts the standard error part
-  ####################################
-  if (!fit$convergence & se) {
-    if (!silent) {
-      cat("Computing standard errors...")
-      time_start <- Sys.time()
-    }
-    information <- hessian(objective_function, fit$par)
-    eigvals <- eigen(information,
-      symmetric = TRUE,
-      only.values = TRUE
-    )$values
-    if (any(eigvals < -1 * .Machine$double.eps^(3 / 4))) {
-      warning(
-        "lavacreg WARNING: information matrix is not positive definite;
-        the model may not be identified"
-      )
-    }
-    vcov_fit <- try(
-      solve(information) / sum(object@input@n_cell),
-      silent = TRUE
-    )
-    if (!silent) {
-      time_diff <- Sys.time() - time_start
-      units(time_diff) <- "secs"
-      cat("done. Took:", round(time_diff, 1), "s\n")
-    }
-  } else if (fit$convergence & se) {
-    vcov_fit <- NULL
-    warning(
-      "lavacreg warning: Estimation did not converge.
-      Standard errors are not computed."
-    )
-  } else {
-    (
-      vcov_fit <- NULL
-    )
-  }
-
-  if (constraints@con_logical) {
-    pt$par[pt$par_free > 0L] <- as.numeric(
-      constraints@eq_constraints_Q2 %*% fit$par
-    )
-    if (!is.null(vcov_fit)) {
-      vcov_fit <-
-        constraints@eq_constraints_Q2 %*%
-        vcov_fit %*%
-        t(constraints@eq_constraints_Q2)
-    }
-  } else {
-    pt$par[pt$par_free > 0L] <- fit$par
-  }
-
-  object@fit <- list(
+  # Save fit and partable back to object and return object
+  object@fit <- new("creg_fit",
     fit = fit,
-    vcov_fit = vcov_fit,
-    pt = pt
+    objective = objective_function
   )
+  object@partable <- pt
+
   return(object)
 }
 
@@ -169,7 +116,7 @@ creg_fit_model <- function(object) {
 #' @importFrom stats dpois
 #' @keywords internal
 #' @noRd
-creg_loglikelihood_function <- function(datalist, modellist) {
+creg_model_objective <- function(datalist, modellist) {
   kappas <- modellist$groupw
   n_cell <- modellist$n_cell
   no_groups <- length(kappas)

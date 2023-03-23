@@ -14,7 +14,7 @@ test_that("intercept-only Poisson", {
     data = example01,
     family = "poisson"
   )
-  par <- fit@fit$pt$par
+  par <- fit@partable$par
   comp <- c(6.769661, 2.555460, 0.000000)
   expect_equal(length(par), 3)
   expect_equal(par, comp, tolerance = 1e-5)
@@ -27,7 +27,7 @@ test_that("intercept-only negative binomial", {
     data = example01,
     family = "nbinom"
   )
-  par <- fit@fit$pt$par
+  par <- fit@partable$par
   comp <- c(6.769614, 2.555453, 8.626471)
   expect_equal(length(par), 3)
   expect_equal(par, comp, tolerance = 1e-5)
@@ -44,7 +44,7 @@ test_that("two-group intercept-only Poisson", {
     data = example01,
     family = "poisson"
   )
-  pt <- fit@fit$pt
+  pt <- fit@partable
   par <- pt$par
   comp <- c(6.059399, 2.445395, 0.000000, 6.093341, 2.651439, 0.000000)
   expect_equal(length(par), 6)
@@ -59,7 +59,7 @@ test_that("two-group intercept-only negative binomial", {
     data = example01,
     family = "nbinom"
   )
-  pt <- fit@fit$pt
+  pt <- fit@partable
   par <- pt$par
   comp <- c(6.060023, 2.445382, 9.247623, 6.092560, 2.651660, 9.600843)
   expect_equal(length(par), 6)
@@ -78,7 +78,7 @@ test_that("two-group one manifest covariate Poisson", {
     family = "poisson",
     se = FALSE
   )
-  pt <- fit@fit$pt
+  pt <- fit@partable
   par <- pt$par
   comp <- c(
     6.0589305, 2.6549102, -0.1697253, 1.3644560, 1.5933374, 0.0000000,
@@ -97,7 +97,7 @@ test_that("two-group one manifest covariate negative binomial", {
     family = "nbinom",
     se = FALSE
   )
-  pt <- fit@fit$pt
+  pt <- fit@partable
   par <- pt$par
   comp <- c(
     6.0592596, 2.6546687, -0.1693490, 1.3646616, 1.5933417, 14.8400276,
@@ -121,11 +121,11 @@ test_that("two-group three manifest covariates Poisson", {
   )
 
   # Converged?
-  conv <- fit@fit$fit$convergence
+  conv <- fit@fit@fit$convergence
   expect_equal(conv, 0)
 
   # Right amount of parameters?
-  pt <- fit@fit$pt
+  pt <- fit@partable
   par <- pt$par
   expect_equal(length(par), 30)
 
@@ -152,11 +152,11 @@ test_that("two-group three manifest covariates negative binomial", {
     se = FALSE
   )
   # Converged?
-  conv <- fit@fit$fit$convergence
+  conv <- fit@fit@fit$convergence
   expect_equal(conv, 0)
 
   # Right amount of parameters?
-  pt <- fit@fit$pt
+  pt <- fit@partable
   par <- pt$par
   expect_equal(length(par), 30)
 
@@ -190,11 +190,11 @@ test_that("two-group one latent covariate Poisson", {
   )
 
   # Converged?
-  conv <- fit@fit$fit$convergence
+  conv <- fit@fit@fit$convergence
   expect_equal(conv, 0L)
 
   # Right amount of parameters?
-  pt <- fit@fit$pt
+  pt <- fit@partable
   par <- pt$par
   expect_equal(length(par), 24)
 
@@ -219,11 +219,11 @@ test_that("two-group one latent covariate negative binomial", {
     se = FALSE
   )
   # Converged?
-  conv <- fit@fit$fit$convergence
+  conv <- fit@fit@fit$convergence
   expect_equal(conv, 0)
 
   # Right amount of parameters?
-  pt <- fit@fit$pt
+  pt <- fit@partable
   par <- pt$par
   expect_equal(length(par), 24)
 
@@ -259,11 +259,11 @@ test_that("two-group two latent covariates Poisson", {
 
 
   # Converged?
-  conv <- fit@fit$fit$convergence
+  conv <- fit@fit@fit$convergence
   expect_equal(conv, 0L)
 
   # Right amount of parameters?
-  pt <- fit@fit$pt
+  pt <- fit@partable
   par <- pt$par
   expect_equal(length(par), 60)
 
@@ -296,11 +296,11 @@ test_that("two-group two latent covariates negative binomial", {
     se = FALSE
   )
   # Converged?
-  conv <- fit@fit$fit$convergence
+  conv <- fit@fit@fit$convergence
   expect_equal(conv, 0)
 
   # Right amount of parameters?
-  pt <- fit@fit$pt
+  pt <- fit@partable
   par <- pt$par
   expect_equal(length(par), 60)
 
@@ -338,11 +338,11 @@ test_that("two-group one latent, one manifest covariate Poisson", {
 
 
   # Converged?
-  conv <- fit@fit$fit$convergence
+  conv <- fit@fit@fit$convergence
   expect_equal(conv, 0L)
 
   # Right amount of parameters?
-  pt <- fit@fit$pt
+  pt <- fit@partable
   par <- pt$par
   expect_equal(length(par), 38)
 
@@ -370,11 +370,11 @@ test_that("two-group one latent, one manifest covariate negative binomial", {
     se = FALSE
   )
   # Converged?
-  conv <- fit@fit$fit$convergence
+  conv <- fit@fit@fit$convergence
   expect_equal(conv, 0)
 
   # Right amount of parameters?
-  pt <- fit@fit$pt
+  pt <- fit@partable
   par <- pt$par
   expect_equal(length(par), 38)
 
@@ -407,11 +407,11 @@ test_that("two-group one latent, two manifest covariates Poisson", {
 
 
   # Converged?
-  conv <- fit@fit$fit$convergence
+  conv <- fit@fit@fit$convergence
   expect_equal(conv, 0L)
 
   # Right amount of parameters?
-  pt <- fit@fit$pt
+  pt <- fit@partable
   par <- pt$par
   expect_equal(length(par), 48)
 
@@ -443,11 +443,11 @@ test_that("two-group one latent, two manifest covariate negative binomial", {
     se = FALSE
   )
   # Converged?
-  conv <- fit@fit$fit$convergence
+  conv <- fit@fit@fit$convergence
   expect_equal(conv, 0)
 
   # Right amount of parameters?
-  pt <- fit@fit$pt
+  pt <- fit@partable
   par <- pt$par
   expect_equal(length(par), 48)
 
@@ -485,11 +485,11 @@ test_that("two-group two latent, one manifest covariates Poisson", {
   )
 
   # Converged?
-  conv <- fit@fit$fit$convergence
+  conv <- fit@fit@fit$convergence
   expect_equal(conv, 0L)
 
   # Right amount of parameters?
-  pt <- fit@fit$pt
+  pt <- fit@partable
   par <- pt$par[pt$par_free > 0L]
   expect_equal(length(par), 50)
 
@@ -524,11 +524,11 @@ test_that("two-group two latent, one manifest covariate negative binomial", {
     se = FALSE
   )
   # Converged?
-  conv <- fit@fit$fit$convergence
+  conv <- fit@fit@fit$convergence
   expect_equal(conv, 0)
 
   # Right amount of parameters?
-  pt <- fit@fit$pt
+  pt <- fit@partable
   par <- pt$par[pt$par_free > 0L]
   expect_equal(length(par), 52)
 
@@ -560,7 +560,7 @@ test_that("one latent variable in one group - Poisson", {
     family = "poisson",
     se = FALSE
   )
-  par <- fit@fit$pt$par
+  par <- fit@partable$par
   comp <- c(
     6.769642, 2.72414, -0.109569, 0, 1, -0.054137,
     1.256452, -0.343201, 1.29337, 1.61712, 2.004875, 0,

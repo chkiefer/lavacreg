@@ -84,101 +84,6 @@ creg_modellist <- function(pt, datalist, gh_grid, family, input) {
 }
 
 
-#' Matrix to Vech reverse
-#'
-#' Turns a Vech to a symmetric matrix. Taken from the lavaan package
-#'
-#' @param x Vech to be transformed
-#' @param diagonal Is the diagonal of the matrix included in x?
-#'
-#' @noRd
-creg_matrix_vech_reverse <- function(x, diagonal = TRUE) {
-    if (diagonal) {
-        p <- (sqrt(1 + 8 * length(x)) - 1) / 2
-    } else {
-        p <- (sqrt(1 + 8 * length(x)) + 1) / 2
-    }
-    S <- numeric(p * p)
-    S[creg_matrix_vech_idx(p, diagonal = diagonal)] <- x
-    S[creg_matrix_vechru_idx(p, diagonal = diagonal)] <- x
-    attr(S, "dim") <- c(p, p)
-    S
-}
-
-#' Helper for: Matrix to Vech revers
-#'
-#' Helper function. Taken from the lavaan package
-#'
-#' @param n dimension of matrix
-#' @param diagonal Is the diagonal of the matrix included in x?
-#'
-#' @noRd
-creg_matrix_vech_idx <- function(n = 1L, diagonal = TRUE) {
-    n <- as.integer(n)
-    ROW <- matrix(seq_len(n), n, n)
-    COL <- matrix(seq_len(n), n, n, byrow = TRUE)
-    if (diagonal) {
-        which(ROW >= COL)
-    } else {
-        which(ROW > COL)
-    }
-}
-
-#' Helper for Matrix to Vech reverse
-#'
-#' helper function. Taken from the lavaan package
-#'
-#' @param n number
-#' @param diagonal Is the diagonal of the matrix included in x?
-#'
-#' @noRd
-creg_matrix_vechru_idx <- function(n = 1L, diagonal = TRUE) {
-    n <- as.integer(n)
-    ROW <- matrix(seq_len(n), n, n)
-    COL <- matrix(seq_len(n), n, n, byrow = TRUE)
-    tmp <- matrix(seq_len(n * n), n, n, byrow = TRUE)
-    if (diagonal) {
-        tmp[ROW >= COL]
-    } else {
-        tmp[ROW > COL]
-    }
-}
-
-
-
-creg_adapt_grid <- function(mu, Sigma, init_grid, prune = FALSE) {
-    X <- init_grid$X
-    W <- init_grid$W
-    w <- init_grid$w
-    type <- init_grid$type
-    Q <- length(mu)
-
-    trans <- function(X, Sigma) {
-        lambda <- with(eigen(Sigma), {
-            if (any(values < 0)) {
-                warning("Matrix is not positive definite.")
-            }
-            if (length(values) > 1) {
-                vectors %*% diag(sqrt(values))
-            } else {
-                vectors * sqrt(values)
-            }
-        })
-        t(lambda %*% t(X))
-    }
-
-    X <- trans(X, Sigma)
-    X <- t(t(X) + mu)
-
-    if (prune & type == "GH") {
-        threshold <- log(min(w)^(Q - 1) * max(w))
-        relevant <- W >= threshold
-        W <- W[relevant]
-        X <- X[relevant, , drop = FALSE]
-    }
-    return(invisible(list(X = X, W = W)))
-}
-
 
 modellist_testfun <- function(data, pt_g, N_g, modellist_info) {
     no_lv <- modellist_info$no_lv
@@ -212,15 +117,23 @@ modellist_testfun <- function(data, pt_g, N_g, modellist_info) {
         lv_sigma <- creg_matrix_vech_reverse(lv_cov, diagonal = FALSE)
         diag(lv_sigma) <- lv_var
 
+        # Pruning not meaningful for one dimension
+        # (would remove all but one value)
         if (no_lv > 1) {
-            # lv_gauss_hermite_grid <- MultiGHQuad::init.quad(Q = no_lv, prior = list(mu = lv_mu, Sigma = lv_sigma), ip = 15L, prune = TRUE)
-            lv_gauss_hermite_grid <- creg_adapt_grid(mu = lv_mu, Sigma = lv_sigma, init_grid = init_grid, prune = TRUE)
+            prune <- TRUE
         } else if (no_lv == 1) {
-            # Pruning not meaningful for one dimension (would remove all but one value)
-            # lv_gauss_hermite_grid <- MultiGHQuad::init.quad(Q = no_lv, prior = list(mu = lv_mu, Sigma = lv_sigma), ip = 15L, prune = FALSE)
-            lv_gauss_hermite_grid <- creg_adapt_grid(mu = lv_mu, Sigma = lv_sigma, init_grid = init_grid, prune = FALSE)
-            if (any(eigen(lv_sigma)$values < 0)) print(lv_sigma)
+            prune <- FALSE
         }
+
+        # Adapt the GH grid to mu and vcov
+        lv_gauss_hermite_grid <- creg_adapt_grid(
+            mu = lv_mu,
+            Sigma = lv_sigma,
+            init_grid = init_grid,
+            prune = prune
+        )
+        if (any(eigen(lv_sigma)$values < 0)) print(lv_sigma)
+
 
         lv_gauss_hermite_grid$W <- exp(lv_gauss_hermite_grid$W)
         no_integration_points <- length(lv_gauss_hermite_grid$W)
