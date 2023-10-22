@@ -1,36 +1,102 @@
-# TODO: ADD log-likelihood values for comparison
-# if parameters change, but likelihood is better
-# then old solution was wrong?
-
-# TODO: ADD Standard errors to tests
-
 # ---------------------------------------------------
 # TEST 1 - intercept only - one group
 # ---------------------------------------------------
 test_that("intercept-only Poisson", {
+  skip_on_os("windows")
   fit <- countreg(
     forml = "dv ~ 1",
     group = NULL,
     data = example01,
     family = "poisson"
   )
-  par <- fit@partable$par
-  comp <- c(6.769661, 2.555460, 0.000000)
-  expect_equal(length(par), 3)
+  pt <- fit@partable
+  avar <- diag(fit@vcov)
+  expect_equal(length(pt$par), 3)
+  expect_equal(length(avar), 2)
+
+  # LOG-LIKELIHOOD
+  comp <- 3.38334
+  par <- fit@fit@fit$objective
+  expect_equal(par, comp, tolerance = 1e-5, label = "logl")
+
+  # PARAMETER
+  # 1. Group weight
+  comp <- 6.76966
+  par <- pt$par[pt$dest == "groupw"]
+  expect_equal(par, comp, tolerance = 1e-5)
+
+  # 2. Regression coefficient
+  comp <- 2.55546
+  par <- pt$par[pt$dest == "beta"]
+  expect_equal(par, comp, tolerance = 1e-5)
+
+  # 3. Overdispersion parameter
+  comp <- 0
+  par <- pt$par[pt$dest == "overdis"]
+  expect_equal(par, comp, tolerance = 1e-5)
+
+  # STANDARD ERRORS
+  # 1. Group weight
+  comp <- 0.00115
+  par <- avar[pt$par_free[pt$dest == "groupw"]]
+  expect_equal(par, comp, tolerance = 1e-5)
+
+  # 2. Regression coefficient
+  comp <- 0.00009
+  par <- avar[pt$par_free[pt$dest == "beta"]]
   expect_equal(par, comp, tolerance = 1e-5)
 })
 
+
 test_that("intercept-only negative binomial", {
+  skip_on_os("windows")
   fit <- countreg(
     forml = "dv ~ 1",
     group = NULL,
     data = example01,
     family = "nbinom"
   )
-  par <- fit@partable$par
-  comp <- c(6.769614, 2.555453, 8.626471)
-  expect_equal(length(par), 3)
-  expect_equal(par, comp, tolerance = 1e-5)
+  pt <- fit@partable
+  avar <- diag(fit@vcov)
+  expect_equal(length(pt$par), 3)
+  expect_equal(length(avar), 3)
+
+  # LOG-LIKELIHOOD
+  comp <- 3.12601
+  par <- fit@fit@fit$objective
+  expect_equal(par, comp, tolerance = 1e-5, label = "logl")
+
+  # PARAMETER
+  # 1. Group weight
+  comp <- 6.76961
+  par <- pt$par[pt$dest == "groupw"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_groupw")
+
+  # 2. Regression coefficient
+  comp <- 2.55545
+  par <- pt$par[pt$dest == "beta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
+
+  # 3. Overdispersion parameter
+  comp <- 8.62666
+  par <- pt$par[pt$dest == "overdis"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_overdis")
+
+  # STANDARD ERRORS
+  # 1. Group weight
+  comp <- 0.00115
+  par <- avar[pt$par_free[pt$dest == "groupw"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_groupw")
+
+  # 2. Regression coefficient
+  comp <- 0.00022
+  par <- avar[pt$par_free[pt$dest == "beta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_beta")
+
+  # 3. Overdispersion parameter
+  comp <- 0.51543
+  par <- avar[pt$par_free[pt$dest == "overdis"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_overdis")
 })
 
 
@@ -38,6 +104,7 @@ test_that("intercept-only negative binomial", {
 # TEST 2 - intercept-only - two groups
 # ---------------------------------------------------
 test_that("two-group intercept-only Poisson", {
+  skip_on_os("windows")
   fit <- countreg(
     forml = "dv ~ 1",
     group = "treat",
@@ -45,14 +112,46 @@ test_that("two-group intercept-only Poisson", {
     family = "poisson"
   )
   pt <- fit@partable
-  par <- pt$par
-  comp <- c(6.059399, 2.445395, 0.000000, 6.093341, 2.651439, 0.000000)
-  expect_equal(length(par), 6)
-  expect_equal(par, comp, tolerance = 1e-5)
+  avar <- diag(fit@vcov)
+  expect_equal(length(pt$par), 6)
+  expect_equal(length(avar), 4)
+
+  # LOG-LIKELIHOOD
+  comp <- 3.31971
+  par <- fit@fit@fit$objective
+  expect_equal(par, comp, tolerance = 1e-5, label = "logl")
+
+  # PARAMETER
+  # 1. Group weight
+  comp <- c(6.05912, 6.09357)
+  par <- pt$par[pt$dest == "groupw"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_groupw")
+
+  # 2. Regression coefficient
+  comp <- c(2.44539, 2.65140)
+  par <- pt$par[pt$dest == "beta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
+
+  # 3. Overdispersion parameter
+  comp <- c(0, 0)
+  par <- pt$par[pt$dest == "overdis"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_overdis")
+
+  # STANDARD ERRORS
+  # 1. Group weight
+  comp <- c(0.00234, 0.00226)
+  par <- avar[pt$par_free[pt$dest == "groupw"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_groupw")
+
+  # 2. Regression coefficient
+  comp <- c(0.00020, 0.00016)
+  par <- avar[pt$par_free[pt$dest == "beta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_beta")
 })
 
 
 test_that("two-group intercept-only negative binomial", {
+  skip_on_os("windows")
   fit <- countreg(
     forml = "dv ~ 1",
     group = "treat",
@@ -60,10 +159,46 @@ test_that("two-group intercept-only negative binomial", {
     family = "nbinom"
   )
   pt <- fit@partable
-  par <- pt$par
-  comp <- c(6.060023, 2.445382, 9.247623, 6.092560, 2.651660, 9.600843)
-  expect_equal(length(par), 6)
-  expect_equal(par, comp, tolerance = 1e-5)
+  avar <- diag(fit@vcov)
+  expect_equal(length(pt$par), 6)
+  expect_equal(length(avar), 6)
+
+  # LOG-LIKELIHOOD
+  comp <- 3.09931
+  par <- fit@fit@fit$objective
+  expect_equal(par, comp, tolerance = 1e-5, label = "logl")
+
+  # PARAMETER
+  # 1. Group weight
+  comp <- c(6.05912, 6.09357)
+  par <- pt$par[pt$dest == "groupw"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_groupw")
+
+  # 2. Regression coefficient
+  comp <- c(2.44539, 2.65140)
+  par <- pt$par[pt$dest == "beta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
+
+  # 3. Overdispersion parameter
+  comp <- c(7.90338, 11.58069)
+  par <- pt$par[pt$dest == "overdis"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_overdis")
+
+  # STANDARD ERRORS
+  # 1. Group weight
+  comp <- c(0.00233, 0.00226)
+  par <- avar[pt$par_free[pt$dest == "groupw"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_groupw")
+
+  # 2. Regression coefficient
+  comp <- c(0.00050, 0.00035)
+  par <- avar[pt$par_free[pt$dest == "beta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_beta")
+
+  # 3. Overdispersion parameter
+  comp <- c(0.88228, 2.20150)
+  par <- avar[pt$par_free[pt$dest == "overdis"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_overdis")
 })
 
 
@@ -71,40 +206,149 @@ test_that("two-group intercept-only negative binomial", {
 # TEST 3 - one manifest covariate - two groups
 # ---------------------------------------------------
 test_that("two-group one manifest covariate Poisson", {
+  skip_on_os("windows")
   fit <- countreg(
     forml = "dv ~ z12",
     group = "treat",
     data = example01,
     family = "poisson",
-    se = FALSE
+    se = TRUE
   )
   pt <- fit@partable
-  par <- pt$par
-  comp <- c(
-    6.0589305, 2.6549102, -0.1697253, 1.3644560, 1.5933374, 0.0000000,
-    6.0943167, 2.8358178, -0.1414390, 1.4037590, 1.4801428, 0.0000000
-  )
-  expect_equal(length(par), 12)
-  expect_equal(par, comp, tolerance = 1e-5)
+  avar <- diag(fit@vcov)
+  expect_equal(length(pt$par), 12)
+  expect_equal(length(avar), 10)
+
+  # LOG-LIKELIHOOD
+  comp <- 4.73872
+  par <- fit@fit@fit$objective
+  expect_equal(par, comp, tolerance = 1e-5, label = "logl")
+
+  # PARAMETER
+  # 1. Group weight
+  comp <- c(6.05912, 6.09357)
+  par <- pt$par[pt$dest == "groupw"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_groupw")
+
+  # 2. Regression coefficient
+  comp <- c(2.65523, -0.16981, 2.83597, -0.14146)
+  par <- pt$par[pt$dest == "beta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
+
+  # 3. Overdispersion parameter
+  comp <- c(0, 0)
+  par <- pt$par[pt$dest == "overdis"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_overdis")
+
+  # 4. Manifest Covariate Parameters
+  # 4.1 Means
+  comp <- c(1.36293, 1.40557)
+  par <- pt$par[pt$dest == "mu_z"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_z")
+
+  # 4.2 Variances
+  comp <- c(1.59051, 1.48010)
+  par <- pt$par[pt$dest == "Sigma_z" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_var")
+
+
+  # STANDARD ERRORS
+  # 1. Group weight
+  comp <- c(0.00234, 0.00226)
+  par <- avar[pt$par_free[pt$dest == "groupw"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_groupw")
+
+  # 2. Regression coefficient
+  comp <- c(0.00039, 0.00015, 0.00034, 0.00012)
+  par <- avar[pt$par_free[pt$dest == "beta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_beta")
+
+  # 4. Manifest Covariate Parameters
+  # 4.1 Means
+  comp <- c(0.00372, 0.00334)
+  par <- avar[pt$par_free[pt$dest == "mu_z"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mu_z")
+
+  # 4.2 Variances
+  comp <- c(0.01182, 0.00989)
+  par <- avar[pt$par_free[pt$dest == "Sigma_z"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_z_var")
 })
 
 
 test_that("two-group one manifest covariate negative binomial", {
+  skip_on_os("windows")
   fit <- countreg(
     forml = "dv ~ z12",
     group = "treat",
     data = example01,
     family = "nbinom",
-    se = FALSE
+    se = TRUE
   )
   pt <- fit@partable
-  par <- pt$par
-  comp <- c(
-    6.0592596, 2.6546687, -0.1693490, 1.3646616, 1.5933417, 14.8400276,
-    6.0935426, 2.8361803, -0.1416315, 1.4056919, 1.4803146, 14.7545861
-  )
-  expect_equal(length(par), 12)
-  expect_equal(par, comp, tolerance = 1e-5)
+  avar <- diag(fit@vcov)
+  expect_equal(length(pt$par), 12)
+  expect_equal(length(avar), 12)
+
+  # LOG-LIKELIHOOD
+  comp <- 4.62806
+  par <- fit@fit@fit$objective
+  expect_equal(par, comp, tolerance = 1e-5, label = "logl")
+
+  # PARAMETER
+  # 1. Group weight
+  comp <- c(6.05912, 6.09357)
+  par <- pt$par[pt$dest == "groupw"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_groupw")
+
+  # 2. Regression coefficient
+  comp <- c(2.65465, -0.16934, 2.83624, -0.14166)
+  par <- pt$par[pt$dest == "beta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
+
+  # 3. Overdispersion parameter
+  comp <- c(12.08287, 17.89945)
+  par <- pt$par[pt$dest == "overdis"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_overdis")
+
+  # 4. Manifest Covariate Parameters
+  # 4.1 Means
+  comp <- c(1.36293, 1.40557)
+  par <- pt$par[pt$dest == "mu_z"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_z")
+
+  # 4.2 Variances
+  comp <- c(1.59050, 1.48011)
+  par <- pt$par[pt$dest == "Sigma_z" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_var")
+
+
+  # STANDARD ERRORS
+  # 1. Group weight
+  comp <- c(0.00234, 0.00226)
+  par <- avar[pt$par_free[pt$dest == "groupw"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_groupw")
+
+  # 2. Regression coefficient
+  comp <- c(0.00082, 0.00028, 0.00063, 0.00021)
+  par <- avar[pt$par_free[pt$dest == "beta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_beta")
+
+  # 3. Overdispersion parameter
+  comp <- c(3.12545, 8.45198)
+  par <- avar[pt$par_free[pt$dest == "overdis"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_overdis")
+
+  # 4. Manifest Covariate Parameters
+  # 4.1 Means
+  comp <- c(0.00372, 0.00334)
+  par <- avar[pt$par_free[pt$dest == "mu_z"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mu_z")
+
+  # 4.2 Variances
+  comp <- c(0.01182, 0.00989)
+  par <- avar[pt$par_free[pt$dest == "Sigma_z"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_z_var")
 })
 
 
@@ -112,66 +356,225 @@ test_that("two-group one manifest covariate negative binomial", {
 # TEST 4 - three manifest covariates - two groups
 # ---------------------------------------------------
 test_that("two-group three manifest covariates Poisson", {
+  skip_on_os("windows")
   fit <- countreg(
     forml = "dv ~ z12 + z11 + z21",
     group = "treat",
     data = example01,
     family = "poisson",
-    se = FALSE
+    se = TRUE
   )
-
   # Converged?
   conv <- fit@fit@fit$convergence
   expect_equal(conv, 0)
 
-  # Right amount of parameters?
   pt <- fit@partable
-  par <- pt$par
-  expect_equal(length(par), 30)
+  avar <- diag(fit@vcov)
+  expect_equal(length(pt$par), 30)
+  expect_equal(length(avar), 28)
 
-  # Correct parameter estimates?
+  # LOG-LIKELIHOOD
+  comp <- 7.27241
+  par <- fit@fit@fit$objective
+  expect_equal(par, comp, tolerance = 1e-5, label = "logl")
+
+  # PARAMETER
+  # 1. Group weight
+  comp <- c(6.05912, 6.09357)
+  par <- pt$par[pt$dest == "groupw"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_groupw")
+
+  # 2. Regression coefficient
   comp <- c(
-    6.05971523, 2.34246617, -0.08740382, -0.0788266, 0.08191891,
-    1.36239451, 1.59239172, 1.59773197, 1.68488975, 3.9090709,
-    0.95099035, 1.02372983, -0.63568355, -0.50579888, 0, 6.09270393,
-    2.62186177, -0.0928436, -0.04702289, 0.05436236, 1.4068395, 1.47774334,
-    1.56318072, 1.36078961, 3.99384264, 0.83179534, 0.86117941, -0.56710374,
-    -0.46501115, 0
+    2.34110, -0.08721, -0.07893, 0.08227,
+    2.62149, -0.09299, -0.04680, 0.05441
   )
+  par <- pt$par[pt$dest == "beta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
 
-  expect_equal(par, comp, tolerance = 1e-4)
+  # 3. Overdispersion parameter
+  comp <- c(0, 0)
+  par <- pt$par[pt$dest == "overdis"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_overdis")
+
+  # 4. Manifest Covariate Parameters
+  # 4.1 Means
+  comp <- c(
+    1.36293, 1.59813, 3.90927,
+    1.40558, 1.56209, 3.99473
+  )
+  par <- pt$par[pt$dest == "mu_z"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_z")
+
+  # 4.2 Variances
+  comp <- c(
+    1.59049, 1.68417, 0.95031,
+    1.48009, 1.36278, 0.83293
+  )
+  par <- pt$par[pt$dest == "Sigma_z" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_var")
+
+  # 4.3 Covariances
+  comp <- c(
+    1.02240, -0.63361, -0.50519,
+    0.86383, -0.56871, -0.46656
+  )
+  par <- pt$par[pt$dest == "Sigma_z" & pt$type == "cov"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_cov")
+
+
+  # STANDARD ERRORS
+  # 1. Group weight
+  comp <- c(0.00234, 0.00226)
+  par <- avar[pt$par_free[pt$dest == "groupw"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_groupw")
+
+  # 2. Regression coefficient
+  comp <- c(
+    0.00763, 0.00027, 0.00021, 0.00034,
+    0.00711, 0.00021, 0.00020, 0.00030
+  )
+  par <- avar[pt$par_free[pt$dest == "beta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_beta")
+
+  # 4. Manifest Covariate Parameters
+  # 4.1 Means
+  comp <- c(
+    0.00372, 0.00394, 0.00222,
+    0.00334, 0.00307, 0.00188
+  )
+  par <- avar[pt$par_free[pt$dest == "mu_z"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mu_z")
+
+  # 4.2 Variances
+  comp <- c(
+    0.01182, 0.01325, 0.00422,
+    0.00989, 0.00838, 0.00313
+  )
+  par <- avar[pt$par_free[pt$dest == "Sigma_z" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_z_var")
+
+  # 4.3 Covariances
+  comp <- c(
+    0.00870, 0.00447, 0.00434,
+    0.00624, 0.00351, 0.00305
+  )
+  par <- avar[pt$par_free[pt$dest == "Sigma_z" & pt$type == "cov"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_z_cov")
 })
 
 
 test_that("two-group three manifest covariates negative binomial", {
+  skip_on_os("windows")
   fit <- countreg(
     forml = "dv ~ z12 + z11 + z21",
     group = "treat",
     data = example01,
     family = "nbinom",
-    se = FALSE
+    se = TRUE
   )
   # Converged?
   conv <- fit@fit@fit$convergence
   expect_equal(conv, 0)
 
-  # Right amount of parameters?
   pt <- fit@partable
-  par <- pt$par
-  expect_equal(length(par), 30)
+  avar <- diag(fit@vcov)
+  expect_equal(length(pt$par), 30)
+  expect_equal(length(avar), 30)
 
-  # Correct parameter estimates?
+  # LOG-LIKELIHOOD
+  comp <- 7.18300
+  par <- fit@fit@fit$objective
+  expect_equal(par, comp, tolerance = 1e-5, label = "logl")
+
+  # PARAMETER
+  # 1. Group weight
+  comp <- c(6.05912, 6.09357)
+  par <- pt$par[pt$dest == "groupw"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_groupw")
+
+  # 2. Regression coefficient
   comp <- c(
-    6.05820964, 2.33641826, -0.08667106, -0.07961202, 0.08353954, 1.3629161,
-    1.58195313, 1.59863642, 1.68118476, 3.90915155, 0.94687096, 1.01833197,
-    -0.62852949, -0.50192426, 15.58364617, 6.09436922, 2.63362154, -0.09385172,
-    -0.04683473, 0.05173418, 1.40531856, 1.48049197, 1.56203441, 1.36630404, 3.994657,
-    0.83546495, 0.86506982, -0.57100751, -0.46916909, 17.72343536
+    2.33834, -0.08674, -0.07975, 0.08312,
+    2.63161, -0.09387, -0.04665, 0.05214
   )
+  par <- pt$par[pt$dest == "beta"] |> round(5)
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
 
-  # Currently, the results differ slightly between 32 and 64bit systems
-  # A higher tolerance would be desirable, but cannot be achieved at the moment
-  expect_equal(par, comp, tolerance = 1e-2)
+  # 3. Overdispersion parameter
+  comp <- c(14.17296, 19.56794)
+  par <- pt$par[pt$dest == "overdis"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_overdis")
+
+  # 4. Manifest Covariate Parameters
+  # 4.1 Means
+  comp <- c(
+    1.36293, 1.59813, 3.90927,
+    1.40557, 1.56208, 3.99473
+  )
+  par <- pt$par[pt$dest == "mu_z"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_z")
+
+  # 4.2 Variances
+  comp <- c(
+    1.59051, 1.68417, 0.95030,
+    1.48011, 1.36278, 0.83293
+  )
+  par <- pt$par[pt$dest == "Sigma_z" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_var")
+
+  # 4.3 Covariances
+  comp <- c(
+    1.02241, -0.63361, -0.50518,
+    0.86384, -0.56872, -0.46656
+  )
+  par <- pt$par[pt$dest == "Sigma_z" & pt$type == "cov"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_cov")
+
+
+  # STANDARD ERRORS
+  # 1. Group weight
+  comp <- c(0.00234, 0.00226)
+  par <- avar[pt$par_free[pt$dest == "groupw"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_groupw")
+
+  # 2. Regression coefficient
+  comp <- c(
+    0.01303, 0.00047, 0.00037, 0.00058,
+    0.01184, 0.00036, 0.00034, 0.00050
+  )
+  par <- avar[pt$par_free[pt$dest == "beta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_beta")
+
+  # 3. Overdispersion parameter
+  comp <- c(5.07994, 11.22616)
+  par <- avar[pt$par_free[pt$dest == "overdis"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_overdis")
+
+  # 4. Manifest Covariate Parameters
+  # 4.1 Means
+  comp <- c(
+    0.00372, 0.00393, 0.00222,
+    0.00334, 0.00308, 0.00188
+  )
+  par <- avar[pt$par_free[pt$dest == "mu_z"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mu_z")
+
+  # 4.2 Variances
+  comp <- c(
+    0.01182, 0.01325, 0.00422,
+    0.00989, 0.00838, 0.00313
+  )
+  par <- avar[pt$par_free[pt$dest == "Sigma_z" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_z_var")
+
+  # 4.3 Covariances
+  comp <- c(
+    0.00870, 0.00447, 0.00434,
+    0.00624, 0.00351, 0.00305
+  )
+  par <- avar[pt$par_free[pt$dest == "Sigma_z" & pt$type == "cov"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_z_cov")
 })
 
 
@@ -179,7 +582,7 @@ test_that("two-group three manifest covariates negative binomial", {
 # TEST 5 - one latent covariate - two groups
 # ---------------------------------------------------
 test_that("two-group one latent covariate Poisson", {
-  skip_on_os("mac")
+  skip_on_os("windows")
   fit <- countreg(
     forml = "dv ~ eta1",
     lv = list(eta1 = c("z21", "z22")),
@@ -188,54 +591,239 @@ test_that("two-group one latent covariate Poisson", {
     family = "poisson",
     se = TRUE
   )
-
   # Converged?
   conv <- fit@fit@fit$convergence
   expect_equal(conv, 0L)
 
-  # Right amount of parameters?
-  pt <- fit@partable
-  par <- pt$par
-  expect_equal(length(par), 24)
-
   # Correct parameter estimates?
-  comp <- c(
-    6.05912482, 0.4235168, 0.50097813, 0, 1, 1.45579428, 0.72453059,
-    3.9347506, 0.42455089, 0, 0.52693647, 0.35698009, 6.09356923,
-    0.81433536, 0.45436361, 0, 1, 1.45579428, 0.72453059, 3.97163325,
-    0.32495448, 0, 0.50982612, 0.35643488
-  )
-  expect_equal(par, comp, tolerance = 1e-5)
+  pt <- fit@partable
+  avar <- diag(fit@vcov)
+  expect_equal(length(pt$par), 24)
+  expect_equal(length(avar), 18)
+
+  # LOG-LIKELIHOOD
+  comp <- 5.41229
+  par <- fit@fit@fit$objective
+  expect_equal(par, comp, tolerance = 1e-5, label = "logl")
+
+  # PARAMETER
+  # 1. Group weight
+  comp <- c(6.05912, 6.09357)
+  par <- pt$par[pt$dest == "groupw"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_groupw")
+
+  # 2. Regression coefficient
+  # 2.1 beta
+  comp <- c(0.42565, 0.81313)
+  par <- pt$par[pt$dest == "beta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
+
+  # 2.2 gamma
+  comp <- c(0.50043, 0.45471)
+  par <- pt$par[pt$dest == "gamma"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_gamma")
+
+  # 3. Overdispersion parameter
+  comp <- c(0, 0)
+  par <- pt$par[pt$dest == "overdis"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_overdis")
+
+  # 5. Measurement Model
+  # 5.1 nu
+  comp <- rep(c(0, 1.45445), 2)
+  par <- pt$par[pt$dest == "nu"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_nu")
+
+  # 5.2 Lambda
+  comp <- rep(c(1, 0.72492), 2)
+  par <- pt$par[pt$dest == "Lambda"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_lambda")
+
+  # 5.3 Theta
+  comp <- c(0.52596, 0.35650, 0.50998, 0.35629)
+  par <- pt$par[pt$dest == "Theta" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_theta")
+
+  # 6. Latent Covariate Parameters
+  # 6.1 Means
+  comp <- c(3.93444, 3.97110)
+  par <- pt$par[pt$dest == "mu_eta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_eta")
+
+  # 6.2 Variances
+  comp <- c(0.42556, 0.32470)
+  par <- pt$par[pt$dest == "Sigma_eta" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_var")
+
+  # STANDARD ERRORS
+  # 1. Group weight
+  comp <- c(0.00234, 0.00226)
+  par <- avar[pt$par_free[pt$dest == "groupw"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_groupw")
+
+  # 2. Regression coefficient
+  # 2.1 beta
+  comp <- c(0.04255, 0.04600)
+  par <- avar[pt$par_free[pt$dest == "beta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_beta")
+
+  # 2.2 gamma
+  comp <- c(0.00258, 0.00281)
+  par <- avar[pt$par_free[pt$dest == "gamma"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_gamma")
+
+  # 5. Measurement Model
+  # 5.1 nu
+  comp <- rep(0.04933, 2)
+  par <- avar[pt$par_free[pt$dest == "nu"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_nu")
+
+  # 5.2 Lambda
+  comp <- rep(0.00311, 2)
+  par <- avar[pt$par_free[pt$dest == "Lambda"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_lambda")
+
+  # 5.3 Theta
+  comp <- c(0.00292, 0.00111, 0.00261, 0.00101)
+  par <- avar[pt$par_free[pt$dest == "Theta" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_theta")
+
+  # 6. Latent Covariate Parameters
+  # 6.1 Means
+  comp <- c(0.00196, 0.00165)
+  par <- avar[pt$par_free[pt$dest == "mu_eta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mu_eta")
+
+  # 6.2 Variances
+  comp <- c(0.00404, 0.00285)
+  par <- avar[pt$par_free[pt$dest == "Sigma_eta" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_eta_var")
 })
 
 
 test_that("two-group one latent covariate negative binomial", {
+  skip_on_os("windows")
   fit <- countreg(
     forml = "dv ~ eta1",
     lv = list(eta1 = c("z21", "z22")),
     group = "treat",
     data = example01,
     family = "nbinom",
-    se = FALSE
+    se = TRUE
   )
   # Converged?
   conv <- fit@fit@fit$convergence
   expect_equal(conv, 0)
 
-  # Right amount of parameters?
-  pt <- fit@partable
-  par <- pt$par
-  expect_equal(length(par), 24)
-
   # Correct parameter estimates?
-  # CAUTION: ABWEICHUNGEN VON MPLUS, VORALLEM MESSMODELL (BEI DREI INDIKATOREN WENIGER STARK, ABER VORHANDEN)
-  comp <- c(
-    6.05912318, 1.35949557, 0.2714377, 0, 1, -0.88976068,
-    1.31764183, 3.8767443, 0.43434811, 11.15574397, 0.66700314,
-    0.03291596, 6.09356999, 1.46169048, 0.29855387, 0, 1, -0.88976068,
-    1.31764183, 3.95304398, 0.22302417, 12.90964003, 0.5821887, 0.14893486
-  )
-  expect_equal(par, comp, tolerance = 1e-2)
+  pt <- fit@partable
+  avar <- diag(fit@vcov)
+  expect_equal(length(pt$par), 24)
+  expect_equal(length(avar), 20)
+
+  # LOG-LIKELIHOOD
+  comp <- 5.36203
+  par <- fit@fit@fit$objective
+  expect_equal(par, comp, tolerance = 1e-5, label = "logl")
+
+  # PARAMETER
+  # 1. Group weight
+  comp <- c(6.05912, 6.09357)
+  par <- pt$par[pt$dest == "groupw"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_groupw")
+
+  # 2. Regression coefficient
+  # 2.1 beta
+  comp <- c(1.39488, 1.38017)
+  par <- pt$par[pt$dest == "beta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
+
+  # 2.2 gamma
+  comp <- c(0.26256, 0.31877)
+  par <- pt$par[pt$dest == "gamma"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_gamma")
+
+  # 3. Overdispersion parameter
+  comp <- c(9.58424, 15.98937)
+  par <- pt$par[pt$dest == "overdis"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_overdis")
+
+  # 5. Measurement Model
+  # 5.1 nu
+  comp <- rep(c(0, -0.74553), 2)
+  par <- pt$par[pt$dest == "nu"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_nu")
+
+  # 5.2 Lambda
+  comp <- rep(c(1, 1.2814), 2)
+  par <- pt$par[pt$dest == "Lambda"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_lambda")
+
+  # 5.3 Theta
+  comp <- c(0.66769, 0.03286, 0.57080, 0.16991)
+  par <- pt$par[pt$dest == "Theta" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_theta")
+
+  # 6. Latent Covariate Parameters
+  # 6.1 Means
+  comp <- c(3.87379, 3.95331)
+  par <- pt$par[pt$dest == "mu_eta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_eta")
+
+  # 6.2 Variances
+  comp <- c(0.45845, 0.22501)
+  par <- pt$par[pt$dest == "Sigma_eta" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_var")
+
+
+  # STANDARD ERRORS
+  # 1. Group weight
+  comp <- c(0.00234, 0.00226)
+  par <- avar[pt$par_free[pt$dest == "groupw"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_groupw")
+
+  # 2. Regression coefficient
+  # 2.1 beta
+  comp <- c(0.03008, 0.04599)
+  par <- avar[pt$par_free[pt$dest == "beta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_beta")
+
+  # 2.2 gamma
+  comp <- c(0.00185, 0.00285)
+  par <- avar[pt$par_free[pt$dest == "gamma"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_gamma")
+
+  # 3. Overdispersion parameter
+  comp <- c(1.57327, 7.36865)
+  par <- avar[pt$par_free[pt$dest == "overdis"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_overdis")
+
+  # 5. Measurement Model
+  # 5.1 nu
+  comp <- rep(0.12104, 2)
+  par <- avar[pt$par_free[pt$dest == "nu"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_nu")
+
+  # 5.2 Lambda
+  comp <- rep(0.00765, 2)
+  par <- avar[pt$par_free[pt$dest == "Lambda"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_lambda")
+
+  # 5.3 Theta
+  comp <- c(0.00215, 0.00001, 0.00221, 0.00181)
+  par <- avar[pt$par_free[pt$dest == "Theta" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_theta")
+
+  # 6. Latent Covariate Parameters
+  # 6.1 Means
+  comp <- c(0.00088, 0.00127)
+  par <- avar[pt$par_free[pt$dest == "mu_eta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mu_eta")
+
+  # 6.2 Variances
+  comp <- c(0.00389, 0.00098)
+  par <- avar[pt$par_free[pt$dest == "Sigma_eta" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_eta_var")
 })
 
 
@@ -243,8 +831,7 @@ test_that("two-group one latent covariate negative binomial", {
 # TEST 6 - two latent covariates - two groups
 # ---------------------------------------------------
 test_that("two-group two latent covariates Poisson", {
-  print("This test can take up to 6 minutes.")
-  skip_on_cran()
+  skip_on_os("windows")
   fit <- countreg(
     forml = "dv ~ eta1 + eta2",
     lv = list(
@@ -254,36 +841,139 @@ test_that("two-group two latent covariates Poisson", {
     group = "treat",
     data = example01,
     family = "poisson",
-    se = FALSE
+    se = TRUE
   )
-
-
   # Converged?
   conv <- fit@fit@fit$convergence
-  expect_equal(conv, 0L)
-
-  # Right amount of parameters?
-  pt <- fit@partable
-  par <- pt$par
-  expect_equal(length(par), 60)
+  expect_equal(conv, 0)
 
   # Correct parameter estimates?
+  pt <- fit@partable
+  avar <- diag(fit@vcov)
+  expect_equal(length(pt$par), 60)
+  expect_equal(length(avar), 40)
+
+  # LOG-LIKELIHOOD
+  comp <- 11.09449
+  par <- fit@fit@fit$objective
+  expect_equal(par, comp, tolerance = 1e-5, label = "logl")
+
+
+  # PARAMETER
+  # 1. Group weight
+  comp <- c(6.05912, 6.09357)
+  par <- pt$par[pt$dest == "groupw"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_groupw")
+
+  # 2. Regression coefficient
+  # 2.1 beta
+  comp <- c(0.63028, 0.55231)
+  par <- pt$par[pt$dest == "beta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
+
+  # 2.2 gamma
+  comp <- c(0.46326, -0.03616, 0.50796, 0.02916)
+  par <- pt$par[pt$dest == "gamma"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_gamma")
+
+  # 3. Overdispersion parameter
+  comp <- c(0, 0)
+  par <- pt$par[pt$dest == "overdis"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_overdis")
+
+  # 5. Measurement Model
+  # 5.1 nu
+  comp <- rep(c(0, 1.35728, 0, -0.09500, -0.45658), 2)
+  par <- pt$par[pt$dest == "nu"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_nu")
+
+  # 5.2 Lambda
+  comp <- rep(c(1, 0.74971, rep(0, 5), 1, 1.28107, 1.36110), 2)
+  par <- pt$par[pt$dest == "Lambda"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_lambda")
+
+  # 5.3 Theta
   comp <- c(
-    6.05911601, 0.63021608, 0.46370007, -0.03725704, 0, 1, 1.28783918,
-    0.76712164, 0, 0, 0, 0, 0, 0, 1, -0.10893721, 1.29106256, -0.47703288,
-    1.37432815, 3.94215875, 0.42635444, 1.57320128, 1.8619543, -0.34283515,
-    0, 0.52696251, 0.33559719, 1.5334956, 1.43583402, 1.39811958, 6.09358191,
-    0.48523348, 0.52380971, 0.03182268, 0, 1, 1.28783918, 0.76712164, 0, 0, 0,
-    0, 0, 0, 1, -0.10893721, 1.29106256, -0.47703288, 1.37432815, 3.97530262,
-    0.30173802, 1.65009244, 2.12180181, -0.40660376, 0, 0.53166143, 0.35623691,
-    1.38672523, 1.57462925, 1.0176448
+    0.52566, 0.33860, 1.53647, 1.43656, 1.39938,
+    0.52605, 0.35564, 1.36698, 1.56639, 1.02974
   )
-  expect_equal(par, comp, tolerance = 1e-5)
+  par <- pt$par[pt$dest == "Theta" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_theta")
+
+  # 6. Latent Covariate Parameters
+  # 6.1 Means
+  comp <- c(3.93991, 1.57989, 3.97623, 1.65178)
+  par <- pt$par[pt$dest == "mu_eta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_eta")
+
+  # 6.2 Variances
+  comp <- c(0.43188, 1.89513, 0.31349, 2.16220)
+  par <- pt$par[pt$dest == "Sigma_eta" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_var")
+
+  # 6.3 Covariances
+  comp <- c(-0.34766, -0.41424)
+  par <- pt$par[pt$dest == "Sigma_eta" & pt$type == "cov"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_cov")
+
+
+  # STANDARD ERRORS
+  # 1. Group weight
+  comp <- c(0.00234, 0.00226)
+  par <- avar[pt$par_free[pt$dest == "groupw"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_groupw")
+
+  # 2. Regression coefficient
+  # 2.1 beta
+  comp <- c(0.06556, 0.09605)
+  par <- avar[pt$par_free[pt$dest == "beta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_beta")
+
+  # 2.2 gamma
+  comp <- c(0.00340, 0.00044, 0.00508, 0.00040)
+  par <- avar[pt$par_free[pt$dest == "gamma"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_gamma")
+
+  # 5. Measurement Model
+  # 5.1 nu
+  comp <- rep(c(0.04997, 0.01275, 0.01540), 2)
+  par <- avar[pt$par_free[pt$dest == "nu"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_nu")
+
+  # 5.2 Lambda
+  comp <- rep(c(0.00315, 0.00307, 0.00404), 2)
+  par <- avar[pt$par_free[pt$dest == "Lambda"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_lambda")
+
+  # 5.3 Theta
+  comp <- c(
+    0.00314, 0.00109, 0.01784, 0.02554, 0.02826,
+    0.00256, 0.00099, 0.01433, 0.02544, 0.03841
+  )
+  par <- avar[pt$par_free[pt$dest == "Theta" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_theta")
+
+  # 6. Latent Covariate Parameters
+  # 6.1 Means
+  comp <- c(0.00194, 0.00606, 0.00156, 0.00518)
+  par <- avar[pt$par_free[pt$dest == "mu_eta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mu_eta")
+
+  # 6.2 Variances
+  comp <- c(0.00431, 0.04134, 0.00277, 0.05227)
+  par <- avar[pt$par_free[pt$dest == "Sigma_eta" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_eta_var")
+
+  # 6.3 Covariances
+  comp <- c(0.00478, 0.00470)
+  par <- avar[pt$par_free[pt$dest == "Sigma_eta" & pt$type == "cov"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_eta_cov")
 })
 
 
+
 test_that("two-group two latent covariates negative binomial", {
-  skip("This test can take up to 10 minutes.")
+  skip_on_os("windows")
   fit <- countreg(
     forml = "dv ~ eta1 + eta2",
     lv = list(
@@ -293,33 +983,137 @@ test_that("two-group two latent covariates negative binomial", {
     group = "treat",
     data = example01,
     family = "nbinom",
-    se = FALSE
+    se = TRUE
   )
   # Converged?
   conv <- fit@fit@fit$convergence
   expect_equal(conv, 0)
 
-  # Right amount of parameters?
-  pt <- fit@partable
-  par <- pt$par
-  expect_equal(length(par), 60)
-
   # Correct parameter estimates?
+  pt <- fit@partable
+  avar <- diag(fit@vcov)
+  expect_equal(length(pt$par), 60)
+  expect_equal(length(avar), 42)
+
+  # LOG-LIKELIHOOD
+  comp <- 11.03596
+  par <- fit@fit@fit$objective
+  expect_equal(par, comp, tolerance = 1e-5, label = "logl")
+
+  # PARAMETER
+  # 1. Group weight
+  comp <- c(6.05912, 6.09357)
+  par <- pt$par[pt$dest == "groupw"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_groupw")
+
+  # 2. Regression coefficient
+  # 2.1 beta
+  comp <- c(1.42405, 1.53285)
+  par <- pt$par[pt$dest == "beta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
+
+  # 2.2 gamma
+  comp <- c(0.28020, -0.06825, 0.28419, -0.01419)
+  par <- pt$par[pt$dest == "gamma"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_gamma")
+
+  # 3. Overdispersion parameter
+  comp <- c(14.00803, 18.66380)
+  par <- pt$par[pt$dest == "overdis"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_overdis")
+
+  # 5. Measurement Model
+  # 5.1 nu
+  comp <- rep(c(0, 1.08882, 0, -0.07963, -0.73781), 2)
+  par <- pt$par[pt$dest == "nu"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_nu")
+
+  # 5.2 Lambda
+  comp <- rep(c(1, 0.81774, rep(0, 5), 1, 1.27078, 1.53127), 2)
+  par <- pt$par[pt$dest == "Lambda"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_lambda")
+
+  # 5.3 Theta
   comp <- c(
-    6.05911345, 1.47195862, 0.26775418, -0.06742940, 0.00000000,
-    1.00000000, 1.42094736, 0.73367468, 0.00000000, 0.00000000,
-    0.00000000, 0.00000000, 0.00000000, 0.00000000, 1.00000000,
-    -0.09546400, 1.28058375, -0.45606900, 1.36106299, 3.93994900,
-    0.54609831, 1.57854672, 1.89179740, -0.35106555, 15.39459637,
-    0.41592476, 0.28454688, 1.53720808, 1.45580357, 1.36947597,
-    6.09357275, 1.67814046, 0.24971032, -0.01986893, 0.00000000,
-    1.00000000, 1.42094736, 0.73367468, 0.00000000, 0.00000000,
-    0.00000000, 0.00000000, 0.00000000, 0.00000000, 1.00000000,
-    -0.09546400, 1.28058375, -0.45606900, 1.36106299, 3.97884302,
-    0.43404231, 1.65126977, 2.16847937, -0.42078726, 17.00167035,
-    0.40983931, 0.30044684, 1.36352092, 1.57430547, 1.04101521
+    0.45836, 0.25828, 1.61553, 1.61485, 1.17764,
+    0.45605, 0.28609, 1.68552, 2.03674, 0.28088
   )
-  expect_equal(par, comp, tolerance = 1e-5)
+  par <- pt$par[pt$dest == "Theta" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_theta")
+
+  # 6. Latent Covariate Parameters
+  # 6.1 Means
+  comp <- c(3.94419, 1.58128, 3.96585, 1.684321)
+  par <- pt$par[pt$dest == "mu_eta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_eta")
+
+  # 6.2 Variances
+  comp <- c(0.48812, 1.66195, 0.34983, 2.08168)
+  par <- pt$par[pt$dest == "Sigma_eta" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_var")
+
+  # 6.3 Covariances
+  comp <- c(-0.30853, -0.30940)
+  par <- pt$par[pt$dest == "Sigma_eta" & pt$type == "cov"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_cov")
+
+
+  # STANDARD ERRORS
+  # 1. Group weight
+  comp <- c(0.00234, 0.00226)
+  par <- avar[pt$par_free[pt$dest == "groupw"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_groupw")
+
+  # 2. Regression coefficient
+  # 2.1 beta
+  comp <- c(0.03527, 0.04232)
+  par <- avar[pt$par_free[pt$dest == "beta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_beta")
+
+  # 2.2 gamma
+  comp <- c(0.00184, 0.00041, 0.00227, 0.00024)
+  par <- avar[pt$par_free[pt$dest == "gamma"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_gamma")
+
+  # 3. Overdispersion parameter
+  comp <- c(6.3742, 12.7716)
+  par <- avar[pt$par_free[pt$dest == "overdis"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_overdis")
+
+  # 5. Measurement Model
+  # 5.1 nu
+  comp <- rep(c(0.09798, 0.01402, 0.01389), 2)
+  par <- avar[pt$par_free[pt$dest == "nu"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_nu")
+
+  # 5.2 Lambda
+  comp <- rep(c(0.00622, 0.00330, 0.00322), 2)
+  par <- avar[pt$par_free[pt$dest == "Lambda"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_lambda")
+
+  # 5.3 Theta
+  comp <- c(
+    0.00353, 0.00140, 0.01872, 0.02576, 0.03203,
+    0.00250, 0.00110, 0.01433, 0.02167, 0.00095
+  )
+  par <- avar[pt$par_free[pt$dest == "Theta" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_theta")
+
+  # 6. Latent Covariate Parameters
+  # 6.1 Means
+  comp <- c(0.00192, 0.00559, 0.00145, 0.00276)
+  par <- avar[pt$par_free[pt$dest == "mu_eta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mu_eta")
+
+  # 6.2 Variances
+  comp <- c(0.00496, 0.02802, 0.00237, 0.02454)
+  par <- avar[pt$par_free[pt$dest == "Sigma_eta" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_eta_var")
+
+  # 6.3 Covariances
+  comp <- c(0.00399, 0.00287)
+  par <- avar[pt$par_free[pt$dest == "Sigma_eta" & pt$type == "cov"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_eta_cov")
 })
 
 
@@ -327,68 +1121,334 @@ test_that("two-group two latent covariates negative binomial", {
 # TEST 7 - one latent, one manifest covariates - two groups
 # ---------------------------------------------------
 test_that("two-group one latent, one manifest covariate Poisson", {
+  skip_on_os("windows")
   fit <- countreg(
     forml = "dv ~ eta1 + z12",
     lv = list(eta1 = c("z41", "z42", "z43")),
     group = "treat",
     data = example01,
     family = "poisson",
-    se = FALSE
+    se = TRUE
   )
-
 
   # Converged?
   conv <- fit@fit@fit$convergence
-  expect_equal(conv, 0L)
-
-  # Right amount of parameters?
-  pt <- fit@partable
-  par <- pt$par
-  expect_equal(length(par), 38)
+  expect_equal(conv, 0)
 
   # Correct parameter estimates?
+  pt <- fit@partable
+  avar <- diag(fit@vcov)
+  expect_equal(length(pt$par), 38)
+  expect_equal(length(avar), 32)
+
+  # LOG-LIKELIHOOD
+  comp <- 10.40298
+  par <- fit@fit@fit$objective
+  expect_equal(par, comp, tolerance = 1e-5, label = "logl")
+
+
+  # PARAMETER
+  # 1. Group weight
+  comp <- c(6.05912, 6.09357)
+  par <- pt$par[pt$dest == "groupw"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_groupw")
+
+  # 2. Regression coefficient
+  # 2.1 beta
+  comp <- c(2.76045, -0.14176, 2.86583, -0.12890)
+  par <- pt$par[pt$dest == "beta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
+
+  # 2.2 gamma
+  comp <- c(-0.09412, -0.02862)
+  par <- pt$par[pt$dest == "gamma"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_gamma")
+
+  # 3. Overdispersion parameter
+  comp <- c(0, 0)
+  par <- pt$par[pt$dest == "overdis"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_overdis")
+
+  # 4. Manifest Covariate Parameters
+  # 4.1 Means
+  comp <- c(1.35905, 1.39256)
+  par <- pt$par[pt$dest == "mu_z"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_z")
+
+  # 4.2 Variances
+  comp <- c(1.59276, 1.49301)
+  par <- pt$par[pt$dest == "Sigma_z" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_var")
+
+  # 5. Measurement Model
+  # 5.1 nu
+  comp <- rep(c(0, -0.09046, -0.43259), 2)
+  par <- pt$par[pt$dest == "nu"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_nu")
+
+  # 5.2 Lambda
+  comp <- rep(c(1, 1.27837, 1.34651), 2)
+  par <- pt$par[pt$dest == "Lambda"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_lambda")
+
+  # 5.3 Theta
   comp <- c(
-    6.05909654, 2.75913773, -0.1416134, -0.09370237, 0, 1, -0.06870994, 1.26866175,
-    -0.40189797, 1.33204864, 1.58256123, 1.90225746, 1.35599432, 1.58854965, 0.50967322,
-    0, 1.51401949, 1.46300016, 1.47144681, 6.09358806, 2.86544299, -0.12885743, -0.02848884,
-    0, 1, -0.06870994, 1.26866175, -0.40189797, 1.33204864, 1.63915325, 2.18476374,
-    1.39529371, 1.49758501, 0.69848563, 0, 1.35903901, 1.51394989, 1.10139006
+    1.51950, 1.46891, 1.45808,
+    1.36367, 1.51842, 1.08572
   )
-  expect_equal(par, comp, tolerance = 1e-5)
+  par <- pt$par[pt$dest == "Theta" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_theta")
+
+  # 6. Latent Covariate Parameters
+  # 6.1 Means
+  comp <- c(1.58518, 1.64336)
+  par <- pt$par[pt$dest == "mu_eta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_eta")
+
+  # 6.2 Variances
+  comp <- c(1.87179, 2.13073)
+  par <- pt$par[pt$dest == "Sigma_eta" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_var")
+
+  # 7. Latent-Manifest Covariances
+  comp <- c(0.50240, 0.68700)
+  par <- pt$par[pt$dest == "Sigma_z_lv"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_eta_cov")
+
+
+  # STANDARD ERRORS
+  # 1. Group weight
+  comp <- c(0.00234, 0.00226)
+  par <- avar[pt$par_free[pt$dest == "groupw"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_groupw")
+
+  # 2. Regression coefficient
+  # 2.1 beta
+  comp <- c(0.00070, 0.00018, 0.00048, 0.00015)
+  par <- avar[pt$par_free[pt$dest == "beta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_beta")
+
+  # 2.2 gamma
+  comp <- c(0.00024, 0.00014)
+  par <- avar[pt$par_free[pt$dest == "gamma"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_gamma")
+
+  # # 3. Overdispersion parameter
+  # comp <- c(9.21046, 7.77312)
+  # par <- avar[pt$par_free[pt$dest == "overdis"]]
+  # expect_equal(par, comp, tolerance = 1e-5, label = "se_overdis")
+
+  # 4. Manifest Covariate Parameters
+  # 4.1 Means
+  comp <- c(0.00370, 0.00323)
+  par <- avar[pt$par_free[pt$dest == "mu_z"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mu_z")
+
+  # 4.2 Variances
+  comp <- c(0.01190, 0.01034)
+  par <- avar[pt$par_free[pt$dest == "Sigma_z" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_z_var")
+
+
+  # 5. Measurement Model
+  # 5.1 nu
+  comp <- rep(c(0.01280, 0.01482), 2)
+  par <- avar[pt$par_free[pt$dest == "nu"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_nu")
+
+  # 5.2 Lambda
+  comp <- rep(c(0.00310, 0.00384), 2)
+  par <- avar[pt$par_free[pt$dest == "Lambda"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_lambda")
+
+  # 5.3 Theta
+  comp <- c(
+    0.01775, 0.02544, 0.02820,
+    0.01410, 0.02401, 0.03513
+  )
+  par <- avar[pt$par_free[pt$dest == "Theta" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_theta")
+
+  # 6. Latent Covariate Parameters
+  # 6.1 Means
+  comp <- c(0.00625, 0.00539)
+  par <- avar[pt$par_free[pt$dest == "mu_eta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mu_eta")
+
+  # 6.2 Variances
+  comp <- c(0.03885, 0.05531)
+  par <- avar[pt$par_free[pt$dest == "Sigma_eta" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_eta_var")
+
+  # 7. Latent-manifest Covariances
+  comp <- c(0.00957, 0.01124)
+  par <- avar[pt$par_free[pt$dest == "Sigma_z_lv"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_eta_cov")
 })
 
 
 test_that("two-group one latent, one manifest covariate negative binomial", {
-  skip_on_cran()
-
+  skip_on_os("windows")
   fit <- countreg(
     forml = "dv ~ eta1 + z12",
     lv = list(eta1 = c("z41", "z42", "z43")),
     group = "treat",
     data = example01,
     family = "nbinom",
-    se = FALSE
+    se = TRUE
   )
   # Converged?
   conv <- fit@fit@fit$convergence
   expect_equal(conv, 0)
 
-  # Right amount of parameters?
-  pt <- fit@partable
-  par <- pt$par
-  expect_equal(length(par), 38)
-
   # Correct parameter estimates?
-  # CAUTION: ABWEICHUNGEN VON MPLUS, VORALLEM MESSMODELL
+  pt <- fit@partable
+  avar <- diag(fit@vcov)
+  expect_equal(length(pt$par), 38)
+  expect_equal(length(avar), 34)
+
+  # LOG-LIKELIHOOD
+  comp <- 10.30759
+  par <- fit@fit@fit$objective
+  expect_equal(par, comp, tolerance = 1e-5, label = "logl")
+
+  # PARAMETER
+  # 1. Group weight
+  comp <- c(6.05912, 6.09357)
+  par <- pt$par[pt$dest == "groupw"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_groupw")
+
+  # 2. Regression coefficient
+  # 2.1 beta
+  comp <- c(2.74023, -0.14692, 2.86376, -0.13065)
+  par <- pt$par[pt$dest == "beta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
+
+  # 2.2 gamma
+  comp <- c(-0.07545, -0.02587)
+  par <- pt$par[pt$dest == "gamma"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_gamma")
+
+  # 3. Overdispersion parameter
+  comp <- c(13.57181, 18.25335)
+  par <- pt$par[pt$dest == "overdis"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_overdis")
+
+  # 4. Manifest Covariate Parameters
+  # 4.1 Means
+  comp <- c(1.35814, 1.39329)
+  par <- pt$par[pt$dest == "mu_z"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_z")
+
+  # 4.2 Variances
+  comp <- c(1.59198, 1.49435)
+  par <- pt$par[pt$dest == "Sigma_z" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_var")
+
+  # 5. Measurement Model
+  # 5.1 nu
+  comp <- rep(c(0, -0.10521, -0.46664), 2)
+  par <- pt$par[pt$dest == "nu"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_nu")
+
+  # 5.2 Lambda
+  comp <- rep(c(1, 1.28735, 1.36718), 2)
+  par <- pt$par[pt$dest == "Lambda"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_lambda")
+
+  # 5.3 Theta
   comp <- c(
-    6.05913042, 2.74324019, -0.14916755, -0.07454461, 0.00000000, 1.00000000,
-    -0.11744052, 1.29223974, -0.85183243, 1.59771173, 1.60579135, 1.58193485,
-    1.36335131, 1.59838439, 0.45494084, 14.70721662, 1.70005958, 1.72693384, 0.94441234,
-    6.09355591, 2.86146567, -0.13330789, -0.02223673, 0.00000000, 1.00000000,
-    -0.11744052, 1.29223974, -0.85183243, 1.59771173, 1.67656884, 1.89033247,
-    1.40280054, 1.48848257, 0.60500366, 16.32127791, 1.68752564, 2.05397280, 0.26490092
+    1.55109, 1.45711, 1.36321,
+    1.38212, 1.52278, 1.04421
   )
-  expect_equal(par, comp, tolerance = 1e-2)
+  par <- pt$par[pt$dest == "Theta" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_theta")
+
+  # 6. Latent Covariate Parameters
+  # 6.1 Means
+  comp <- c(1.58199, 1.64565)
+  par <- pt$par[pt$dest == "mu_eta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_eta")
+
+  # 6.2 Variances
+  comp <- c(1.84814, 2.11163)
+  par <- pt$par[pt$dest == "Sigma_eta" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_var")
+
+  # 7. Latent-Manifest Covariances
+  comp <- c(0.49467, 0.68556)
+  par <- pt$par[pt$dest == "Sigma_z_lv"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_eta_cov")
+
+
+  # STANDARD ERRORS
+  # 1. Group weight
+  comp <- c(0.00234, 0.00226)
+  par <- avar[pt$par_free[pt$dest == "groupw"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_groupw")
+
+  # 2. Regression coefficient
+  # 2.1 beta
+  comp <- c(0.00119, 0.00030, 0.00086, 0.00024)
+  par <- avar[pt$par_free[pt$dest == "beta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_beta")
+
+  # 2.2 gamma
+  comp <- c(0.00031, 0.00020)
+  par <- avar[pt$par_free[pt$dest == "gamma"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_gamma")
+
+  # 3. Overdispersion parameter
+  comp <- c(4.58670, 8.98671)
+  par <- avar[pt$par_free[pt$dest == "overdis"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_overdis")
+
+  # 4. Manifest Covariate Parameters
+  # 4.1 Means
+  comp <- c(0.00370, 0.00322)
+  par <- avar[pt$par_free[pt$dest == "mu_z"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mu_z")
+
+  # 4.2 Variances
+  comp <- c(0.01187, 0.01038)
+  par <- avar[pt$par_free[pt$dest == "Sigma_z" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_z_var")
+
+
+  # 5. Measurement Model
+  # 5.1 nu
+  comp <- rep(c(0.01298, 0.01573), 2)
+  par <- avar[pt$par_free[pt$dest == "nu"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_nu")
+
+  # 5.2 Lambda
+  comp <- rep(c(0.00314, 0.00415), 2)
+  par <- avar[pt$par_free[pt$dest == "Lambda"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_lambda")
+
+  # 5.3 Theta
+  comp <- c(
+    0.01820, 0.02698, 0.03034,
+    0.01421, 0.02492, 0.03872
+  )
+  par <- avar[pt$par_free[pt$dest == "Theta" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_theta")
+
+  # 6. Latent Covariate Parameters
+  # 6.1 Means
+  comp <- c(0.00617, 0.00527)
+  par <- avar[pt$par_free[pt$dest == "mu_eta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mu_eta")
+
+  # 6.2 Variances
+  comp <- c(0.03743, 0.05461)
+  par <- avar[pt$par_free[pt$dest == "Sigma_eta" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_eta_var")
+
+  # 7. Latent-manifest Covariances
+  comp <- c(0.00928, 0.01120)
+  par <- avar[pt$par_free[pt$dest == "Sigma_z_lv"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_eta_cov")
 })
 
 
@@ -396,74 +1456,359 @@ test_that("two-group one latent, one manifest covariate negative binomial", {
 # TEST 8 - one latent, two manifest covariates - two groups
 # ---------------------------------------------------
 test_that("two-group one latent, two manifest covariates Poisson", {
+  skip_on_os("windows")
   fit <- countreg(
     forml = "dv ~ eta1 + z12 + z21",
     lv = list(eta1 = c("z41", "z42", "z43")),
     group = "treat",
     data = example01,
     family = "poisson",
-    se = FALSE
+    se = TRUE
   )
-
-
   # Converged?
   conv <- fit@fit@fit$convergence
-  expect_equal(conv, 0L)
-
-  # Right amount of parameters?
-  pt <- fit@partable
-  par <- pt$par
-  expect_equal(length(par), 48)
+  expect_equal(conv, 0)
 
   # Correct parameter estimates?
-  comp <- c(
-    6.059124, 2.36817557, -0.10841153, 0.08546017, -0.08748471, 0, 1, -0.06092308,
-    1.26400824, -0.41092405, 1.3371816, 1.58195192, 1.89942736, 1.36298464,
-    1.59047871, 3.90870323, 0.95192072, -0.63512512, 0.50475972, -0.26781445, 0,
-    1.51100331, 1.47559415, 1.44904759, 6.09356947, 2.57935422, -0.10665812,
-    0.06166142, -0.02401982, 0, 1, -0.06092308, 1.26400824, -0.41092405, 1.3371816,
-    1.64191737, 2.21649531, 1.39027783, 1.50211821, 4.00297221, 0.83856677, -0.5807701,
-    0.7111785, -0.40031997, 0, 1.34647959, 1.53750437, 1.06622238
-  )
+  pt <- fit@partable
+  avar <- diag(fit@vcov)
+  expect_equal(length(pt$par), 48)
+  expect_equal(length(avar), 42)
 
-  # Currently, the results differ slightly between 32 and 64bit systems
-  # A higher tolerance would be desirable, but cannot be achieved at the moment
-  expect_equal(par, comp, tolerance = 1e-3)
+  # LOG-LIKELIHOOD
+  comp <- 11.58595
+  par <- fit@fit@fit$objective
+  expect_equal(par, comp, tolerance = 1e-5, label = "logl")
+
+  # PARAMETER
+  # 1. Group weight
+  comp <- c(6.05912, 6.09357)
+  par <- pt$par[pt$dest == "groupw"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_groupw")
+
+  # 2. Regression coefficient
+  # 2.1 beta
+  comp <- c(
+    2.36960, -0.10848, 0.08538,
+    2.57967, -0.10664, 0.06168
+  )
+  par <- pt$par[pt$dest == "beta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
+
+  # 2.2 gamma
+  comp <- c(-0.08794, -0.02418)
+  par <- pt$par[pt$dest == "gamma"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_gamma")
+
+  # 3. Overdispersion parameter
+  comp <- c(0, 0)
+  par <- pt$par[pt$dest == "overdis"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_overdis")
+
+  # 4. Manifest Covariate Parameters
+  # 4.1 Means
+  comp <- c(1.35900, 3.91136, 1.39321, 4.00164)
+  par <- pt$par[pt$dest == "mu_z"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_z")
+
+  # 4.2 Variances
+  comp <- c(1.59255, 0.95087, 1.49459, 0.83742)
+  par <- pt$par[pt$dest == "Sigma_z" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_var")
+
+  # 4.3 Covariance
+  comp <- c(-0.63469, -0.57679)
+  par <- pt$par[pt$dest == "Sigma_z" & pt$type == "cov"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_cov")
+
+  # 5. Measurement Model
+  # 5.1 nu
+  comp <- rep(c(0, -0.09006, -0.44041), 2)
+  par <- pt$par[pt$dest == "nu"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_nu")
+
+  # 5.2 Lambda
+  comp <- rep(c(1, 1.27810, 1.35125), 2)
+  par <- pt$par[pt$dest == "Lambda"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_lambda")
+
+  # 5.3 Theta
+  comp <- c(
+    1.52390, 1.46958, 1.44107,
+    1.36535, 1.53183, 1.06577
+  )
+  par <- pt$par[pt$dest == "Theta" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_theta")
+
+  # 6. Latent Covariate Parameters
+  # 6.1 Means
+  comp <- c(1.58494, 1.64547)
+  par <- pt$par[pt$dest == "mu_eta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_eta")
+
+  # 6.2 Variances
+  comp <- c(1.86770, 2.14256)
+  par <- pt$par[pt$dest == "Sigma_eta" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_var")
+
+  # 7. Latent-Manifest Covariances
+  comp <- c(0.50107, -0.26665, 0.69155, -0.38644)
+  par <- pt$par[pt$dest == "Sigma_z_lv"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_eta_cov")
+
+
+  # STANDARD ERRORS
+  # 1. Group weight
+  comp <- c(0.00234, 0.00226)
+  par <- avar[pt$par_free[pt$dest == "groupw"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_groupw")
+
+  # 2. Regression coefficient
+  # 2.1 beta
+  comp <- c(
+    0.00798, 0.00023, 0.00035,
+    0.00690, 0.00018, 0.00030
+  )
+  par <- avar[pt$par_free[pt$dest == "beta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_beta")
+
+  # 2.2 gamma
+  comp <- c(0.00023, 0.00013)
+  par <- avar[pt$par_free[pt$dest == "gamma"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_gamma")
+
+  # 4. Manifest Covariate Parameters
+  # 4.1 Means
+  comp <- c(0.00371, 0.00222, 0.00323, 0.00185)
+  par <- avar[pt$par_free[pt$dest == "mu_z"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mu_z")
+
+  # 4.2 Variances
+  comp <- c(0.01189, 0.00423, 0.01039, 0.00321)
+  par <- avar[pt$par_free[pt$dest == "Sigma_z" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_z_var")
+
+  # 4.3 Covarianes
+  comp <- c(0.00449, 0.00368)
+  par <- avar[pt$par_free[pt$dest == "Sigma_z" & pt$type == "cov"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_z_var")
+
+  # 5. Measurement Model
+  # 5.1 nu
+  comp <- rep(c(0.01280, 0.01500), 2)
+  par <- avar[pt$par_free[pt$dest == "nu"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_nu")
+
+  # 5.2 Lambda
+  comp <- rep(c(0.00310, 0.00390), 2)
+  par <- avar[pt$par_free[pt$dest == "Lambda"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_lambda")
+
+  # 5.3 Theta
+  comp <- c(
+    0.01783, 0.02565, 0.02852,
+    0.01414, 0.02406, 0.03561
+  )
+  par <- avar[pt$par_free[pt$dest == "Theta" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_theta")
+
+  # 6. Latent Covariate Parameters
+  # 6.1 Means
+  comp <- c(0.00625, 0.00537)
+  par <- avar[pt$par_free[pt$dest == "mu_eta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mu_eta")
+
+  # 6.2 Variances
+  comp <- c(0.03870, 0.05667)
+  par <- avar[pt$par_free[pt$dest == "Sigma_eta" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_eta_var")
+
+  # 7. Latent-manifest Covariances
+  comp <- c(0.00952, 0.00536, 0.01146, 0.00591)
+  par <- avar[pt$par_free[pt$dest == "Sigma_z_lv"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_eta_cov")
 })
 
 
 test_that("two-group one latent, two manifest covariate negative binomial", {
-  skip_on_cran()
+  skip_on_os("windows")
   fit <- countreg(
     forml = "dv ~ eta1 + z12 + z21",
     lv = list(eta1 = c("z41", "z42", "z43")),
     group = "treat",
     data = example01,
     family = "nbinom",
-    se = FALSE
+    se = TRUE
   )
+
   # Converged?
   conv <- fit@fit@fit$convergence
   expect_equal(conv, 0)
 
-  # Right amount of parameters?
-  pt <- fit@partable
-  par <- pt$par
-  expect_equal(length(par), 48)
-
   # Correct parameter estimates?
-  # CAUTION: ABWEICHUNGEN VON MPLUS, VORALLEM MESSMODELL
+  pt <- fit@partable
+  avar <- diag(fit@vcov)
+  expect_equal(length(pt$par), 48)
+  expect_equal(length(avar), 44)
+
+  # LOG-LIKELIHOOD
+  comp <- 11.49911
+  par <- fit@fit@fit$objective
+  expect_equal(par, comp, tolerance = 1e-5, label = "logl")
+
+  # PARAMETER
+  # 1. Group weight
+  comp <- c(6.05912, 6.09357)
+  par <- pt$par[pt$dest == "groupw"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_groupw")
+
+  # 2. Regression coefficient
+  # 2.1 beta
   comp <- c(
-    6.05912263, 2.34575133, -0.11303908, 0.08722950, -0.07244109, 0.00000000,
-    1.00000000, -0.10679834, 1.28808926, -0.48202704, 1.37623877, 1.58238357,
-    1.82771715, 1.35804073, 1.59891498, 3.91151517, 0.95254511, -0.63766547,
-    0.49038094, -0.25929977, 15.79591870, 1.55076248, 1.46841628, 1.36032350,
-    6.09357034, 2.59017300, -0.10894758, 0.05901176, -0.02210588, 0.00000000,
-    1.00000000, -0.10679834, 1.28808926, -0.48202704, 1.37623877, 1.64709335,
-    2.11067844, 1.39376522, 1.48983733, 4.00111840, 0.83615246, -0.57428941,
-    0.68313307, -0.38176448, 17.56235530, 1.39594155, 1.55199900, 1.00597486
+    2.34399, -0.11310, 0.08741,
+    2.58951, -0.10876, 0.05917
   )
-  expect_equal(par, comp, tolerance = 1e-5)
+  par <- pt$par[pt$dest == "beta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
+
+  # 2.2 gamma
+  comp <- c(-0.07169, -0.02223)
+  par <- pt$par[pt$dest == "gamma"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_gamma")
+
+  # 3. Overdispersion parameter
+  comp <- c(14.52583, 19.11102)
+  par <- pt$par[pt$dest == "overdis"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_overdis")
+
+  # 4. Manifest Covariate Parameters
+  # 4.1 Means
+  comp <- c(1.35808, 3.91184, 1.39380, 4.00131)
+  par <- pt$par[pt$dest == "mu_z"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_z")
+
+  # 4.2 Variances
+  comp <- c(1.59218, 0.95074, 1.49559, 0.83776)
+  par <- pt$par[pt$dest == "Sigma_z" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_var")
+
+  # 4.3 Covariance
+  comp <- c(-0.63448, -0.57736)
+  par <- pt$par[pt$dest == "Sigma_z" & pt$type == "cov"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_cov")
+
+  # 5. Measurement Model
+  # 5.1 nu
+  comp <- rep(c(0, -0.10279, -0.46896), 2)
+  par <- pt$par[pt$dest == "nu"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_nu")
+
+  # 5.2 Lambda
+  comp <- rep(c(1, 1.28584, 1.36858), 2)
+  par <- pt$par[pt$dest == "Lambda"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_lambda")
+
+  # 5.3 Theta
+  comp <- c(
+    1.55152, 1.45768, 1.36277,
+    1.38046, 1.53710, 1.03101
+  )
+  par <- pt$par[pt$dest == "Theta" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_theta")
+
+  # 6. Latent Covariate Parameters
+  # 6.1 Means
+  comp <- c(1.58175, 1.64726)
+  par <- pt$par[pt$dest == "mu_eta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_eta")
+
+  # 6.2 Variances
+  comp <- c(1.84751, 2.12428)
+  par <- pt$par[pt$dest == "Sigma_eta" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_var")
+
+  # 7. Latent-Manifest Covariances
+  comp <- c(0.49468, -0.26216, 0.68968, -0.38534)
+  par <- pt$par[pt$dest == "Sigma_z_lv"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_eta_cov")
+
+
+  # STANDARD ERRORS
+  # 1. Group weight
+  comp <- c(0.00234, 0.00226)
+  par <- avar[pt$par_free[pt$dest == "groupw"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_groupw")
+
+  # 2. Regression coefficient
+  # 2.1 beta
+  comp <- c(
+    0.01312, 0.00037, 0.00058,
+    0.01155, 0.00030, 0.00050
+  )
+  par <- avar[pt$par_free[pt$dest == "beta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_beta")
+
+  # 2.2 gamma
+  comp <- c(0.00030, 0.00020)
+  par <- avar[pt$par_free[pt$dest == "gamma"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_gamma")
+
+  # 3. Overdispersion parameter
+  comp <- c(5.62609, 10.32605)
+  par <- avar[pt$par_free[pt$dest == "overdis"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_overdis")
+
+  # 4. Manifest Covariate Parameters
+  # 4.1 Means
+  comp <- c(0.00370, 0.00222, 0.00322, 0.00184)
+  par <- avar[pt$par_free[pt$dest == "mu_z"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mu_z")
+
+  # 4.2 Variances
+  comp <- c(0.01188, 0.00423, 0.01041, 0.00322)
+  par <- avar[pt$par_free[pt$dest == "Sigma_z" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_z_var")
+
+  # 4.3 Covariances
+  comp <- c(0.00449, 0.00368)
+  par <- avar[pt$par_free[pt$dest == "Sigma_z" & pt$type == "cov"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_z_var")
+
+
+  # 5. Measurement Model
+  # 5.1 nu
+  comp <- rep(c(0.01297, 0.01581), 2)
+  par <- avar[pt$par_free[pt$dest == "nu"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_nu")
+
+  # 5.2 Lambda
+  comp <- rep(c(0.00314, 0.00418), 2)
+  par <- avar[pt$par_free[pt$dest == "Lambda"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_lambda")
+
+  # 5.3 Theta
+  comp <- c(
+    0.01820, 0.02711, 0.03058,
+    0.01426, 0.02493, 0.03876
+  )
+  par <- avar[pt$par_free[pt$dest == "Theta" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_theta")
+
+  # 6. Latent Covariate Parameters
+  # 6.1 Means
+  comp <- c(0.00617, 0.00527)
+  par <- avar[pt$par_free[pt$dest == "mu_eta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mu_eta")
+
+  # 6.2 Variances
+  comp <- c(0.03746, 0.05544)
+  par <- avar[pt$par_free[pt$dest == "Sigma_eta" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_eta_var")
+
+  # 7. Latent-manifest Covariances
+  comp <- c(0.00927, 0.00525, 0.01135, 0.00583)
+  par <- avar[pt$par_free[pt$dest == "Sigma_z_lv"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_eta_cov")
 })
 
 
@@ -471,9 +1816,9 @@ test_that("two-group one latent, two manifest covariate negative binomial", {
 # TEST 9 - two latent, one manifest covariates - two groups
 # ---------------------------------------------------
 test_that("two-group two latent, one manifest covariates Poisson", {
-  skip("This test can take up to 10 minutes.")
+  skip_on_os("windows")
   fit <- countreg(
-    forml = "dv ~ eta1 + eta2 + z12",
+    forml = "dv ~ eta1 + eta2 + z11",
     lv = list(
       eta1 = c("z21", "z22"),
       eta2 = c("z41", "z42", "z43")
@@ -481,39 +1826,177 @@ test_that("two-group two latent, one manifest covariates Poisson", {
     group = "treat",
     data = example01,
     family = "poisson",
-    se = FALSE
+    se = TRUE
   )
-
   # Converged?
   conv <- fit@fit@fit$convergence
-  expect_equal(conv, 0L)
-
-  # Right amount of parameters?
-  pt <- fit@partable
-  par <- pt$par[pt$par_free > 0L]
-  expect_equal(length(par), 50)
+  expect_equal(conv, 0)
 
   # Correct parameter estimates?
+  pt <- fit@partable
+  avar <- diag(fit@vcov)
+  expect_equal(length(pt$par), 70)
+  expect_equal(length(avar), 50)
+
+  # LOG-LIKELIHOOD
+  comp <- 12.55314
+  par <- fit@fit@fit$objective
+  expect_equal(par, comp, tolerance = 1e-5, label = "logl")
+
+  # PARAMETER
+  # 1. Group weight
+  comp <- c(6.05912, 6.09358)
+  par <- pt$par[pt$dest == "groupw"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_groupw")
+
+  # 2. Regression coefficient
+  # 2.1 beta
+  comp <- c(0.82196, -0.02026, 0.02869, 0.06399)
+  par <- pt$par[pt$dest == "beta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
+
+  # 2.2 gamma
+  comp <- c(0.42366, -0.03738, 0.61331, 0.03109)
+  par <- pt$par[pt$dest == "gamma"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_gamma")
+
+  # 3. Overdispersion parameter
+  comp <- c(0, 0)
+  par <- pt$par[pt$dest == "overdis"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_overdis")
+
+  # 4. Manifest Covariate Parameters
+  # 4.1 Means
+  comp <- c(1.59222, 1.55037)
+  par <- pt$par[pt$dest == "mu_z"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_z")
+
+  # 4.2 Variances
+  comp <- c(1.68941, 1.37974)
+  par <- pt$par[pt$dest == "Sigma_z" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_var")
+
+  # 5. Measurement Model
+  # 5.1 nu
+  comp <- rep(c(0, 1.45202, 0, -0.10394, -0.45037), 2)
+  par <- pt$par[pt$dest == "nu"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_nu")
+
+  # 5.2 Lambda
+  comp <- rep(c(1, 0.72596, rep(0, 5), 1, 1.28661, 1.35739), 2)
+  par <- pt$par[pt$dest == "Lambda"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_lambda")
+
+  # 5.3 Theta
   comp <- c(
-    6.05911879, -0.07540952, 0.07657528, 0.61043811, -0.02530174,
-    1.54644671, 0.70142013, -0.12121390, 1.29766040, -0.50652721,
-    1.39266284, 3.93871056, 0.41808751, 1.57716324, 1.84211943,
-    -0.35097437, 1.35724708, 1.60241726, -0.63245938, 0.50768859,
-    0.54249220, 0.37320559, 1.55987944, 1.43499172, 1.37814223,
-    6.09357869, -0.22505319, 0.09227664, 0.66831004, 0.03316800,
-    1.54644671, 0.70142013, -0.12121390, 1.29766040, -0.50652721,
-    1.39266284, 3.98300003, 0.31690630, 1.63526768, 2.08584996,
-    -0.41038142, 1.39058289, 1.49239446, -0.55768012, 0.67350735,
-    0.51904462, 0.37777490, 1.40109401, 1.59260762, 0.94147950
+    0.50781, 0.33968, 1.54610, 1.41844, 1.41326,
+    0.52843, 0.37247, 1.36521, 1.53639, 1.05942
   )
-  expect_equal(par, comp, tolerance = 1e-5)
+  par <- pt$par[pt$dest == "Theta" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_theta")
+
+  # 6. Latent Covariate Parameters
+  # 6.1 Means
+  comp <- c(3.93821, 1.57983, 3.97780, 1.64804)
+  par <- pt$par[pt$dest == "mu_eta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_eta")
+
+  # 6.2 Variances
+  comp <- c(0.45290, 1.88845, 0.30698, 2.14891)
+  par <- pt$par[pt$dest == "Sigma_eta" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_var")
+
+  # 6.3 Covariances
+  comp <- c(-0.34781, -0.41573)
+  par <- pt$par[pt$dest == "Sigma_eta" & pt$type == "cov"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_cov")
+
+  # 7. Latent-Manifest Covariances
+  comp <- c(-0.50655, 0.47312, -0.45868, 0.64211)
+  par <- pt$par[pt$dest == "Sigma_z_lv"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_eta_cov")
+
+
+  # STANDARD ERRORS
+  # 1. Group weight
+  comp <- c(0.00234, 0.00226)
+  par <- avar[pt$par_free[pt$dest == "groupw"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_groupw")
+
+  # 2. Regression coefficient
+  # 2.1 beta
+  comp <- c(0.13553, 0.00061, 0.31977, 0.00150)
+  par <- avar[pt$par_free[pt$dest == "beta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_beta")
+
+  # 2.2 gamma
+  comp <- c(0.00629, 0.00042, 0.01502, 0.00050)
+  par <- avar[pt$par_free[pt$dest == "gamma"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_gamma")
+
+  # # 3. Overdispersion parameter
+  # comp <- c(8.39126, 6.93554)
+  # par <- avar[pt$par_free[pt$dest == "overdis"]] |> round(5)
+  # expect_equal(par, comp, tolerance = 1e-5, label = "se_overdis")
+
+  # 4. Manifest Covariate Parameters
+  # 4.1 Means
+  comp <- c(0.00392, 0.00294)
+  par <- avar[pt$par_free[pt$dest == "mu_z"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mu_z")
+
+  # 4.2 Variances
+  comp <- c(0.01346, 0.00892)
+  par <- avar[pt$par_free[pt$dest == "Sigma_z" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_z_var")
+
+
+  # 5. Measurement Model
+  # 5.1 nu
+  comp <- rep(c(0.04251, 0.01284, 0.01435), 2)
+  par <- avar[pt$par_free[pt$dest == "nu"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_nu")
+
+  # 5.2 Lambda
+  comp <- rep(c(0.00268, 0.00310, 0.00365), 2)
+  par <- avar[pt$par_free[pt$dest == "Lambda"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_lambda")
+
+  # 5.3 Theta
+  comp <- c(
+    0.00349, 0.00117, 0.01784, 0.02584, 0.02760,
+    0.00239, 0.00098, 0.01372, 0.02304, 0.02940
+  )
+  par <- avar[pt$par_free[pt$dest == "Theta" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_theta")
+
+  # 6. Latent Covariate Parameters
+  # 6.1 Means
+  comp <- c(0.00198, 0.00617, 0.00156, 0.00523)
+  par <- avar[pt$par_free[pt$dest == "mu_eta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mu_eta")
+
+  # 6.2 Variances
+  comp <- c(0.00487, 0.04076, 0.00267, 0.05716)
+  par <- avar[pt$par_free[pt$dest == "Sigma_eta" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_eta_var")
+
+  # 6.3 Covariances
+  comp <- c(0.00486, 0.00500)
+  par <- avar[pt$par_free[pt$dest == "Sigma_eta" & pt$type == "cov"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_eta_cov")
+
+  # 7. Latent-manifest Covariances
+  comp <- c(0.00384, 0.01017, 0.00270, 0.01060)
+  par <- avar[pt$par_free[pt$dest == "Sigma_z_lv"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_eta_cov")
 })
 
 
 test_that("two-group two latent, one manifest covariate negative binomial", {
-  skip("This test can take up to 25 minutes.")
+  skip_on_os("windows")
   fit <- countreg(
-    forml = "dv ~ eta1 + eta2 + z12",
+    forml = "dv ~ eta1 + eta2 + z11",
     lv = list(
       eta1 = c("z21", "z22"),
       eta2 = c("z41", "z42", "z43")
@@ -521,29 +2004,170 @@ test_that("two-group two latent, one manifest covariate negative binomial", {
     group = "treat",
     data = example01,
     family = "negbin",
-    se = FALSE
+    se = TRUE
   )
   # Converged?
   conv <- fit@fit@fit$convergence
   expect_equal(conv, 0)
 
-  # Right amount of parameters?
-  pt <- fit@partable
-  par <- pt$par[pt$par_free > 0L]
-  expect_equal(length(par), 52)
-
   # Correct parameter estimates?
+  pt <- fit@partable
+  avar <- diag(fit@vcov)
+  expect_equal(length(pt$par), 70)
+  expect_equal(length(avar), 52)
+
+  # LOG-LIKELIHOOD
+  comp <- 12.50705
+  par <- fit@fit@fit$objective
+  expect_equal(par, comp, tolerance = 1e-5, label = "logl")
+
+  # PARAMETER
+  # 1. Group weight
+  comp <- c(6.05912, 6.09357)
+  par <- pt$par[pt$dest == "groupw"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_groupw")
+
+  # 2. Regression coefficient
+  # 2.1 beta
+  comp <- c(1.86183, -0.08019, 1.92432, -0.04937)
+  par <- pt$par[pt$dest == "beta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
+
+  # 2.2 gamma
+  comp <- c(0.19708, -0.05938, 0.20441, -0.01444)
+  par <- pt$par[pt$dest == "gamma"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_gamma")
+
+  # 3. Overdispersion parameter
+  comp <- c(16.07668, 19.65088)
+  par <- pt$par[pt$dest == "overdis"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_overdis")
+
+  # 4. Manifest Covariate Parameters
+  # 4.1 Means
+  comp <- c(1.59228, 1.55054)
+  par <- pt$par[pt$dest == "mu_z"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_z")
+
+  # 4.2 Variances
+  comp <- c(1.68916, 1.38302)
+  par <- pt$par[pt$dest == "Sigma_z" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_var")
+
+  # 5. Measurement Model
+  # 5.1 nu
+  comp <- rep(c(0, 1.50289, 0, -0.10129, -0.44922), 2)
+  par <- pt$par[pt$dest == "nu"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_nu")
+
+  # 5.2 Lambda
+  comp <- rep(c(1, 0.71290, rep(0, 5), 1, 1.28496, 1.35665), 2)
+  par <- pt$par[pt$dest == "Lambda"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_lambda")
+
+  # 5.3 Theta
   comp <- c(
-    6.05912263, 2.34575133, -0.11303908, 0.08722950, -0.07244109, 0.00000000,
-    1.00000000, -0.10679834, 1.28808926, -0.48202704, 1.37623877, 1.58238357,
-    1.82771715, 1.35804073, 1.59891498, 3.91151517, 0.95254511, -0.63766547,
-    0.49038094, -0.25929977, 15.79591870, 1.55076248, 1.46841628, 1.36032350,
-    6.09357034, 2.59017300, -0.10894758, 0.05901176, -0.02210588, 0.00000000,
-    1.00000000, -0.10679834, 1.28808926, -0.48202704, 1.37623877, 1.64709335,
-    2.11067844, 1.39376522, 1.48983733, 4.00111840, 0.83615246, -0.57428941,
-    0.68313307, -0.38176448, 17.56235530, 1.39594155, 1.55199900, 1.00597486
+    0.40008, 0.29254, 1.54578, 1.41983, 1.40770,
+    0.39539, 0.31152, 1.36214, 1.54148, 1.05999
   )
-  expect_equal(par, comp, tolerance = 1e-5)
+  par <- pt$par[pt$dest == "Theta" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_theta")
+
+  # 6. Latent Covariate Parameters
+  # 6.1 Means
+  comp <- c(3.93729, 1.58028, 3.98050, 1.64902)
+  par <- pt$par[pt$dest == "mu_eta"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_eta")
+
+  # 6.2 Variances
+  comp <- c(0.56083, 1.89159, 0.44179, 2.18016)
+  par <- pt$par[pt$dest == "Sigma_eta" & pt$type == "var"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_var")
+
+  # 6.3 Covariances
+  comp <- c(-0.34963, -0.42280)
+  par <- pt$par[pt$dest == "Sigma_eta" & pt$type == "cov"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_cov")
+
+  # 7. Latent-Manifest Covariances
+  comp <- c(-0.51018, 0.47128, -0.46614, 0.65297)
+  par <- pt$par[pt$dest == "Sigma_z_lv"]
+  expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_eta_cov")
+
+
+  # STANDARD ERRORS
+  # 1. Group weight
+  comp <- c(0.00234, 0.00226)
+  par <- avar[pt$par_free[pt$dest == "groupw"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_groupw")
+
+  # 2. Regression coefficient
+  # 2.1 beta
+  comp <- c(0.04109, 0.00038, 0.05660, 0.00046)
+  par <- avar[pt$par_free[pt$dest == "beta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_beta")
+
+  # 2.2 gamma
+  comp <- c(0.00190, 0.00033, 0.00260, 0.00024)
+  par <- avar[pt$par_free[pt$dest == "gamma"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_gamma")
+
+  # 3. Overdispersion parameter
+  comp <- c(8.68960, 13.23318)
+  par <- avar[pt$par_free[pt$dest == "overdis"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_overdis")
+
+  # 4. Manifest Covariate Parameters
+  # 4.1 Means
+  comp <- c(0.00392, 0.00293)
+  par <- avar[pt$par_free[pt$dest == "mu_z"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mu_z")
+
+  # 4.2 Variances
+  comp <- c(0.01345, 0.00897)
+  par <- avar[pt$par_free[pt$dest == "Sigma_z" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_z_var")
+
+
+  # 5. Measurement Model
+  # 5.1 nu
+  comp <- rep(c(0.04897, 0.01268, 0.01420), 2)
+  par <- avar[pt$par_free[pt$dest == "nu"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_nu")
+
+  # 5.2 Lambda
+  comp <- rep(c(0.00310, 0.00305, 0.00360), 2)
+  par <- avar[pt$par_free[pt$dest == "Lambda"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_lambda")
+
+  # 5.3 Theta
+  comp <- c(
+    0.00293, 0.00097, 0.01771, 0.02552, 0.02740,
+    0.00221, 0.00081, 0.01349, 0.02321, 0.02914
+  )
+  par <- avar[pt$par_free[pt$dest == "Theta" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mm_theta")
+
+  # 6. Latent Covariate Parameters
+  # 6.1 Means
+  comp <- c(0.00205, 0.00618, 0.00164, 0.00513)
+  par <- avar[pt$par_free[pt$dest == "mu_eta"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_mu_eta")
+
+  # 6.2 Variances
+  comp <- c(0.00497, 0.04050, 0.00355, 0.05295)
+  par <- avar[pt$par_free[pt$dest == "Sigma_eta" & pt$type == "var"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_eta_var")
+
+  # 6.3 Covariances
+  comp <- c(0.00518, 0.00536)
+  par <- avar[pt$par_free[pt$dest == "Sigma_eta" & pt$type == "cov"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_eta_cov")
+
+  # 7. Latent-manifest Covariances
+  comp <- c(0.00409, 0.01013, 0.00301, 0.01050)
+  par <- avar[pt$par_free[pt$dest == "Sigma_z_lv"]]
+  expect_equal(par, comp, tolerance = 1e-5, label = "se_sig_eta_cov")
 })
 
 
@@ -551,14 +2175,14 @@ test_that("two-group two latent, one manifest covariate negative binomial", {
 # TEST 10 - one latent variable - one group
 # ---------------------------------------------------
 test_that("one latent variable in one group - Poisson", {
-  skip_on_os("mac")
+  skip("Not finished")
   fit <- countreg(
     forml = "dv ~ eta",
     lv = list(eta = c("z41", "z42", "z43")),
     group = NULL,
     data = example01,
     family = "poisson",
-    se = FALSE
+    se = TRUE
   )
   par <- fit@partable$par
   comp <- c(

@@ -74,6 +74,43 @@ creg_input <- function(forml,
   no_w <- length(ovnames)
   no_z <- length(cvnames)
 
+  # Interactions
+  intnames <- list()
+  no_int_z <- 0L
+  no_int_lv <- 0L
+  no_int_z_lv <- 0L
+  forml_terms <- terms.formula(forml)
+  int_ind <- attr(forml_terms, "order") == 2
+
+  if (any(int_ind)) {
+    int_var <- attr(forml_terms, "factors")[, int_ind] |> as.matrix()
+    int_var_logic <- array(as.logical(int_var), dim(int_var))
+    int_table <- apply(int_var_logic, 2, function(x) {
+      vnames_int <- rownames(int_var)[x]
+      if (all(vnames_int %in% cvnames)) {
+        return(c("z", vnames_int))
+      } else if (all(vnames_int %in% lvnames)) {
+        return(c("lv", vnames_int))
+      } else {
+        return(c("z_lv", vnames_int))
+      }
+    }) |> t()
+
+
+    intnames$z <- int_table[int_table[, 1] == "z", 2:3] |> matrix(ncol = 2)
+    intnames$lv <- int_table[int_table[, 1] == "lv", 2:3] |> matrix(ncol = 2)
+    intnames$z_lv <- int_table[int_table[, 1] == "z_lv", 2:3] |>
+      matrix(ncol = 2)
+
+    # Get number of each interaction type
+    no_int_z <- nrow(intnames$z)
+    no_int_lv <- nrow(intnames$lv)
+    no_int_z_lv <- nrow(intnames$z_lv)
+  }
+
+
+
+
   # If no group variable is specified: group name = ""
   # Get number of groups and respective group sizes
   if (is.null(group)) {
@@ -104,7 +141,7 @@ creg_input <- function(forml,
   #############
 
   # lavacreg does not support interactions or higher-order terms
-  if (any(attr(terms.formula(forml), "order") != 1)) {
+  if (any(attr(terms.formula(forml), "order") > 1)) {
     stop(
       "lavacreg Error: Please do not use higher-order terms in your formula."
     )
@@ -132,6 +169,7 @@ creg_input <- function(forml,
     lvnames = lvnames,
     ovnames = ovnames,
     cvnames = cvnames,
+    intnames = intnames,
     groupname = group,
     groupvar = groupvar,
     n_cell = n_cell,
@@ -139,6 +177,9 @@ creg_input <- function(forml,
     no_lv = no_lv,
     no_w = no_w,
     no_z = no_z,
+    no_int_z = no_int_z,
+    no_int_lv = no_int_lv,
+    no_int_z_lv = no_int_z_lv,
     family = family,
     data = data,
     silent = silent,

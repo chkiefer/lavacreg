@@ -104,25 +104,51 @@ creg_starts_lv <- function(object) {
     # Extract "manifest" results for coefficients, means, variance, and
     # covariances
     pt_starts <- fit_starts@partable
+    # browser()
 
     # STARTING VALUES FOR
     # 1. Group weight
     pt$par[pt$dest == "groupw"] <- pt_starts$par[pt_starts$dest == "groupw"]
 
     # 2. Regression coefficients
-    pt$par[pt$dest == "regcoef"] <- pt_starts$par[pt_starts$dest == "regcoef"]
+    pt$par[pt$dest == "beta"] <-
+        pt_starts$par[
+            pt_starts$dest == "beta" & pt_starts$rhs %in% c(1, cvnames)
+        ]
+    pt$par[pt$dest == "gamma"] <-
+        pt_starts$par[pt_starts$dest == "beta" & pt_starts$rhs %in% lvnames]
 
     # 3. Covariate Means
-    pt$par[!is.na(pt$type) & pt$type == "mean"] <-
-        pt_starts$par[!is.na(pt_starts$type) & pt_starts$type == "mean"]
+    pt$par[pt$dest == "mu_z"] <-
+        pt_starts$par[pt_starts$dest == "mu_z" & pt_starts$lhs %in% cvnames]
+    pt$par[pt$dest == "mu_eta"] <-
+        pt_starts$par[pt_starts$dest == "mu_z" & pt_starts$lhs %in% lvnames]
 
     # 4. Covariate Variances
-    pt$par[!is.na(pt$type) & pt$type == "var"] <-
-        pt_starts$par[!is.na(pt_starts$type) & pt_starts$type == "var"]
+    pt$par[(pt$dest == "Sigma_z") & pt$type == "var"] <-
+        pt_starts$par[
+            pt_starts$dest == "Sigma_z" & pt_starts$type == "var" & pt_starts$lhs %in% cvnames
+        ]
+    pt$par[(pt$dest == "Sigma_eta") & pt$type == "var"] <-
+        pt_starts$par[
+            pt_starts$dest == "Sigma_z" & pt_starts$type == "var" & pt_starts$lhs %in% lvnames
+        ]
 
     # 5. Covariate Covariances
-    pt$par[!is.na(pt$type) & (pt$type == "cov" | pt$type == "cov_z_lv")] <-
-        pt_starts$par[!is.na(pt_starts$type) & pt_starts$type == "cov"]
+    pt$par[(pt$dest == "Sigma_z") & pt$type == "cov"] <-
+        pt_starts$par[
+            pt_starts$dest == "Sigma_z" & pt_starts$type == "cov" & pt_starts$lhs %in% cvnames & pt_starts$rhs %in% cvnames
+        ]
+    pt$par[(pt$dest == "Sigma_eta") & pt$type == "cov"] <-
+        pt_starts$par[
+            pt_starts$dest == "Sigma_z" & pt_starts$type == "cov" & pt_starts$lhs %in% lvnames & pt_starts$rhs %in% lvnames
+        ]
+
+    pt$par[(pt$dest == "Sigma_z_lv")] <-
+        pt_starts$par[
+            pt_starts$dest == "Sigma_z" & pt_starts$type == "cov" & ((pt_starts$lhs %in% lvnames & pt_starts$rhs %in% cvnames) |
+                (pt_starts$lhs %in% cvnames & pt_starts$rhs %in% lvnames))
+        ]
 
     # Return starting values
     x_start_lv <- pt$par[pt$par_free > 0L] |> matrix(nrow = 1)

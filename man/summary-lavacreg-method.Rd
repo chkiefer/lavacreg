@@ -14,6 +14,6 @@ Function prints the parameter table of an estimated model, which
 includes the parameter estimates and standard errors.
 }
 \description{
-Exports the parameter table with parameter estimates and standard errors 
+Exports the parameter table with parameter estimates and standard errors
 for an estimated latent variable count regression model.
 }

@@ -13,6 +13,7 @@ setClass(
     lvnames = "character",
     ovnames = "character",
     cvnames = "character",
+    intnames = "list",
     groupname = "character",
     groupvar = "factor",
     n_cell = "integer",
@@ -20,6 +21,9 @@ setClass(
     no_lv = "integer",
     no_w = "integer",
     no_z = "integer",
+    no_int_z = "integer",
+    no_int_lv = "integer",
+    no_int_z_lv = "integer",
     family = "character",
     data = "data.frame",
     silent = "logical",
@@ -66,7 +70,8 @@ setClass(
   "creg_fit",
   representation(
     fit = "list",
-    objective = "function"
+    objective = "function",
+    modellist = "list"
   )
 )
 

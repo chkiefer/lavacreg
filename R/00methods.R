@@ -40,8 +40,8 @@ setMethod(
       # Print regression coefficients
       cat("Regression:\n")
       res <- subset(
-        pt_g,
-        pt_g$dest == "regcoef",
+        x = pt_g,
+        subset = dest == "beta" | dest == "gamma",
         select = c("rhs", "par", "SE", "zval", "pval")
       )
       rownames(res) <- res$rhs
@@ -51,9 +51,10 @@ setMethod(
 
       if (family != "poisson") {
         # Print overdispersion parameter if it exists
+        cat("\n")
         res <- subset(
-          pt_g,
-          pt_g$type == "size",
+          x = pt_g,
+          subset = dest == "overdis",
           select = c("par", "SE", "zval", "pval")
         )
         rownames(res) <- "Dispersion"
@@ -65,9 +66,10 @@ setMethod(
         # Print means and variances of the covariates
         cat("\nMeans:\n")
         res <- subset(
-          pt_g, 
-          pt_g$type == "mean", 
-          select = c("lhs", "par", "SE", "zval", "pval"))
+          x = pt_g,
+          subset = dest == "mu_z" | dest == "mu_eta",
+          select = c("lhs", "par", "SE", "zval", "pval")
+        )
         rownames(res) <- res$lhs
         res <- res[, -1]
         names(res) <- c("Estimate", "SE", "Est./SE", "p-value")
@@ -75,9 +77,10 @@ setMethod(
 
         cat("\nVariances:\n")
         res <- subset(
-          pt_g, 
-          pt_g$type == "var", 
-          select = c("lhs", "par", "SE", "zval", "pval"))
+          x = pt_g,
+          subset = type == "var" & (dest == "Sigma_z" | dest == "Sigma_eta"),
+          select = c("lhs", "par", "SE", "zval", "pval")
+        )
         rownames(res) <- res$lhs
         res <- res[, -1]
         names(res) <- c("Estimate", "SE", "Est./SE", "p-value")
@@ -88,8 +91,9 @@ setMethod(
         # Print covariances of covariates
         cat("\nCovariances:\n")
         res <- subset(
-          pt_g, 
-          pt_g$type == "cov" | pt_g$type == "cov_z_lv",
+          x = pt_g,
+          subset = (type == "cov" &
+            (dest == "Sigma_z" | dest == "Sigma_eta")) | dest == "Sigma_z_lv",
           select = c("lhs", "op", "rhs", "par", "SE", "zval", "pval")
         )
         rownames(res) <- paste(res$lhs, res$op, res$rhs)
@@ -101,9 +105,33 @@ setMethod(
       if (no_lv) {
         # Print measurement model
         cat("\nMeasurement Model:\n")
+
+        cat("Intercepts:\n")
         res <- subset(
-          pt_g, 
-          (pt_g$dest == "mm" | pt_g$type == "veps") & pt_g$par_free > 0,
+          x = pt_g,
+          subset = dest == "nu",
+          select = c("lhs", "op", "rhs", "par", "SE", "zval", "pval")
+        )
+        rownames(res) <- paste(res$lhs, res$op, res$rhs)
+        res <- res[, -c(1:3)]
+        names(res) <- c("Estimate", "SE", "Est./SE", "p-value")
+        print(res, digits = 3, print.gap = 3)
+
+        cat("\nLoadings:\n")
+        res <- subset(
+          x = pt_g,
+          subset = dest == "Lambda",
+          select = c("lhs", "op", "rhs", "par", "SE", "zval", "pval")
+        )
+        rownames(res) <- paste(res$lhs, res$op, res$rhs)
+        res <- res[, -c(1:3)]
+        names(res) <- c("Estimate", "SE", "Est./SE", "p-value")
+        print(res, digits = 3, print.gap = 3)
+
+        cat("\nResidual Variances:\n")
+        res <- subset(
+          x = pt_g,
+          subset = dest == "Theta" & type == "var",
           select = c("lhs", "op", "rhs", "par", "SE", "zval", "pval")
         )
         rownames(res) <- paste(res$lhs, res$op, res$rhs)

@@ -6,10 +6,21 @@ creg_gh_grid <- function(input) {
     # Initialize empty grid of integration points and
     # define number of integration points per dimension
     init_grid <- list()
+    init_grid$X <- matrix(0, 0, 0)
+    init_grid$W <- numeric()
     if (is.null(creg_options$intPoints) | !is.integer(creg_options$intPoints)) {
         no_integration_points <- 15L
     } else {
         no_integration_points <- creg_options$intPoints
+    }
+
+
+    # Pruning not meaningful for one dimension
+    # (would remove all but one value)
+    if (no_lv > 1) {
+        prune <- TRUE
+    } else if (no_lv == 1) {
+        prune <- FALSE
     }
 
     # If latent variables specified: compute base integration grid
@@ -18,10 +29,10 @@ creg_gh_grid <- function(input) {
         init_grid <- creg_init_grid(
             Q = no_lv,
             ip = no_integration_points,
-            type = "GH"
+            type = "GH",
+            prune = prune
         )
     }
-
     return(init_grid)
 }
 
@@ -35,7 +46,7 @@ creg_gh_grid <- function(input) {
 #' @importFrom SparseGrid createSparseGrid
 #'
 #' @noRd
-creg_init_grid <- function(Q = 2, ip = 6, type = "GH") {
+creg_init_grid <- function(Q = 2, ip = 6, type = "GH", prune = TRUE) {
     if (type == "GH") {
         x <- fastGHQuad::gaussHermiteData(ip)
         w <- x$w / sqrt(pi)
@@ -55,12 +66,20 @@ creg_init_grid <- function(Q = 2, ip = 6, type = "GH") {
         w <- NULL
     }
 
+    if (prune & type == "GH") {
+        threshold <- log(min(w)^(Q - 1) * max(w))
+        relevant <- W >= threshold
+        W <- W[relevant]
+        X <- X[relevant, , drop = FALSE]
+    }
+
+    W <- exp(W)
 
     return(invisible(list(X = X, W = W, w = w, type = type)))
 }
 
 
-creg_adapt_grid <- function(mu, Sigma, init_grid, prune = FALSE) {
+creg_adapt_grid <- function(mu, Sigma, init_grid) {
     X <- init_grid$X
     W <- init_grid$W
     w <- init_grid$w
@@ -84,11 +103,6 @@ creg_adapt_grid <- function(mu, Sigma, init_grid, prune = FALSE) {
     X <- trans(X, Sigma)
     X <- t(t(X) + mu)
 
-    if (prune & type == "GH") {
-        threshold <- log(min(w)^(Q - 1) * max(w))
-        relevant <- W >= threshold
-        W <- W[relevant]
-        X <- X[relevant, , drop = FALSE]
-    }
+
     return(invisible(list(X = X, W = W)))
 }

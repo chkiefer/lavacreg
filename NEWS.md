@@ -1,3 +1,10 @@
+# lavacreg 0.2-0
+
+* refactoring of the whole codebase
+* major change to the C++ files; likelihood estimation is now based on RcppArmadillo and matrix algebra
+* major changes to the R files;  partable, modellist and so on were adapted to the matrix-based computations
+* codebase now supports interaction terms, but this feature will be released with the next minor version (not tested enough right now)
+
 # lavacreg 0.1-2
 
 * minor changes to the C++ files due to upcoming changes in Rcpp package (STRICT_R_HEADERS)

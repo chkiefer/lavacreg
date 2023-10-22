@@ -18,16 +18,19 @@
 #' @noRd
 creg_partable <- function(input) {
     # Import required information from input object
-    # input <- object@input
     dvname <- input@dvname
     lvnames <- input@lvnames
     ovnames <- input@ovnames
     cvnames <- input@cvnames
+    intnames <- input@intnames
     groupname <- input@groupname
     no_groups <- input@no_groups
     no_lv <- input@no_lv
     no_w <- input@no_w
     no_z <- input@no_z
+    no_int_z <- input@no_int_z
+    no_int_lv <- input@no_int_lv
+    no_int_z_lv <- input@no_int_z_lv
     lv <- input@lvlist
     family <- input@family
 
@@ -36,8 +39,6 @@ creg_partable <- function(input) {
     no_z_lv_covariance <- no_z * no_lv
     no_z_covariance <- no_z * (no_z - 1) / 2
     no_lv_covariance <- no_lv * (no_lv - 1) / 2
-
-
 
     if (!length(groupname)) groupname <- ""
 
@@ -69,18 +70,130 @@ creg_partable <- function(input) {
         par_free <- c(par_free, par_free_id)
         par <- c(par, 0)
 
-        # Regression coefficients
-        for (j in 0:no_cov) {
+        # Regression coefficients for Z
+        for (j in 0:no_z) {
             lhs <- c(lhs, dvname)
             op <- c(op, "~")
             rhs <- c(rhs, covnames[j + 1])
-            dest <- c(dest, "regcoef")
+            dest <- c(dest, "beta")
             type <- c(type, NA)
             group <- c(group, i)
             par_free_id <- par_free_id + 1L
             par_free <- c(par_free, par_free_id)
             par <- c(par, 0.0)
         }
+
+        # Regression coefficients for eta
+        if (no_lv) {
+            for (j in 1:no_lv) {
+                lhs <- c(lhs, dvname)
+                op <- c(op, "~")
+                rhs <- c(rhs, covnames[j + 1 + no_z])
+                dest <- c(dest, "gamma")
+                type <- c(type, NA)
+                group <- c(group, i)
+                par_free_id <- par_free_id + 1L
+                par_free <- c(par_free, par_free_id)
+                par <- c(par, 0.0)
+            }
+        }
+
+        # Regression coefficients for interactions of Zs
+        if (no_int_z) {
+            names_z_int <- combn(cvnames, 2) |> apply(2, paste, collapse = ":")
+            model_z_int <- apply(intnames$z, 1, paste, collapse = ":")
+            model_z_int2 <- apply(
+                matrix(intnames$z[, c(2, 1)], ncol = 2), 1, paste,
+                collapse = ":"
+            )
+            for (j in names_z_int) {
+                lhs <- c(lhs, dvname)
+                op <- c(op, "~")
+                rhs <- c(rhs, j)
+                dest <- c(dest, "Beta")
+                type <- c(type, NA)
+                group <- c(group, i)
+                if (j %in% model_z_int | j %in% model_z_int2) {
+                    par_free_id <- par_free_id + 1L
+                    par_free <- c(par_free, par_free_id)
+                    par <- c(par, 0.0)
+                } else {
+                    par_free <- c(par_free, 0)
+                    par <- c(par, 0.0)
+                }
+            }
+        }
+
+        # Regression coefficients for interactions of LVs
+        if (no_int_lv) {
+            names_lv_int <- combn(lvnames, 2) |> apply(2, paste, collapse = ":")
+            model_lv_int <- apply(intnames$lv, 1, paste, collapse = ":")
+            model_lv_int2 <- apply(
+                matrix(intnames$lv[, c(2, 1)], ncol = 2), 1, paste,
+                collapse = ":"
+            )
+            for (j in names_lv_int) {
+                lhs <- c(lhs, dvname)
+                op <- c(op, "~")
+                rhs <- c(rhs, j)
+                dest <- c(dest, "Gamma")
+                type <- c(type, NA)
+                group <- c(group, i)
+                if (j %in% model_lv_int | j %in% model_lv_int2) {
+                    par_free_id <- par_free_id + 1L
+                    par_free <- c(par_free, par_free_id)
+                    par <- c(par, 0.0)
+                } else {
+                    par_free <- c(par_free, 0)
+                    par <- c(par, 0.0)
+                }
+            }
+        }
+
+        # Regression coefficients for interactions of Zs and LVs
+        if (no_int_z_lv) {
+            names_z_lv_int <- expand.grid(cvnames, lvnames) |> apply(2, paste, collapse = ":")
+            model_z_lv_int <- apply(intnames$z_lv, 1, paste, collapse = ":")
+            model_z_lv_int2 <- apply(
+                matrix(intnames$z_lv[, c(2, 1)], ncol = 2), 1, paste,
+                collapse = ":"
+            )
+            for (j in names_z_lv_int) {
+                lhs <- c(lhs, dvname)
+                op <- c(op, "~")
+                rhs <- c(rhs, j)
+                dest <- c(dest, "Omega")
+                type <- c(type, NA)
+                group <- c(group, i)
+                if (j %in% model_z_lv_int | j %in% model_z_lv_int2) {
+                    par_free_id <- par_free_id + 1L
+                    par_free <- c(par_free, par_free_id)
+                    par <- c(par, 0.0)
+                } else {
+                    par_free <- c(par_free, 0)
+                    par <- c(par, 0.0)
+                }
+            }
+        }
+
+        # Overdispersion
+        lhs <- c(lhs, dvname)
+        op <- c(op, "~~")
+        rhs <- c(rhs, dvname)
+        dest <- c(dest, "overdis")
+        type <- c(type, NA)
+        group <- c(group, i)
+        if (family == "poisson") {
+            par_free <- c(par_free, 0)
+            par <- c(par, 0)
+        } else {
+            par_free_id <- par_free_id + 1L
+            par_free <- c(par_free, par_free_id)
+            par <- c(par, 1)
+        }
+
+
+
 
         # Measurement model
         no_ind_before <- 0L
@@ -96,8 +209,8 @@ creg_partable <- function(input) {
                         lhs <- c(lhs, lvnames[j])
                         op <- c(op, "=~")
                         rhs <- c(rhs, ovnames[l])
-                        dest <- c(dest, "mm")
-                        type <- c(type, "lambda")
+                        dest <- c(dest, "Lambda")
+                        type <- c(type, NA)
                         group <- c(group, i)
                         par_free <- c(par_free, 0)
                         par <- c(par, 0)
@@ -109,8 +222,8 @@ creg_partable <- function(input) {
                     lhs <- c(lhs, ovnames[no_ind_before + k])
                     op <- c(op, "~")
                     rhs <- c(rhs, 1)
-                    dest <- c(dest, "mm")
-                    type <- c(type, "nu")
+                    dest <- c(dest, "nu")
+                    type <- c(type, NA)
                     group <- c(group, i)
 
                     # Fix first intercept to zero
@@ -127,8 +240,8 @@ creg_partable <- function(input) {
                     lhs <- c(lhs, lvnames[j])
                     op <- c(op, "=~")
                     rhs <- c(rhs, ovnames[no_ind_before + k])
-                    dest <- c(dest, "mm")
-                    type <- c(type, "lambda")
+                    dest <- c(dest, "Lambda")
+                    type <- c(type, NA)
                     group <- c(group, i)
 
                     # Fix first loading to one
@@ -147,8 +260,8 @@ creg_partable <- function(input) {
                         lhs <- c(lhs, lvnames[j])
                         op <- c(op, "=~")
                         rhs <- c(rhs, ovnames[no_ind_before + no_ind + l])
-                        dest <- c(dest, "mm")
-                        type <- c(type, "lambda")
+                        dest <- c(dest, "Lambda")
+                        type <- c(type, NA)
                         group <- c(group, i)
                         par_free <- c(par_free, 0)
                         par <- c(par, 0)
@@ -156,6 +269,20 @@ creg_partable <- function(input) {
                 }
 
                 no_ind_before <- no_ind_before + no_ind
+            }
+
+            # Measurement error variance
+            for (j in 1:no_w) {
+                lhs <- c(lhs, ovnames[j])
+                op <- c(op, "~~")
+                rhs <- c(rhs, ovnames[j])
+
+                dest <- c(dest, "Theta")
+                type <- c(type, "var")
+                group <- c(group, i)
+                par_free_id <- par_free_id + 1L
+                par_free <- c(par_free, par_free_id)
+                par <- c(par, 1)
             }
         }
 
@@ -165,8 +292,8 @@ creg_partable <- function(input) {
                 lhs <- c(lhs, lvnames[j])
                 op <- c(op, "~")
                 rhs <- c(rhs, 1)
-                dest <- c(dest, "lv_grid")
-                type <- c(type, "mean")
+                dest <- c(dest, "mu_eta")
+                type <- c(type, NA)
                 group <- c(group, i)
                 par_free_id <- par_free_id + 1L
                 par_free <- c(par_free, par_free_id)
@@ -175,7 +302,7 @@ creg_partable <- function(input) {
                 lhs <- c(lhs, lvnames[j])
                 op <- c(op, "~~")
                 rhs <- c(rhs, lvnames[j])
-                dest <- c(dest, "lv_grid")
+                dest <- c(dest, "Sigma_eta")
                 type <- c(type, "var")
                 group <- c(group, i)
                 par_free_id <- par_free_id + 1L
@@ -190,7 +317,7 @@ creg_partable <- function(input) {
                 lhs <- c(lhs, names_lv_cov[1, j])
                 op <- c(op, "~~")
                 rhs <- c(rhs, names_lv_cov[2, j])
-                dest <- c(dest, "lv_grid")
+                dest <- c(dest, "Sigma_eta")
                 type <- c(type, "cov")
                 group <- c(group, i)
                 par_free_id <- par_free_id + 1L
@@ -206,8 +333,8 @@ creg_partable <- function(input) {
                 lhs <- c(lhs, cvnames[j])
                 op <- c(op, "~")
                 rhs <- c(rhs, 1)
-                dest <- c(dest, "z")
-                type <- c(type, "mean")
+                dest <- c(dest, "mu_z")
+                type <- c(type, NA)
                 group <- c(group, i)
                 par_free_id <- par_free_id + 1L
                 par_free <- c(par_free, par_free_id)
@@ -216,7 +343,7 @@ creg_partable <- function(input) {
                 lhs <- c(lhs, cvnames[j])
                 op <- c(op, "~~")
                 rhs <- c(rhs, cvnames[j])
-                dest <- c(dest, "z")
+                dest <- c(dest, "Sigma_z")
                 type <- c(type, "var")
                 group <- c(group, i)
                 par_free_id <- par_free_id + 1L
@@ -231,7 +358,7 @@ creg_partable <- function(input) {
                 lhs <- c(lhs, names_z_cov[1, j])
                 op <- c(op, "~~")
                 rhs <- c(rhs, names_z_cov[2, j])
-                dest <- c(dest, "z")
+                dest <- c(dest, "Sigma_z")
                 type <- c(type, "cov")
                 group <- c(group, i)
                 par_free_id <- par_free_id + 1L
@@ -252,57 +379,12 @@ creg_partable <- function(input) {
                 lhs <- c(lhs, names_z_lv_cov[j, 1])
                 op <- c(op, "~~")
                 rhs <- c(rhs, names_z_lv_cov[j, 2])
-                dest <- c(dest, "z")
-                type <- c(type, "cov_z_lv")
+                dest <- c(dest, "Sigma_z_lv")
+                type <- c(type, NA)
                 group <- c(group, i)
                 par_free_id <- par_free_id + 1L
                 par_free <- c(par_free, par_free_id)
                 par <- c(par, 0)
-            }
-        }
-
-
-        # Overdispersion and measurement error variance
-        if (no_w) {
-            for (j in 0:no_w) {
-                if (j) {
-                    lhs <- c(lhs, ovnames[j])
-                    op <- c(op, "~~")
-                    rhs <- c(rhs, ovnames[j])
-                } else {
-                    lhs <- c(lhs, dvname)
-                    op <- c(op, "~~")
-                    rhs <- c(rhs, dvname)
-                }
-                dest <- c(dest, "sigmaw")
-                type <- c(type, ifelse(j, "veps", "size"))
-                group <- c(group, i)
-                if (j) {
-                    par_free_id <- par_free_id + 1L
-                    par_free <- c(par_free, par_free_id)
-                } else if (family == "poisson") {
-                    par_free <- c(par_free, 0)
-                } else {
-                    par_free_id <- par_free_id + 1L
-                    par_free <- c(par_free, par_free_id)
-                }
-
-                par <- c(par, ifelse(j, 1, ifelse(family == "poisson", 0, 1)))
-            }
-        } else {
-            lhs <- c(lhs, dvname)
-            op <- c(op, "~~")
-            rhs <- c(rhs, dvname)
-            dest <- c(dest, "sigmaw")
-            type <- c(type, "size")
-            group <- c(group, i)
-            if (family == "poisson") {
-                par_free <- c(par_free, 0)
-                par <- c(par, 0)
-            } else {
-                par_free_id <- par_free_id + 1L
-                par_free <- c(par_free, par_free_id)
-                par <- c(par, 1)
             }
         }
     }

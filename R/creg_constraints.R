@@ -30,7 +30,7 @@ creg_constraints <- function(object) {
 
     no_par <- max(pt$par_free)
     no_groups <- max(pt$group)
-    pt_mm <- subset(pt, dest == "mm" & par_free > 0L)
+    pt_mm <- subset(pt, (dest == "nu" | dest == "Lambda") & par_free > 0L)
     no_par_mm <- nrow(pt_mm) / no_groups
     no_con <- no_par_mm * (no_groups - 1L)
     A <- matrix(0, ncol = no_par, nrow = no_con)

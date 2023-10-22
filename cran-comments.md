@@ -5,10 +5,11 @@
 - R-hub linux-x86_64-rocker-gcc-san (r-devel)
 
 ## R CMD check results
-0 errors ✔ | 0 warnings ✔ | 0 notes ✔
+0 errors ✔ | 0 warnings ✔ | 1 note
 
   Maintainer: 'Christoph Kiefer <christoph.kiefer@uni-bielefeld.de>'
   
   Resubmission: 
-  1. minor update to account for upcoming changes in Rcpp package (STRICT_R_HEADERS)
+  1. major update due to refactoring of C++ code
+  2. also addresses issue with valgrind
 

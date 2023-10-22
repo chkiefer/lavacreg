@@ -23,7 +23,6 @@ creg_model_estimate <- function(object) {
   pt <- object@partable
   x_start <- object@x_start
 
-
   # Objective function
   objective_function <- function(x) {
     # CHECK for missing values in x
@@ -42,8 +41,9 @@ creg_model_estimate <- function(object) {
     # Save current iteration values to partable (connect to meaning)
     pt$par[pt$par_free > 0L] <- x
 
+
     # NO variances equal or smaller to 0
-    if (any(pt$par[pt$dest == "lv_grid" & pt$type == "var"] <= 0)) {
+    if (any(pt$par[pt$dest == "Sigma_eta" & pt$type == "var"] <= 0)) {
       return(+Inf)
     }
 
@@ -72,9 +72,9 @@ creg_model_estimate <- function(object) {
   # TODO: maybe allow for different optimizers
   fit <- nlminb(x_start, objective_function,
     control = list(
-      rel.tol = 1e-6,
-      eval.max = 500,
-      iter.max = 300
+      rel.tol = 1e-10,
+      eval.max = 200, # 500
+      iter.max = 150 # 300
     )
   )
 
@@ -87,6 +87,15 @@ creg_model_estimate <- function(object) {
     pt$par[pt$par_free > 0L] <- fit$par
   }
 
+  # Compute matrices for checking
+  modellist <- creg_modellist(
+    pt = pt,
+    datalist = datalist,
+    gh_grid = gh_grid,
+    family = family,
+    input = input
+  )
+
   # End of Timer
   if (!silent) {
     time_diff <- Sys.time() - time_start
@@ -97,7 +106,8 @@ creg_model_estimate <- function(object) {
   # Save fit and partable back to object and return object
   object@fit <- new("creg_fit",
     fit = fit,
-    objective = objective_function
+    objective = objective_function,
+    modellist = modellist
   )
   object@partable <- pt
 
@@ -121,36 +131,63 @@ creg_model_objective <- function(datalist, modellist) {
   n_cell <- modellist$n_cell
   no_groups <- length(kappas)
   family <- modellist$family
+  gh_grid <- modellist$gh_grid
+
+  if (length(gh_grid$W) > 0) {
+    # browser()
+  }
 
   obj_outgroup <- sum(dpois(n_cell, exp(kappas), log = TRUE))
 
   obj_ingroups <- mapply(function(data, modellist_g) {
-    muy <- modellist_g$muy
-    sigmayw <- modellist_g$sigmayw
-    muwz <- modellist_g$muwz
-    sigmaz <- modellist_g$sigmaz
-    ghweight <- modellist_g$ghweight
-    detvarz <- modellist_g$detvarz
+    beta <- modellist_g$beta
+    Beta <- modellist_g$Beta
+    gamma <- modellist_g$gamma
+    Gamma <- modellist_g$Gamma
+    Omega <- modellist_g$Omega
+    overdis <- modellist_g$overdis
+    nu <- modellist_g$nu
+    Lambda <- modellist_g$Lambda
+    Theta <- modellist_g$Theta
+    mu_eta <- modellist_g$mu_eta
+    Sigma_eta <- modellist_g$Sigma_eta
+    mu_z <- modellist_g$mu_z
+    Sigma_z <- modellist_g$Sigma_z
+    Sigma_z_lv <- modellist_g$Sigma_z_lv
     dims <- modellist_g$dims
 
-    if (any(!is.na(sigmaz))) {
-      if (any(diag(solve(sigmaz)) <= 0)) {
+    if (any(!is.na(Sigma_z))) {
+      if (any(diag(solve(Sigma_z)) <= 0)) {
         return(-Inf)
       }
     }
-    if (any(sigmayw[-1] <= 0)) {
-      return(-Inf)
-    }
-    if (family == "nbinom" & sigmayw[1] <= 0) {
-      return(-Inf)
+    if (any(!is.na(Theta))) {
+      if (any(diag(Theta) <= 0)) {
+        return(-Inf)
+      }
     }
 
+    if (family == "nbinom") {
+      if (overdis <= 0) {
+        return(-Inf)
+      }
+    }
+
+
     obj_i <- compute_groupcond_logl(
-      x = data, muy = muy, sigmayw = sigmayw, muwz = muwz,
-      sigmaz = sigmaz, ghweight = ghweight, detvarz = detvarz,
-      dims = dims
+      y = data$y, w = data$w,
+      z = data$z,
+      beta = beta, Beta = Beta, gamma = gamma, Gamma = Gamma, Omega = Omega,
+      overdis = overdis,
+      nu = nu, Lambda = Lambda, Theta = Theta,
+      mu_eta = mu_eta, Sigma_eta = Sigma_eta,
+      fixeta = gh_grid$X, ghweight = gh_grid$W,
+      mu_z = mu_z, Sigma_z = Sigma_z, Sigma_z_lv = Sigma_z_lv,
+      cores = 1
     )
     if (is.na(obj_i)) {
+      return(-Inf)
+    } else if (is.infinite(obj_i)) {
       return(-Inf)
     }
     return(obj_i)
@@ -160,5 +197,9 @@ creg_model_objective <- function(datalist, modellist) {
   if (is.na(obj)) {
     return(+Inf)
   }
+  # cat(obj, "\n")
+  # if (is.infinite(obj) & sign(obj) == -1) {
+  #   browser()
+  # }
   return(obj)
 }

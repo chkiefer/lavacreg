@@ -21,7 +21,22 @@ creg_datalist <- function(input) {
   model_matrix <- data[model_vars]
 
   # Split data into group-wise datasets
-  datalist <- lapply(split(model_matrix, groupvar), as.matrix)
+  datalist <- lapply(split(model_matrix, groupvar), function(df_g) {
+    y <- df_g[dvname] |> unlist()
+    if (length(ovnames)) {
+      w <- df_g[ovnames] |> as.matrix()
+    } else {
+      w <- matrix(0, 0, 0)
+    }
+
+    if (length(cvnames)) {
+      z <- df_g[cvnames] |> as.matrix()
+    } else {
+      z <- matrix(0, 0, 0)
+    }
+
+    list(y = y, w = w, z = z)
+  })
 
   return(datalist)
 }
