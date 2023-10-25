@@ -30,7 +30,9 @@ double compute_groupcond_logl(arma::colvec y, arma::mat w, arma::mat z,
                               arma::colvec mu_z, arma::mat Sigma_z,
                               arma::mat Sigma_z_lv, int const cores = 1) {
 
+#if defined(_OPENMP)
   omp_set_num_threads(cores);
+#endif
 
   // If size (i.e., overdispersion parameter with size > 0) is provided
   // the indicator is set to FALSE (i.e., NOT Poisson), otherwise Poisson is

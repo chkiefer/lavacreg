@@ -2,7 +2,10 @@
 #include "creg_header_funs.h"
 #include <RcppArmadillo.h>
 #include <cmath>
+
+#if defined(_OPENMP)
 #include <omp.h>
+#endif
 
 // [[Rcpp::plugins(openmp)]]
 
@@ -25,7 +28,10 @@ arma::vec dmvnrm_arma_fast(arma::mat const &x, arma::mat const &mean,
                            arma::mat const &sigma, bool const logd = false,
                            int const cores = 1) {
   using arma::uword;
+
+#if defined(_OPENMP)
   omp_set_num_threads(cores);
+#endif
 
   uword const n = x.n_rows, xdim = x.n_cols;
   uword const n_gh = mean.n_rows;
@@ -55,7 +61,10 @@ arma::colvec dpois_cpp(arma::colvec y, arma::colvec mu_beta,
                        arma::colvec mu_Beta, arma::colvec mu_y_lv,
                        int const cores = 1) {
 
+#if defined(_OPENMP)
   omp_set_num_threads(cores);
+#endif
+
   // Poisson density
   int N = y.n_elem;
   int n_gh = mu_y_lv.n_elem;
@@ -88,7 +97,9 @@ arma::colvec dnegbin_cpp(arma::colvec y, arma::colvec mu_y_z,
                          arma::colvec mu_y_lv, double alpha,
                          int const cores = 1) {
 
+#if defined(_OPENMP)
   omp_set_num_threads(cores);
+#endif
 
   // NegBin density (Hilbe, 2011, p.190)
   int N = y.n_elem;
