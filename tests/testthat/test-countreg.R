@@ -2,7 +2,7 @@
 # TEST 1 - intercept only - one group
 # ---------------------------------------------------
 test_that("intercept-only Poisson", {
-  skip_on_os("windows")
+  skip_on_cran()
   fit <- countreg(
     forml = "dv ~ 1",
     group = NULL,
@@ -49,7 +49,7 @@ test_that("intercept-only Poisson", {
 
 
 test_that("intercept-only negative binomial", {
-  skip_on_os("windows")
+  skip_on_cran()
   fit <- countreg(
     forml = "dv ~ 1",
     group = NULL,
@@ -104,7 +104,7 @@ test_that("intercept-only negative binomial", {
 # TEST 2 - intercept-only - two groups
 # ---------------------------------------------------
 test_that("two-group intercept-only Poisson", {
-  skip_on_os("windows")
+  skip_on_cran()
   fit <- countreg(
     forml = "dv ~ 1",
     group = "treat",
@@ -151,7 +151,7 @@ test_that("two-group intercept-only Poisson", {
 
 
 test_that("two-group intercept-only negative binomial", {
-  skip_on_os("windows")
+  skip_on_cran()
   fit <- countreg(
     forml = "dv ~ 1",
     group = "treat",
@@ -206,7 +206,7 @@ test_that("two-group intercept-only negative binomial", {
 # TEST 3 - one manifest covariate - two groups
 # ---------------------------------------------------
 test_that("two-group one manifest covariate Poisson", {
-  skip_on_os("windows")
+  skip_on_cran()
   fit <- countreg(
     forml = "dv ~ z12",
     group = "treat",
@@ -277,7 +277,7 @@ test_that("two-group one manifest covariate Poisson", {
 
 
 test_that("two-group one manifest covariate negative binomial", {
-  skip_on_os("windows")
+  skip_on_cran()
   fit <- countreg(
     forml = "dv ~ z12",
     group = "treat",
@@ -356,7 +356,7 @@ test_that("two-group one manifest covariate negative binomial", {
 # TEST 4 - three manifest covariates - two groups
 # ---------------------------------------------------
 test_that("two-group three manifest covariates Poisson", {
-  skip_on_os("windows")
+  skip_on_cran()
   fit <- countreg(
     forml = "dv ~ z12 + z11 + z21",
     group = "treat",
@@ -465,7 +465,7 @@ test_that("two-group three manifest covariates Poisson", {
 
 
 test_that("two-group three manifest covariates negative binomial", {
-  skip_on_os("windows")
+  skip_on_cran()
   fit <- countreg(
     forml = "dv ~ z12 + z11 + z21",
     group = "treat",
@@ -582,7 +582,7 @@ test_that("two-group three manifest covariates negative binomial", {
 # TEST 5 - one latent covariate - two groups
 # ---------------------------------------------------
 test_that("two-group one latent covariate Poisson", {
-  skip_on_os("windows")
+  skip_on_cran()
   fit <- countreg(
     forml = "dv ~ eta1",
     lv = list(eta1 = c("z21", "z22")),
@@ -702,7 +702,7 @@ test_that("two-group one latent covariate Poisson", {
 
 
 test_that("two-group one latent covariate negative binomial", {
-  skip_on_os("windows")
+  skip_on_cran()
   fit <- countreg(
     forml = "dv ~ eta1",
     lv = list(eta1 = c("z21", "z22")),
@@ -831,7 +831,7 @@ test_that("two-group one latent covariate negative binomial", {
 # TEST 6 - two latent covariates - two groups
 # ---------------------------------------------------
 test_that("two-group two latent covariates Poisson", {
-  skip_on_os("windows")
+  skip_on_cran()
   fit <- countreg(
     forml = "dv ~ eta1 + eta2",
     lv = list(
@@ -973,7 +973,7 @@ test_that("two-group two latent covariates Poisson", {
 
 
 test_that("two-group two latent covariates negative binomial", {
-  skip_on_os("windows")
+  skip_on_cran()
   fit <- countreg(
     forml = "dv ~ eta1 + eta2",
     lv = list(
@@ -1121,7 +1121,7 @@ test_that("two-group two latent covariates negative binomial", {
 # TEST 7 - one latent, one manifest covariates - two groups
 # ---------------------------------------------------
 test_that("two-group one latent, one manifest covariate Poisson", {
-  skip_on_os("windows")
+  skip_on_cran()
   fit <- countreg(
     forml = "dv ~ eta1 + z12",
     lv = list(eta1 = c("z41", "z42", "z43")),
@@ -1288,7 +1288,7 @@ test_that("two-group one latent, one manifest covariate Poisson", {
 
 
 test_that("two-group one latent, one manifest covariate negative binomial", {
-  skip_on_os("windows")
+  skip_on_cran()
   fit <- countreg(
     forml = "dv ~ eta1 + z12",
     lv = list(eta1 = c("z41", "z42", "z43")),
@@ -1456,7 +1456,7 @@ test_that("two-group one latent, one manifest covariate negative binomial", {
 # TEST 8 - one latent, two manifest covariates - two groups
 # ---------------------------------------------------
 test_that("two-group one latent, two manifest covariates Poisson", {
-  skip_on_os("windows")
+  skip_on_cran()
   fit <- countreg(
     forml = "dv ~ eta1 + z12 + z21",
     lv = list(eta1 = c("z41", "z42", "z43")),
@@ -1631,7 +1631,7 @@ test_that("two-group one latent, two manifest covariates Poisson", {
 
 
 test_that("two-group one latent, two manifest covariate negative binomial", {
-  skip_on_os("windows")
+  skip_on_cran()
   fit <- countreg(
     forml = "dv ~ eta1 + z12 + z21",
     lv = list(eta1 = c("z41", "z42", "z43")),
@@ -1816,7 +1816,7 @@ test_that("two-group one latent, two manifest covariate negative binomial", {
 # TEST 9 - two latent, one manifest covariates - two groups
 # ---------------------------------------------------
 test_that("two-group two latent, one manifest covariates Poisson", {
-  skip_on_os("windows")
+  skip_on_cran()
   fit <- countreg(
     forml = "dv ~ eta1 + eta2 + z11",
     lv = list(
@@ -1994,7 +1994,7 @@ test_that("two-group two latent, one manifest covariates Poisson", {
 
 
 test_that("two-group two latent, one manifest covariate negative binomial", {
-  skip_on_os("windows")
+  skip_on_cran()
   fit <- countreg(
     forml = "dv ~ eta1 + eta2 + z11",
     lv = list(

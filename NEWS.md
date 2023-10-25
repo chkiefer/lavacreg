@@ -1,3 +1,7 @@
+# lavacreg 0.2-1
+* added checks for OpenMP to avoid compilation errors on MacOS
+* tests are skipped on CRAN, as minor numerical deviations cannot be avoided
+
 # lavacreg 0.2-0
 
 * refactoring of the whole codebase
