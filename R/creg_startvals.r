@@ -68,10 +68,17 @@ creg_starts_lv <- function(object) {
     dvname <- input@dvname
     cvnames <- input@cvnames
     lvnames <- input@lvnames
+    intnames <- input@intnames
+    no_int_z <- input@no_int_z
+    no_int_lv <- input@no_int_lv
+    no_int_z_lv <- input@no_int_z_lv
     lvlist <- input@lvlist
     groupname <- input@groupname
     data <- input@data
     pt <- object@partable
+
+
+    # Add start values for the interaction coefficients
 
     # Compute (manifest) mean scores for latent variables
     for (lv in names(lvlist)) {
@@ -82,13 +89,16 @@ creg_starts_lv <- function(object) {
     d_ov_starts <- data[c(dvname, groupname, cvnames, lvnames)]
 
     # Model formula for "all-observed" case
-    forml <- paste(
-        dvname,
-        "~",
-        paste(cvnames, collapse = "+"),
-        "+",
-        paste(lvnames, collapse = "+")
-    )
+    forml <- object@input@forml
+
+    # alter Code war wegen Reihenfolge, oder?
+    # forml <- paste(
+    #     dvname,
+    #     "~",
+    #     paste(cvnames, collapse = "+"),
+    #     "+",
+    #     paste(lvnames, collapse = "+")
+    # )
 
     # Run the "all-observed" model through countreg
     fit_starts <- countreg(
@@ -117,6 +127,59 @@ creg_starts_lv <- function(object) {
         ]
     pt$par[pt$dest == "gamma"] <-
         pt_starts$par[pt_starts$dest == "beta" & pt_starts$rhs %in% lvnames]
+
+
+    # Interactions
+    if (no_int_z) {
+        model_z_int <- apply(intnames$z, 1, paste, collapse = ":")
+        model_z_int2 <- apply(
+            matrix(intnames$z[, c(2, 1)], ncol = 2), 1, paste,
+            collapse = ":"
+        )
+
+        pt$par[pt$dest == "Beta" & pt$par_free] <-
+            pt_starts$par[
+                pt_starts$dest == "Beta" &
+                    pt_starts$par_free &
+                    pt_starts$rhs %in% c(model_z_int, model_z_int2)
+            ]
+    }
+
+
+    if (no_int_lv) {
+        model_lv_int <- apply(intnames$lv, 1, paste, collapse = ":")
+        model_lv_int2 <- apply(
+            matrix(intnames$lv[, c(2, 1)], ncol = 2), 1, paste,
+            collapse = ":"
+        )
+
+        pt$par[pt$dest == "Gamma" & pt$par_free] <-
+            pt_starts$par[
+                pt_starts$dest == "Beta" &
+                    pt_starts$par_free &
+                    pt_starts$rhs %in% c(model_lv_int, model_lv_int2)
+            ]
+    }
+
+    if (no_int_z_lv) {
+        model_z_lv_int <- apply(intnames$z_lv, 1, paste, collapse = ":")
+        model_z_lv_int2 <- apply(
+            matrix(intnames$z_lv[, c(2, 1)], ncol = 2), 1, paste,
+            collapse = ":"
+        )
+
+        pt$par[pt$dest == "Omega" & pt$par_free] <-
+            pt_starts$par[
+                pt_starts$dest == "Beta" &
+                    pt_starts$par_free &
+                    pt_starts$rhs %in% c(model_z_lv_int, model_z_lv_int2)
+            ]
+    }
+
+
+
+
+
 
     # 3. Covariate Means
     pt$par[pt$dest == "mu_z"] <-

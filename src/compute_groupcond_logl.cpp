@@ -68,7 +68,9 @@ double compute_groupcond_logl(arma::colvec y, arma::mat w, arma::mat z,
 
     // Measurement Model part
     arma::mat LamEta = Lambda * GH.t();
+
     arma::mat mu_w = nu + LamEta.each_col();
+
     f_w = dmvnrm_arma_fast(w, mu_w.t(), Theta, false, cores);
   } else {
     // Rcpp::Rcout << "I am here!\n";
@@ -84,6 +86,7 @@ double compute_groupcond_logl(arma::colvec y, arma::mat w, arma::mat z,
   if (no_lv && no_z) {
 
     arma::mat GHt = GH.t();
+
     arma::mat tmp =
         Sigma_z_lv * inv_sympd(Sigma_eta) * (GHt.each_col() - mu_eta);
 
@@ -103,20 +106,34 @@ double compute_groupcond_logl(arma::colvec y, arma::mat w, arma::mat z,
   // beta
   arma::colvec one(N, arma::fill::ones);
   arma::mat zs = arma::join_rows(one, z);
-  arma::colvec mu_y_z = exp(zs * beta);
+  // arma::colvec mu_y_z = exp(zs * beta);
   arma::colvec mu_beta = exp(zs * beta);
 
   // Beta
   arma::colvec mu_Beta(N, arma::fill::ones);
   if (Beta.n_rows) {
-    arma::mat tmp = z * Beta * z.t();
-    mu_Beta = exp(tmp.diag());
+    arma::mat tmp = arma::diagvec(z * Beta * z.t());
+    mu_Beta = exp(tmp);
   }
 
   // gamma
-  arma::colvec mu_y_lv(N_gh, arma::fill::ones);
+  arma::colvec mu_gamma(N_gh, arma::fill::ones);
   if (no_lv) {
-    mu_y_lv = exp(GH * gamma);
+    mu_gamma = exp(GH * gamma);
+  }
+
+  // Gamma
+  arma::colvec mu_Gamma(N, arma::fill::ones);
+  if (Gamma.n_rows) {
+    arma::mat tmp = arma::diagvec(GH * Gamma * GH.t());
+    mu_Gamma = exp(tmp);
+  }
+
+  // Omega
+  arma::mat mu_Omega(N, N_gh, arma::fill::ones);
+  if (Omega.n_rows) {
+    arma::mat tmp = z * Omega * GH.t();
+    mu_Omega = exp(tmp);
   }
 
   arma::colvec f_y;
@@ -124,10 +141,11 @@ double compute_groupcond_logl(arma::colvec y, arma::mat w, arma::mat z,
   if (poisson) {
     // Rcpp::Rcout << "Shortly before Poisson...!\n";
     // sleep(1);
-    f_y = dpois_cpp(y, mu_beta, mu_Beta, mu_y_lv, cores);
+    f_y = dpois_cpp(y, mu_beta, mu_gamma, mu_Beta, mu_Gamma, mu_Omega, cores);
   } else {
     alpha = 1 / overdis;
-    f_y = dnegbin_cpp(y, mu_y_z, mu_y_lv, alpha, cores);
+    f_y = dnegbin_cpp(y, mu_beta, mu_gamma, mu_Beta, mu_Gamma, mu_Omega, alpha,
+                      cores);
   }
 
   // Rcpp::Rcout << "Regression part worked!\n";

@@ -152,7 +152,7 @@ creg_partable <- function(input) {
 
         # Regression coefficients for interactions of Zs and LVs
         if (no_int_z_lv) {
-            names_z_lv_int <- expand.grid(cvnames, lvnames) |> apply(2, paste, collapse = ":")
+            names_z_lv_int <- expand.grid(cvnames, lvnames) |> apply(1, paste, collapse = ":")
             model_z_lv_int <- apply(intnames$z_lv, 1, paste, collapse = ":")
             model_z_lv_int2 <- apply(
                 matrix(intnames$z_lv[, c(2, 1)], ncol = 2), 1, paste,

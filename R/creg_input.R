@@ -58,6 +58,20 @@ creg_input <- function(forml,
       lvnames <- character()
       ovnames <- character()
     }
+
+    if (length(lvnames) != length(names(lv))) {
+      # Give a warning, but nevertheless continue...
+      warning(
+        "lavacreg warning: An additional latent variable has been specified,
+         but not included in formula."
+      )
+      # No relevant latent variables (or indicators) for the model
+      lv <- lv[lvnames]
+      ovnames <- unname(unlist(lv))
+    }
+
+
+
     # Else: no latent variable specified
   } else {
     # No relevant latent variables (or indicators) for the model
@@ -140,12 +154,13 @@ creg_input <- function(forml,
   # CHECKS
   #############
 
-  # lavacreg does not support interactions or higher-order terms
-  if (any(attr(terms.formula(forml), "order") > 1)) {
+  # lavacreg does not support higher-order terms
+  if (any(attr(terms.formula(forml), "order") > 2)) {
     stop(
       "lavacreg Error: Please do not use higher-order terms in your formula."
     )
   }
+
 
   # Check if all variables are in data (or empty "")
   if (!all(

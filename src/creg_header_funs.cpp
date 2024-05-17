@@ -58,7 +58,8 @@ arma::vec dmvnrm_arma_fast(arma::mat const &x, arma::mat const &mean,
 
 // Poisson Density
 arma::colvec dpois_cpp(arma::colvec y, arma::colvec mu_beta,
-                       arma::colvec mu_Beta, arma::colvec mu_y_lv,
+                       arma::colvec mu_gamma, arma::colvec mu_Beta,
+                       arma::colvec mu_Gamma, arma::mat mu_Omega,
                        int const cores = 1) {
 
 #if defined(_OPENMP)
@@ -67,12 +68,13 @@ arma::colvec dpois_cpp(arma::colvec y, arma::colvec mu_beta,
 
   // Poisson density
   int N = y.n_elem;
-  int n_gh = mu_y_lv.n_elem;
+  int n_gh = mu_gamma.n_elem;
   arma::colvec out(N * n_gh);
 
   double lambda;
   double yi, mu_y_z_i;
   double lgamma_yi_1;
+  double mu_y_lv_g;
 
   // Rcpp::Rcout << "...inside Poisson\n";
   // sleep(1);
@@ -83,7 +85,8 @@ arma::colvec dpois_cpp(arma::colvec y, arma::colvec mu_beta,
     yi = y(i);
     lgamma_yi_1 = std::lgamma(yi + 1);
     for (int g = 0; g < n_gh; g++) {
-      lambda = mu_y_z_i * mu_y_lv(g);
+      mu_y_lv_g = mu_gamma(g) * mu_Gamma(g) * mu_Omega(i, g);
+      lambda = mu_y_z_i * mu_y_lv_g;
       out(g + i * n_gh) = yi * std::log(lambda) - lambda - lgamma_yi_1;
     }
   }
@@ -93,9 +96,10 @@ arma::colvec dpois_cpp(arma::colvec y, arma::colvec mu_beta,
 }
 
 // Negative Binomial Density
-arma::colvec dnegbin_cpp(arma::colvec y, arma::colvec mu_y_z,
-                         arma::colvec mu_y_lv, double alpha,
-                         int const cores = 1) {
+arma::colvec dnegbin_cpp(arma::colvec y, arma::colvec mu_beta,
+                         arma::colvec mu_gamma, arma::colvec mu_Beta,
+                         arma::colvec mu_Gamma, arma::mat mu_Omega,
+                         double alpha, int const cores = 1) {
 
 #if defined(_OPENMP)
   omp_set_num_threads(cores);
@@ -103,12 +107,13 @@ arma::colvec dnegbin_cpp(arma::colvec y, arma::colvec mu_y_z,
 
   // NegBin density (Hilbe, 2011, p.190)
   int N = y.n_elem;
-  int n_gh = mu_y_lv.n_elem;
+  int n_gh = mu_gamma.n_elem;
   double lambda;
   arma::colvec out(N * n_gh);
   double yi, mu_y_z_i;
   double lgamma_yi_1;
   double lgamma_yi_alpha;
+  double mu_y_lv_g;
 
   double inv_alpha = 1 / alpha;
   double lgamma_inv_alpha = std::lgamma(inv_alpha);
@@ -117,12 +122,13 @@ arma::colvec dnegbin_cpp(arma::colvec y, arma::colvec mu_y_z,
         lambda, yi, mu_y_z_i, lgamma_yi_1, lgamma_yi_alpha)                    \
     shared(y, inv_alpha, lgamma_inv_alpha)
   for (int i = 0; i < N; i++) {
-    mu_y_z_i = mu_y_z(i);
+    mu_y_z_i = mu_beta(i) * mu_Beta(i);
     yi = y(i);
     lgamma_yi_1 = std::lgamma(yi + 1);
     lgamma_yi_alpha = std::lgamma(yi + inv_alpha);
     for (int g = 0; g < n_gh; g++) {
-      lambda = mu_y_z_i * mu_y_lv(g);
+      mu_y_lv_g = mu_gamma(g) * mu_Gamma(g) * mu_Omega(i, g);
+      lambda = mu_y_z_i * mu_y_lv_g;
       double alpha_x_lambda = alpha * lambda;
       out(g + i * n_gh) = yi * std::log(alpha_x_lambda / (1 + alpha_x_lambda)) -
                           inv_alpha * std::log(1 + alpha_x_lambda) +

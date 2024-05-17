@@ -70,7 +70,9 @@ creg_model_estimate <- function(object) {
 
   # Pass start values x and objective function to optimizer
   # TODO: maybe allow for different optimizers
-  fit <- nlminb(x_start, objective_function,
+  fit <- nlminb(
+    start = x_start,
+    objective = objective_function,
     control = list(
       rel.tol = 1e-10,
       eval.max = 200, # 500

@@ -15,6 +15,7 @@ creg_vcov <- function(object) {
             time_start <- Sys.time()
         }
         information <- hessian(objective_function, fit$par)
+        pracma::grad(objective_function, fit$par)
         eigvals <- eigen(information,
             symmetric = TRUE,
             only.values = TRUE
