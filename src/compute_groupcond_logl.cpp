@@ -20,15 +20,13 @@ using namespace Rcpp;
 // integration points, number of Z, and number of W '
 // [[Rcpp::plugins(cpp11)]]
 // [[Rcpp::export]]
-double compute_groupcond_logl(arma::colvec y, arma::mat w, arma::mat z,
-                              arma::colvec beta, arma::mat Beta,
-                              arma::colvec gamma, arma::mat Gamma,
-                              arma::mat Omega, double overdis, arma::colvec nu,
-                              arma::mat Lambda, arma::mat Theta,
-                              arma::colvec mu_eta, arma::mat Sigma_eta,
-                              arma::mat fixeta, arma::vec ghweight,
-                              arma::colvec mu_z, arma::mat Sigma_z,
-                              arma::mat Sigma_z_lv, int const cores = 1) {
+double compute_groupcond_logl(
+    arma::colvec y, arma::mat w, arma::mat z, arma::colvec beta, arma::mat Beta,
+    arma::colvec gamma, arma::mat Gamma, arma::mat Omega, double overdis,
+    arma::colvec nu, arma::mat Lambda, arma::mat Theta, arma::colvec mu_eta,
+    arma::mat Sigma_eta, arma::mat fixeta, arma::vec ghweight,
+    arma::colvec mu_z, arma::mat Sigma_z, arma::mat Sigma_z_lv, bool fixed_z,
+    int const cores = 1) {
 
 #if defined(_OPENMP)
   omp_set_num_threads(cores);
@@ -83,7 +81,7 @@ double compute_groupcond_logl(arma::colvec y, arma::mat w, arma::mat z,
 
   // Stochastic covariate part
   arma::colvec f_z(N * N_gh, arma::fill::ones);
-  if (no_lv && no_z) {
+  if (no_lv && no_z && !fixed_z) {
 
     arma::mat GHt = GH.t();
 
@@ -98,7 +96,7 @@ double compute_groupcond_logl(arma::colvec y, arma::mat w, arma::mat z,
       return (R_PosInf);
     }
     f_z = dmvnrm_arma_fast(z, cmu_z, cSigma_z, false, cores);
-  } else if (no_z) {
+  } else if (no_z && !fixed_z) {
     f_z = dmvnrm_arma_fast(z, mu_z.t(), Sigma_z, false, cores);
   }
 

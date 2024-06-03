@@ -7,7 +7,7 @@
 #' @param muy Matrix of conditional expectations of Y given Z and/or latent
 NULL
 
-compute_groupcond_logl <- function(y, w, z, beta, Beta, gamma, Gamma, Omega, overdis, nu, Lambda, Theta, mu_eta, Sigma_eta, fixeta, ghweight, mu_z, Sigma_z, Sigma_z_lv, cores = 1L) {
-    .Call('_lavacreg_compute_groupcond_logl', PACKAGE = 'lavacreg', y, w, z, beta, Beta, gamma, Gamma, Omega, overdis, nu, Lambda, Theta, mu_eta, Sigma_eta, fixeta, ghweight, mu_z, Sigma_z, Sigma_z_lv, cores)
+compute_groupcond_logl <- function(y, w, z, beta, Beta, gamma, Gamma, Omega, overdis, nu, Lambda, Theta, mu_eta, Sigma_eta, fixeta, ghweight, mu_z, Sigma_z, Sigma_z_lv, fixed_z, cores = 1L) {
+    .Call('_lavacreg_compute_groupcond_logl', PACKAGE = 'lavacreg', y, w, z, beta, Beta, gamma, Gamma, Omega, overdis, nu, Lambda, Theta, mu_eta, Sigma_eta, fixeta, ghweight, mu_z, Sigma_z, Sigma_z_lv, fixed_z, cores)
 }
 

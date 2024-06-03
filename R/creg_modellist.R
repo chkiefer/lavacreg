@@ -53,6 +53,10 @@ creg_modellist <- function(pt, datalist, gh_grid, family, input) {
     )
 
     # Stochastic observed variables
+    modellist_info$fixed_z <- FALSE
+    if (!is.null(input@creg_options$fixed_z)) {
+        modellist_info$fixed_z <- input@creg_options$fixed_z
+    }
     modellist_info$ind_pt_z_mu <- grep("mu_z", pt_tmp$dest)
     modellist_info$ind_pt_z_var <- intersect(
         grep("Sigma_z", pt_tmp$dest),
@@ -111,6 +115,8 @@ modellist_testfun <- function(data, pt_g, N_g, modellist_info, family) {
     ind_pt_z_var <- modellist_info$ind_pt_z_var
     ind_pt_z_lv_cov <- modellist_info$ind_pt_z_lv_cov
     ind_pt_z_cov <- modellist_info$ind_pt_z_cov
+
+    fixed_z <- modellist_info$fixed_z
 
     # Extract parameter information
     # 1.1 Regression coefficients
@@ -180,7 +186,7 @@ modellist_testfun <- function(data, pt_g, N_g, modellist_info, family) {
     }
 
 
-    if (no_z) {
+    if (no_z & !fixed_z) {
         # 1.4 Manifest covariate
         mu_z <- pt_g[ind_pt_z_mu]
         z_var <- pt_g[ind_pt_z_var]
@@ -193,7 +199,7 @@ modellist_testfun <- function(data, pt_g, N_g, modellist_info, family) {
         Sigma_z <- matrix(0, 0, 0)
     }
 
-    if (no_z & no_lv) {
+    if (no_z & no_lv & !fixed_z) {
         # 1.5 Manifest-latent covariates covariances
         Sigma_z_lv <- matrix(pt_g[ind_pt_z_lv_cov], ncol = no_lv)
     } else {
@@ -219,6 +225,7 @@ modellist_testfun <- function(data, pt_g, N_g, modellist_info, family) {
         mu_z = mu_z,
         Sigma_z = Sigma_z,
         Sigma_z_lv = Sigma_z_lv,
+        fixed_z = fixed_z,
         dims = dims
     )
 }

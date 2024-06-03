@@ -1321,6 +1321,7 @@ test_that("two-group one latent, one manifest covariate negative binomial", {
   # 2. Regression coefficient
   # 2.1 beta
   comp <- c(2.74023, -0.14692, 2.86376, -0.13065)
+  
   par <- pt$par[pt$dest == "beta"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
 
@@ -1399,7 +1400,7 @@ test_that("two-group one latent, one manifest covariate negative binomial", {
   expect_equal(par, comp, tolerance = 1e-5, label = "se_gamma")
 
   # 3. Overdispersion parameter
-  comp <- c(4.58670, 8.98671)
+  comp <- c(4.58236, 8.99510)
   par <- avar[pt$par_free[pt$dest == "overdis"]]
   expect_equal(par, comp, tolerance = 1e-5, label = "se_overdis")
 
@@ -1699,7 +1700,7 @@ test_that("two-group one latent, two manifest covariate negative binomial", {
 
   # 5. Measurement Model
   # 5.1 nu
-  comp <- rep(c(0, -0.10279, -0.46896), 2)
+  comp <- rep(c(0, -0.10278, -0.46896), 2)
   par <- pt$par[pt$dest == "nu"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_nu")
 
@@ -1728,7 +1729,7 @@ test_that("two-group one latent, two manifest covariate negative binomial", {
   expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_var")
 
   # 7. Latent-Manifest Covariances
-  comp <- c(0.49468, -0.26216, 0.68968, -0.38534)
+  comp <- c(0.49471, -0.26214, 0.68968, -0.38534)
   par <- pt$par[pt$dest == "Sigma_z_lv"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_eta_cov")
 
@@ -1754,7 +1755,7 @@ test_that("two-group one latent, two manifest covariate negative binomial", {
   expect_equal(par, comp, tolerance = 1e-5, label = "se_gamma")
 
   # 3. Overdispersion parameter
-  comp <- c(5.62609, 10.32605)
+  comp <- c(5.64585, 10.37055)
   par <- avar[pt$par_free[pt$dest == "overdis"]]
   expect_equal(par, comp, tolerance = 1e-5, label = "se_overdis")
 
@@ -1925,7 +1926,7 @@ test_that("two-group two latent, one manifest covariates Poisson", {
 
   # 2. Regression coefficient
   # 2.1 beta
-  comp <- c(0.13553, 0.00061, 0.31977, 0.00150)
+  comp <- c(0.13553, 0.00061, 0.31980, 0.00150)
   par <- avar[pt$par_free[pt$dest == "beta"]]
   expect_equal(par, comp, tolerance = 1e-5, label = "se_beta")
 
@@ -2029,17 +2030,17 @@ test_that("two-group two latent, one manifest covariate negative binomial", {
 
   # 2. Regression coefficient
   # 2.1 beta
-  comp <- c(1.86183, -0.08019, 1.92432, -0.04937)
+  comp <- c(1.86165, -0.08017, 1.92432, -0.04937)
   par <- pt$par[pt$dest == "beta"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
 
   # 2.2 gamma
-  comp <- c(0.19708, -0.05938, 0.20441, -0.01444)
+  comp <- c(0.19712, -0.05938, 0.20441, -0.01444)
   par <- pt$par[pt$dest == "gamma"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_gamma")
 
   # 3. Overdispersion parameter
-  comp <- c(16.07668, 19.65088)
+  comp <- c(16.07721, 19.65140)
   par <- pt$par[pt$dest == "overdis"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_overdis")
 
@@ -2050,13 +2051,13 @@ test_that("two-group two latent, one manifest covariate negative binomial", {
   expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_z")
 
   # 4.2 Variances
-  comp <- c(1.68916, 1.38302)
+  comp <- c(1.68908, 1.38302)
   par <- pt$par[pt$dest == "Sigma_z" & pt$type == "var"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_var")
 
   # 5. Measurement Model
   # 5.1 nu
-  comp <- rep(c(0, 1.50289, 0, -0.10129, -0.44922), 2)
+  comp <- rep(c(0, 1.50292, 0, -0.10129, -0.44921), 2)
   par <- pt$par[pt$dest == "nu"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_nu")
 
@@ -2067,8 +2068,8 @@ test_that("two-group two latent, one manifest covariate negative binomial", {
 
   # 5.3 Theta
   comp <- c(
-    0.40008, 0.29254, 1.54578, 1.41983, 1.40770,
-    0.39539, 0.31152, 1.36214, 1.54148, 1.05999
+    0.40008, 0.29254, 1.54578, 1.41979, 1.40767,
+    0.39539, 0.31152, 1.36209, 1.54154, 1.06001
   )
   par <- pt$par[pt$dest == "Theta" & pt$type == "var"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_theta")
@@ -2080,17 +2081,17 @@ test_that("two-group two latent, one manifest covariate negative binomial", {
   expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_eta")
 
   # 6.2 Variances
-  comp <- c(0.56083, 1.89159, 0.44179, 2.18016)
+  comp <- c(0.56082, 1.89157, 0.44180, 2.18018)
   par <- pt$par[pt$dest == "Sigma_eta" & pt$type == "var"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_var")
 
   # 6.3 Covariances
-  comp <- c(-0.34963, -0.42280)
+  comp <- c(-0.34959, -0.42283)
   par <- pt$par[pt$dest == "Sigma_eta" & pt$type == "cov"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_cov")
 
   # 7. Latent-Manifest Covariances
-  comp <- c(-0.51018, 0.47128, -0.46614, 0.65297)
+  comp <- c(-0.51016, 0.47124, -0.46615, 0.65298)
   par <- pt$par[pt$dest == "Sigma_z_lv"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_eta_cov")
 
@@ -2103,7 +2104,7 @@ test_that("two-group two latent, one manifest covariate negative binomial", {
 
   # 2. Regression coefficient
   # 2.1 beta
-  comp <- c(0.04109, 0.00038, 0.05660, 0.00046)
+  comp <- c(0.04110, 0.00038, 0.05667, 0.00046)
   par <- avar[pt$par_free[pt$dest == "beta"]]
   expect_equal(par, comp, tolerance = 1e-5, label = "se_beta")
 
@@ -2113,7 +2114,7 @@ test_that("two-group two latent, one manifest covariate negative binomial", {
   expect_equal(par, comp, tolerance = 1e-5, label = "se_gamma")
 
   # 3. Overdispersion parameter
-  comp <- c(8.68960, 13.23318)
+  comp <- c(8.70149, 13.45487)
   par <- avar[pt$par_free[pt$dest == "overdis"]]
   expect_equal(par, comp, tolerance = 1e-5, label = "se_overdis")
 

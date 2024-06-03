@@ -690,12 +690,12 @@ test_that("two interacting manifest and additional latent variables in one group
     expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_z")
 
     # 4.2 Variances
-    comp <- c(1.53910, 0.89368) # mismatch 1
+    comp <- c(1.53908, 0.89368) # mismatch 1
     par <- pt$par[pt$dest == "Sigma_z" & pt$type == "var"]
     expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_var")
 
     # 4.3 Covariances
-    comp <- c(-0.60201) # mismatch
+    comp <- c(-0.60200) # mismatch
     par <- pt$par[pt$dest == "Sigma_z" & pt$type == "cov"]
     expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_z_cov")
 

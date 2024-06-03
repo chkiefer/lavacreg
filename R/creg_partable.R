@@ -33,6 +33,17 @@ creg_partable <- function(input) {
     no_int_z_lv <- input@no_int_z_lv
     lv <- input@lvlist
     family <- input@family
+    creg_options <- input@creg_options
+
+    auto_fix_first <- TRUE
+    if (!is.null(creg_options$auto_fix_first)) {
+        auto_fix_first <- creg_options$auto_fix_first |> as.logical()
+    }
+
+    fixed_z <- FALSE
+    if (!is.null(creg_options$fixed_z)) {
+        fixed_z <- creg_options$fixed_z |> as.logical()
+    }
 
     # Compute number of different covariances types
     no_cov <- no_lv + no_z
@@ -227,7 +238,8 @@ creg_partable <- function(input) {
                     group <- c(group, i)
 
                     # Fix first intercept to zero
-                    if (k != 1) {
+                    # only if auto_fix_first wanted
+                    if (k != 1 | !auto_fix_first) {
                         par_free_id <- par_free_id + 1L
                         par_free <- c(par_free, par_free_id)
                         par <- c(par, 0)
@@ -245,7 +257,7 @@ creg_partable <- function(input) {
                     group <- c(group, i)
 
                     # Fix first loading to one
-                    if (k != 1) {
+                    if (k != 1 | !auto_fix_first) {
                         par_free_id <- par_free_id + 1L
                         par_free <- c(par_free, par_free_id)
                         par <- c(par, 1)
@@ -295,9 +307,16 @@ creg_partable <- function(input) {
                 dest <- c(dest, "mu_eta")
                 type <- c(type, NA)
                 group <- c(group, i)
-                par_free_id <- par_free_id + 1L
-                par_free <- c(par_free, par_free_id)
-                par <- c(par, 0)
+
+                if (auto_fix_first) {
+                    par_free_id <- par_free_id + 1L
+                    par_free <- c(par_free, par_free_id)
+                    par <- c(par, 0)
+                } else {
+                    par_free <- c(par_free, 0)
+                    par <- c(par, 0)
+                }
+
 
                 lhs <- c(lhs, lvnames[j])
                 op <- c(op, "~~")
@@ -305,9 +324,15 @@ creg_partable <- function(input) {
                 dest <- c(dest, "Sigma_eta")
                 type <- c(type, "var")
                 group <- c(group, i)
-                par_free_id <- par_free_id + 1L
-                par_free <- c(par_free, par_free_id)
-                par <- c(par, 1)
+
+                if (auto_fix_first) {
+                    par_free_id <- par_free_id + 1L
+                    par_free <- c(par_free, par_free_id)
+                    par <- c(par, 1)
+                } else {
+                    par_free <- c(par_free, 0)
+                    par <- c(par, 1)
+                }
             }
         }
 
@@ -328,7 +353,7 @@ creg_partable <- function(input) {
 
 
         # Means and variances of manifest covariates
-        if (no_z) {
+        if (no_z & !fixed_z) {
             for (j in 1:no_z) {
                 lhs <- c(lhs, cvnames[j])
                 op <- c(op, "~")
@@ -352,7 +377,7 @@ creg_partable <- function(input) {
             }
         }
 
-        if (no_z_covariance) {
+        if (no_z_covariance & !fixed_z) {
             names_z_cov <- combn(cvnames, 2)
             for (j in 1:no_z_covariance) {
                 lhs <- c(lhs, names_z_cov[1, j])
@@ -369,7 +394,7 @@ creg_partable <- function(input) {
 
 
         # Covariances between manifest and latent covariates
-        if (no_z_lv_covariance) {
+        if (no_z_lv_covariance & !fixed_z) {
             names_z_lv_cov <- expand.grid(
                 lvnames,
                 cvnames,
