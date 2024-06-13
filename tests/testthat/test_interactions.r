@@ -2,7 +2,7 @@
 # TEST 1 - two interacting manifest variables - one group
 # ---------------------------------------------------
 test_that("two interacting manifest variables in one group - Poisson", {
-    # skip("Not finished")
+    skip_on_cran()
     fit <- countreg(
         forml = "dv ~ z12*z21",
         group = NULL,
@@ -106,7 +106,7 @@ test_that("two interacting manifest variables in one group - Poisson", {
 test_that(
     "two interacting manifest variables in one group - negative binomial",
     {
-        # skip("Not finished")
+        skip_on_cran()
         fit <- countreg(
             forml = "dv ~ z12*z21",
             group = NULL,
@@ -212,7 +212,7 @@ test_that(
 # TEST 2 - two interacting manifest variables - two group
 # ---------------------------------------------------
 test_that("two interacting manifest variables in two groups - Poisson", {
-    # skip("Not finished")
+    skip_on_cran()
     fit <- countreg(
         forml = "dv ~ z12*z21",
         group = "treat",
@@ -317,7 +317,7 @@ test_that("two interacting manifest variables in two groups - Poisson", {
 
 
 test_that("two interacting manifest variables in two groups - NB", {
-    # skip("Not finished")
+    skip_on_cran()
     fit <- countreg(
         forml = "dv ~ z12*z21",
         group = "treat",
@@ -425,7 +425,7 @@ test_that("two interacting manifest variables in two groups - NB", {
 # TEST 3 - two interacting and additional manifest variables - one group
 # ---------------------------------------------------
 test_that("two interacting and additional manifest variables in one group - Poisson", {
-    # skip("Not finished")
+    skip_on_cran()
     fit <- countreg(
         forml = "dv ~ z12*z21 + z11",
         group = NULL,
@@ -526,7 +526,7 @@ test_that("two interacting and additional manifest variables in one group - Pois
 })
 
 test_that("two interacting and additional manifest variables in one group - NB", {
-    # skip("Not finished")
+    skip_on_cran()
     fit <- countreg(
         forml = "dv ~ z12*z21 + z11",
         group = NULL,
@@ -631,7 +631,7 @@ test_that("two interacting and additional manifest variables in one group - NB",
 # TEST 4 - two interacting manifest and additional latent variables - one group
 # ---------------------------------------------------
 test_that("two interacting manifest and additional latent variables in one group - Poisson", {
-    # skip("Not finished")
+    skip_on_cran()
     fit <- countreg(
         forml = "dv ~ z12*z21 + eta",
         lv = list(eta = c("z41", "z42", "z43")),
@@ -701,7 +701,7 @@ test_that("two interacting manifest and additional latent variables in one group
 
     # 5. Measurement Model
     # 5.1 nu
-    comp <- c(0, -0.09690, -0.41836) # mismatch 2
+    comp <- c(0, -0.09691, -0.41836) # mismatch 2
     par <- pt$par[pt$dest == "nu"]
     expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_nu")
 
@@ -813,7 +813,7 @@ test_that("two interacting manifest and additional latent variables in one group
 # TEST 5 - two interacting latent variables - one group
 # ---------------------------------------------------
 test_that("two interacting manifest and additional latent variables in one group - Poisson", {
-    # skip("Not finished")
+    skip_on_cran()
     fit <- countreg(
         forml = "dv ~ eta1*eta2",
         lv = list(

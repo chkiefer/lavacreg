@@ -1,3 +1,6 @@
+# lavacreg 0.2-2
+* interaction terms between latent and / or manifest predictors can now be included in the model
+
 # lavacreg 0.2-1
 * added checks for OpenMP to avoid compilation errors on MacOS
 * tests are skipped on CRAN, as minor numerical deviations cannot be avoided

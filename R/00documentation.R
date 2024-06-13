@@ -18,14 +18,14 @@
 "example01"
 
 
-#' lavacreg
-#' 
-#' Latent Variable Count Regression Models
-#' 
-#' @docType package
-#' @author Christoph Kiefer <christoph.kiefer@uni-bielefeld.de>
-#' @import Rcpp fastGHQuad pracma SparseGrid
-#' @importFrom Rcpp evalCpp
-#' @useDynLib lavacreg
-#' @name lavacreg
-NULL  
+# #' lavacreg
+# #'
+# #' Latent Variable Count Regression Models
+# #'
+# #' @docType package
+# #' @author Christoph Kiefer <christoph.kiefer@uni-bielefeld.de>
+# #' @import Rcpp fastGHQuad pracma SparseGrid
+# #' @importFrom Rcpp evalCpp
+# #' @useDynLib lavacreg
+# #' @name lavacreg
+# NULL

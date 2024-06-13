@@ -10,14 +10,15 @@ using namespace Rcpp;
 //'
 //' @param x Model matrix containing the observed variables in order Y, W, Z
 //' @param muy Matrix of conditional expectations of Y given Z and/or latent
-// covariates ' @param sigmayw Vector containing the size parameter (for
-// overdispersion) and measurement error variances ' @param muwz Matrix of
-// conditional expectations of W and Z given latent covariate (if existent) and
-// given the group ' @param sigmaz (Conditional) covariance matrix of observed
-// covariates Z ' @param ghweight Gauss-Hermite weights, if latent covariates
-// included ' @param detvarz Determinant of sigmaz (easier to compute in R...) '
-//@param dims Integer vector with dimensional information, in order group size,
-// integration points, number of Z, and number of W '
+//' covariates ' @param sigmayw Vector containing the size parameter (for
+//' overdispersion) and measurement error variances
+//' @param muwz Matrix of conditional expectations of W and Z given latent
+//' covariate (if existent) and given the group
+//' @param sigmaz (Conditional) covariance matrix of observed covariates Z
+//' @param ghweight Gauss-Hermite weights, if latent covariates included
+//' @param detvarz Determinant of sigmaz (easier to compute in R...)
+//' @param dims Integer vector with dimensional information, in order group
+//' size, integration points, number of Z, and number of W
 // [[Rcpp::plugins(cpp11)]]
 // [[Rcpp::export]]
 double compute_groupcond_logl(
