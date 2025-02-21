@@ -22,12 +22,12 @@ using namespace Rcpp;
 // [[Rcpp::plugins(cpp11)]]
 // [[Rcpp::export]]
 double compute_groupcond_logl(
-    arma::colvec y, arma::mat w, arma::mat z, arma::colvec beta, arma::mat Beta,
-    arma::colvec gamma, arma::mat Gamma, arma::mat Omega, double overdis,
-    arma::colvec nu, arma::mat Lambda, arma::mat Theta, arma::colvec mu_eta,
-    arma::mat Sigma_eta, arma::mat fixeta, arma::vec ghweight,
-    arma::colvec mu_z, arma::mat Sigma_z, arma::mat Sigma_z_lv, bool fixed_z,
-    int const cores = 1) {
+    arma::colvec y, arma::mat w, arma::mat z, int N, arma::colvec beta,
+    arma::mat Beta, arma::colvec gamma, arma::mat Gamma, arma::mat Omega,
+    double overdis, arma::colvec nu, arma::mat Lambda, arma::mat Theta,
+    arma::colvec mu_eta, arma::mat Sigma_eta, arma::mat fixeta,
+    arma::vec ghweight, arma::colvec mu_z, arma::mat Sigma_z,
+    arma::mat Sigma_z_lv, bool fixed_z, bool cfa, int const cores = 1) {
 
 #if defined(_OPENMP)
   omp_set_num_threads(cores);
@@ -38,13 +38,22 @@ double compute_groupcond_logl(
   // used
   bool poisson = overdis ? 0 : 1;
 
-  int N = y.n_elem;
+  // int N = y.n_elem;
   int N_gh = ghweight.n_elem;
   int no_lv = fixeta.n_cols;
   int no_z = z.n_cols;
 
   if (!N_gh) {
     N_gh = 1;
+  }
+
+  // CFA PART : TO BE OUTSOURCED TO ITS OWN FUNCTION!!!
+  if (cfa) {
+    arma::mat mu_implied = nu + Lambda * mu_eta;
+    arma::mat Sigma_implied = Lambda * Sigma_eta * Lambda.t() + Theta;
+    arma::colvec f_w =
+        dmvnrm_arma_fast(w, mu_implied.t(), Sigma_implied, true, cores);
+    return (sum(f_w));
   }
 
   // Rcpp::Rcout << "Initialization worked!\n";
@@ -102,65 +111,57 @@ double compute_groupcond_logl(
   }
 
   // Regression part
-  // beta
-  arma::colvec one(N, arma::fill::ones);
-  arma::mat zs = arma::join_rows(one, z);
-  // arma::colvec mu_y_z = exp(zs * beta);
-  arma::colvec mu_beta = exp(zs * beta);
+  arma::colvec f_y(N * N_gh, arma::fill::ones);
+  if (!cfa) {
+    // beta
+    arma::colvec one(N, arma::fill::ones);
+    arma::mat zs = arma::join_rows(one, z);
+    // arma::colvec mu_y_z = exp(zs * beta);
+    arma::colvec mu_beta = exp(zs * beta);
 
-  // Beta
-  arma::colvec mu_Beta(N, arma::fill::ones);
-  if (Beta.n_rows) {
-    arma::mat tmp = arma::diagvec(z * Beta * z.t());
-    mu_Beta = exp(tmp);
-  }
+    // Beta
+    arma::colvec mu_Beta(N, arma::fill::ones);
+    if (Beta.n_rows) {
+      arma::mat tmp = arma::diagvec(z * Beta * z.t());
+      mu_Beta = exp(tmp);
+    }
 
-  // gamma
-  arma::colvec mu_gamma(N_gh, arma::fill::ones);
-  if (no_lv) {
-    mu_gamma = exp(GH * gamma);
-  }
+    // gamma
+    arma::colvec mu_gamma(N_gh, arma::fill::ones);
+    if (no_lv) {
+      mu_gamma = exp(GH * gamma);
+    }
 
-  // Gamma
-  arma::colvec mu_Gamma(N, arma::fill::ones);
-  if (Gamma.n_rows) {
-    arma::mat tmp = arma::diagvec(GH * Gamma * GH.t());
-    mu_Gamma = exp(tmp);
-  }
+    // Gamma
+    // is that correct? Does Gamma have to be a matrix?
+    arma::colvec mu_Gamma(N_gh, arma::fill::ones);
+    if (Gamma.n_rows) {
+      // arma::mat tmp = arma::diagvec(GH * Gamma * GH.t());
+      arma::mat tmp = sum((GH * Gamma) % GH, 1);
+      mu_Gamma = exp(tmp);
+    }
 
-  // Omega
-  arma::mat mu_Omega(N, N_gh, arma::fill::ones);
-  if (Omega.n_rows) {
-    arma::mat tmp = z * Omega * GH.t();
-    mu_Omega = exp(tmp);
-  }
+    // Omega
+    arma::mat mu_Omega(N, N_gh, arma::fill::ones);
+    if (Omega.n_rows) {
+      arma::mat tmp = z * Omega * GH.t();
+      mu_Omega = exp(tmp);
+    }
 
-  arma::colvec f_y;
-  double alpha;
-  if (poisson) {
-    // Rcpp::Rcout << "Shortly before Poisson...!\n";
-    // sleep(1);
-    f_y = dpois_cpp(y, mu_beta, mu_gamma, mu_Beta, mu_Gamma, mu_Omega, cores);
-  } else {
-    alpha = 1 / overdis;
-    f_y = dnegbin_cpp(y, mu_beta, mu_gamma, mu_Beta, mu_Gamma, mu_Omega, alpha,
-                      cores);
+    double alpha;
+    if (poisson) {
+      f_y = dpois_cpp(y, mu_beta, mu_gamma, mu_Beta, mu_Gamma, mu_Omega, cores);
+    } else {
+      alpha = 1 / overdis;
+      f_y = dnegbin_cpp(y, mu_beta, mu_gamma, mu_Beta, mu_Gamma, mu_Omega,
+                        alpha, cores);
+    }
   }
 
   // Rcpp::Rcout << "Regression part worked!\n";
-  // sleep(1);
 
   double out = 0.0;
   double tmp = 0.0;
-
-  // Rcpp::Rcout << "Value of ghweight : " << ghweight << "\n";
-  // // sleep(5);
-  // Rcpp::Rcout << "Value of f_w : " << f_w << "\n";
-  // // sleep(5);
-  // Rcpp::Rcout << "Value of f_z : " << f_z << "\n";
-  // // sleep(5);
-  // Rcpp::Rcout << "Value of f_y : " << f_y << "\n";
-  // sleep(5);
 
 #pragma omp parallel for schedule(static) private(tmp)                         \
     shared(ghweight, f_w, f_y, f_z) reduction(+ : out)

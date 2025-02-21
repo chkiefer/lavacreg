@@ -9,7 +9,7 @@
 #' @importFrom pracma hessian
 #' @keywords internal
 #' @noRd
-creg_model_estimate <- function(object) {
+creg_model_estimate <- function(object, fit.model = TRUE) {
   input <- object@input
   family <- input@family
   no_groups <- input@no_groups
@@ -21,7 +21,18 @@ creg_model_estimate <- function(object) {
   constraints <- object@constraints
   gh_grid <- object@gh_grid
   pt <- object@partable
-  x_start <- object@x_start
+  x_start <- pt$start[pt$par_free > 0]
+
+  # Constraints currently only used for measurement invariance
+  # in latent variables
+  if (constraints@con_logical) {
+    # Transform x-vector to "shorter" version
+    x_start <- x_start %*% constraints@eq_constraints_Q2
+  }
+
+
+
+
 
   # Objective function
   objective_function <- function(x) {
@@ -70,18 +81,28 @@ creg_model_estimate <- function(object) {
 
   # Pass start values x and objective function to optimizer
   # TODO: maybe allow for different optimizers
-  fit <- nlminb(
-    start = x_start,
-    objective = objective_function,
-    control = list(
-      rel.tol = 1e-10,
-      eval.max = 200, # 500
-      iter.max = 150 # 300
+  if (fit.model) {
+    fit <- nlminb(
+      start = x_start,
+      objective = objective_function,
+      control = list(
+        rel.tol = 1e-10 # ,
+        # eval.max = 200, # 500
+        # iter.max = 150 # 300
+      )
     )
-  )
+  } else {
+    fit <- list(
+      par = pt$par[pt$par_free > 0],
+      convergence = 0
+    )
+  }
+
+
+
 
   # Save parameters back to partable
-  if (constraints@con_logical) {
+  if (constraints@con_logical & fit.model) {
     pt$par[pt$par_free > 0L] <- as.numeric(
       constraints@eq_constraints_Q2 %*% fit$par
     )
@@ -134,10 +155,11 @@ creg_model_objective <- function(datalist, modellist) {
   no_groups <- length(kappas)
   family <- modellist$family
   gh_grid <- modellist$gh_grid
+  cfa <- modellist$cfa
 
-  if (length(gh_grid$W) > 0) {
-    # browser()
-  }
+  # if (length(gh_grid$W) > 0) {
+  #   # browser()
+  # }
 
   obj_outgroup <- sum(dpois(n_cell, exp(kappas), log = TRUE))
 
@@ -158,6 +180,7 @@ creg_model_objective <- function(datalist, modellist) {
     Sigma_z_lv <- modellist_g$Sigma_z_lv
     fixed_z <- modellist_g$fixed_z
     dims <- modellist_g$dims
+    N_g <- dims[1]
 
     if (any(!is.na(Sigma_z))) {
       if (any(diag(solve(Sigma_z)) <= 0)) {
@@ -176,18 +199,20 @@ creg_model_objective <- function(datalist, modellist) {
       }
     }
 
-
     obj_i <- compute_groupcond_logl(
       y = data$y, w = data$w,
-      z = data$z,
+      z = data$z, N = N_g,
       beta = beta, Beta = Beta, gamma = gamma, Gamma = Gamma, Omega = Omega,
       overdis = overdis,
       nu = nu, Lambda = Lambda, Theta = Theta,
       mu_eta = mu_eta, Sigma_eta = Sigma_eta,
       fixeta = gh_grid$X, ghweight = gh_grid$W,
       mu_z = mu_z, Sigma_z = Sigma_z, Sigma_z_lv = Sigma_z_lv,
-      fixed_z = fixed_z, cores = 1
+      fixed_z = fixed_z, cfa = cfa, cores = 1
     )
+
+
+
     if (is.na(obj_i)) {
       return(-Inf)
     } else if (is.infinite(obj_i)) {

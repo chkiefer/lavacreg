@@ -602,6 +602,7 @@ test_that("two-group one latent covariate Poisson", {
   expect_equal(length(avar), 18)
 
   # LOG-LIKELIHOOD
+  # mplus <- -5309.794
   comp <- 5.41229
   par <- fit@fit@fit$objective
   expect_equal(par, comp, tolerance = 1e-5, label = "logl")
@@ -614,11 +615,13 @@ test_that("two-group one latent covariate Poisson", {
 
   # 2. Regression coefficient
   # 2.1 beta
+  # mplus <- c(0.426, 0.808)
   comp <- c(0.42565, 0.81313)
   par <- pt$par[pt$dest == "beta"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
 
   # 2.2 gamma
+  # mplus <- c(0.500, 0.456)
   comp <- c(0.50043, 0.45471)
   par <- pt$par[pt$dest == "gamma"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_gamma")
@@ -630,27 +633,32 @@ test_that("two-group one latent covariate Poisson", {
 
   # 5. Measurement Model
   # 5.1 nu
+  # mplus <- c(0, 1.455, 0, 1.455)
   comp <- rep(c(0, 1.45445), 2)
   par <- pt$par[pt$dest == "nu"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_nu")
 
   # 5.2 Lambda
+  # mplus <- c(1, 0.725, 1, 0.725)
   comp <- rep(c(1, 0.72492), 2)
   par <- pt$par[pt$dest == "Lambda"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_lambda")
 
   # 5.3 Theta
+  # mplus <- c(0.526, 0.357, 0.511, 0.357)
   comp <- c(0.52596, 0.35650, 0.50998, 0.35629)
   par <- pt$par[pt$dest == "Theta" & pt$type == "var"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_theta")
 
   # 6. Latent Covariate Parameters
   # 6.1 Means
+  # mplus <- c(3.935, 3.972)
   comp <- c(3.93444, 3.97110)
   par <- pt$par[pt$dest == "mu_eta"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_eta")
 
   # 6.2 Variances
+  # mplus <- c(0.426, 0.324)
   comp <- c(0.42556, 0.32470)
   par <- pt$par[pt$dest == "Sigma_eta" & pt$type == "var"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_var")
@@ -722,6 +730,7 @@ test_that("two-group one latent covariate negative binomial", {
   expect_equal(length(avar), 20)
 
   # LOG-LIKELIHOOD
+  # mplus <- -5267.540
   comp <- 5.36203
   par <- fit@fit@fit$objective
   expect_equal(par, comp, tolerance = 1e-5, label = "logl")
@@ -734,43 +743,51 @@ test_that("two-group one latent covariate negative binomial", {
 
   # 2. Regression coefficient
   # 2.1 beta
+  # mplus <- c(1.285, 1.615)
   comp <- c(1.39488, 1.38017)
   par <- pt$par[pt$dest == "beta"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
 
   # 2.2 gamma
+  # mplus <- c(0.289, 0.257)
   comp <- c(0.26256, 0.31877)
   par <- pt$par[pt$dest == "gamma"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_gamma")
 
   # 3. Overdispersion parameter
+  # mplus <- c(1/0.078, 1/0.054)
   comp <- c(9.58424, 15.98937)
   par <- pt$par[pt$dest == "overdis"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_overdis")
 
   # 5. Measurement Model
   # 5.1 nu
+  # mplus <- c(0, 1.684, 0, 1.684)
   comp <- rep(c(0, -0.74553), 2)
   par <- pt$par[pt$dest == "nu"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_nu")
 
   # 5.2 Lambda
+  # mplus <- c(1, 0.667, 1, 0.667)
   comp <- rep(c(1, 1.2814), 2)
   par <- pt$par[pt$dest == "Lambda"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_lambda")
 
   # 5.3 Theta
+  # mplus <- c(0.355, 0.315, 0.371, 0.321)
   comp <- c(0.66769, 0.03286, 0.57080, 0.16991)
   par <- pt$par[pt$dest == "Theta" & pt$type == "var"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_theta")
 
   # 6. Latent Covariate Parameters
   # 6.1 Means
+  # mplus <- c(3.929, 3.975)
   comp <- c(3.87379, 3.95331)
   par <- pt$par[pt$dest == "mu_eta"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_eta")
 
   # 6.2 Variances
+  # mplus <- c(0.595, 0.463)
   comp <- c(0.45845, 0.22501)
   par <- pt$par[pt$dest == "Sigma_eta" & pt$type == "var"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_var")
@@ -854,6 +871,7 @@ test_that("two-group two latent covariates Poisson", {
   expect_equal(length(avar), 40)
 
   # LOG-LIKELIHOOD
+  # mplus <- -10261.679
   comp <- 11.09449
   par <- fit@fit@fit$objective
   expect_equal(par, comp, tolerance = 1e-5, label = "logl")
@@ -867,11 +885,13 @@ test_that("two-group two latent covariates Poisson", {
 
   # 2. Regression coefficient
   # 2.1 beta
+  # mplus <- c(0.621, 0.535)
   comp <- c(0.63028, 0.55231)
   par <- pt$par[pt$dest == "beta"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
 
   # 2.2 gamma
+  # mplus <- c(0.465, -0.036, 0.512, 0.029)
   comp <- c(0.46326, -0.03616, 0.50796, 0.02916)
   par <- pt$par[pt$dest == "gamma"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_gamma")
@@ -883,16 +903,22 @@ test_that("two-group two latent covariates Poisson", {
 
   # 5. Measurement Model
   # 5.1 nu
+  # mplus <- c(0, 1.345, 0, -0.091, -0.407)
   comp <- rep(c(0, 1.35728, 0, -0.09500, -0.45658), 2)
   par <- pt$par[pt$dest == "nu"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_nu")
 
   # 5.2 Lambda
+  # mplus <- c(1, 0.753, 1, 1.278, 1.331)
   comp <- rep(c(1, 0.74971, rep(0, 5), 1, 1.28107, 1.36110), 2)
   par <- pt$par[pt$dest == "Lambda"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_lambda")
 
   # 5.3 Theta
+  # mplus <- c(
+  #   0.528, 0.338, 1.531, 1.414, 1.442,
+  #   0.529, 0.357, 1.339, 1.531, 1.188
+  # )
   comp <- c(
     0.52566, 0.33860, 1.53647, 1.43656, 1.39938,
     0.52605, 0.35564, 1.36698, 1.56639, 1.02974
@@ -902,16 +928,19 @@ test_that("two-group two latent covariates Poisson", {
 
   # 6. Latent Covariate Parameters
   # 6.1 Means
+  # mplus <- c(3.936, 1.600, 3.970, 1.684)
   comp <- c(3.93991, 1.57989, 3.97623, 1.65178)
   par <- pt$par[pt$dest == "mu_eta"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_mu_eta")
 
   # 6.2 Variances
+  # mplus <- c(0.425, 1.877, 0.302, 2.004)
   comp <- c(0.43188, 1.89513, 0.31349, 2.16220)
   par <- pt$par[pt$dest == "Sigma_eta" & pt$type == "var"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_var")
 
   # 6.3 Covariances
+  # mplus <- c(-0.335, -0.380)
   comp <- c(-0.34766, -0.41424)
   par <- pt$par[pt$dest == "Sigma_eta" & pt$type == "cov"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_sig_eta_cov")
@@ -996,6 +1025,7 @@ test_that("two-group two latent covariates negative binomial", {
   expect_equal(length(avar), 42)
 
   # LOG-LIKELIHOOD
+  # mplus <- -10221.262
   comp <- 11.03596
   par <- fit@fit@fit$objective
   expect_equal(par, comp, tolerance = 1e-5, label = "logl")
@@ -1008,16 +1038,19 @@ test_that("two-group two latent covariates negative binomial", {
 
   # 2. Regression coefficient
   # 2.1 beta
+  # mplus <- c(1.458, 1.627)
   comp <- c(1.42405, 1.53285)
   par <- pt$par[pt$dest == "beta"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
 
   # 2.2 gamma
+  # mplus <- c(0.271, -0.066, 0.262, -0.019)
   comp <- c(0.28020, -0.06825, 0.28419, -0.01419)
   par <- pt$par[pt$dest == "gamma"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_gamma")
 
   # 3. Overdispersion parameter
+  # mplus <- c(1/0.070, 1/0.053)
   comp <- c(14.00803, 18.66380)
   par <- pt$par[pt$dest == "overdis"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_overdis")
@@ -1029,6 +1062,7 @@ test_that("two-group two latent covariates negative binomial", {
   expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_nu")
 
   # 5.2 Lambda
+  mplus <- c()
   comp <- rep(c(1, 0.81774, rep(0, 5), 1, 1.27078, 1.53127), 2)
   par <- pt$par[pt$dest == "Lambda"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_mm_lambda")
@@ -1321,7 +1355,7 @@ test_that("two-group one latent, one manifest covariate negative binomial", {
   # 2. Regression coefficient
   # 2.1 beta
   comp <- c(2.74023, -0.14692, 2.86376, -0.13065)
-  
+
   par <- pt$par[pt$dest == "beta"]
   expect_equal(par, comp, tolerance = 1e-5, label = "par_beta")
 

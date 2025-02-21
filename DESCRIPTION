@@ -1,8 +1,8 @@
 Package: lavacreg
 Type: Package
 Title: Latent Variable Count Regression Models
-Version: 0.2-2
-Date: 2024-06-13
+Version: 0.2-3-9000
+Date: 2025-02-21
 Authors@R: c(person("Christoph", "Kiefer", 
                     email = "christoph.kiefer@uni-bielefeld.de", 
                     role = c("cre", "aut"), 
@@ -25,9 +25,10 @@ Imports: Rcpp (>= 1.0.5),
     pracma,
     methods,
     stats,
-    SparseGrid
+    SparseGrid,
+    lavaan
 LinkingTo: Rcpp, RcppArmadillo
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Suggests: 
     knitr,
     rmarkdown,

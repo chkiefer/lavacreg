@@ -34,6 +34,13 @@ creg_input <- function(forml,
   # First name (left-hand side) is dependent variable
   dvname <- vnames[1]
 
+  cfa <- FALSE
+  if (dvname == ".") {
+    cfa <- TRUE
+    dvname <- character()
+    vnames <- vnames[-1]
+  }
+
   # If latent variables are specified (or something else is passed to lv)
   if (!is.null(lv)) {
     # Extract latent variable names from list
@@ -171,7 +178,9 @@ creg_input <- function(forml,
   }
 
   # Check if dv is count variable
-  if (!is_count(data[dvname])) {
+  if (cfa) {
+    warning("No dependent variable specified; computing a CFA.")
+  } else if (!is_count(data[dvname])) {
     stop("lavacreg Error: Dependent variable is not a count variable.")
   }
 
@@ -199,6 +208,7 @@ creg_input <- function(forml,
     data = data,
     silent = silent,
     se = se,
+    cfa = cfa,
     creg_options = creg_options
   )
 

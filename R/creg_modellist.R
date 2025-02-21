@@ -84,6 +84,7 @@ creg_modellist <- function(pt, datalist, gh_grid, family, input) {
         n_cell = n_cell,
         family = family,
         gh_grid = gh_grid,
+        cfa = input@cfa,
         modellist_g = modellist_g
     )
 }

@@ -15,6 +15,7 @@ creg_datalist <- function(input) {
 
   groupvar <- input@groupvar
   data <- input@data
+  cfa <- input@cfa
 
   # Select observed variables for model
   model_vars <- c(dvname, ovnames, cvnames)
@@ -22,7 +23,12 @@ creg_datalist <- function(input) {
 
   # Split data into group-wise datasets
   datalist <- lapply(split(model_matrix, groupvar), function(df_g) {
-    y <- df_g[dvname] |> unlist()
+    if (!cfa) {
+      y <- df_g[dvname] |> unlist()
+    } else {
+      y <- numeric(0)
+    }
+
     if (length(ovnames)) {
       w <- df_g[ovnames] |> as.matrix()
     } else {

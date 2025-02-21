@@ -33,6 +33,7 @@ creg_partable <- function(input) {
     no_int_z_lv <- input@no_int_z_lv
     lv <- input@lvlist
     family <- input@family
+    cfa <- input@cfa
     creg_options <- input@creg_options
 
     auto_fix_first <- TRUE
@@ -82,20 +83,22 @@ creg_partable <- function(input) {
         par <- c(par, 0)
 
         # Regression coefficients for Z
-        for (j in 0:no_z) {
-            lhs <- c(lhs, dvname)
-            op <- c(op, "~")
-            rhs <- c(rhs, covnames[j + 1])
-            dest <- c(dest, "beta")
-            type <- c(type, NA)
-            group <- c(group, i)
-            par_free_id <- par_free_id + 1L
-            par_free <- c(par_free, par_free_id)
-            par <- c(par, 0.0)
+        if (!cfa) {
+            for (j in 0:no_z) {
+                lhs <- c(lhs, dvname)
+                op <- c(op, "~")
+                rhs <- c(rhs, covnames[j + 1])
+                dest <- c(dest, "beta")
+                type <- c(type, NA)
+                group <- c(group, i)
+                par_free_id <- par_free_id + 1L
+                par_free <- c(par_free, par_free_id)
+                par <- c(par, 0.0)
+            }
         }
 
         # Regression coefficients for eta
-        if (no_lv) {
+        if (no_lv & !cfa) {
             for (j in 1:no_lv) {
                 lhs <- c(lhs, dvname)
                 op <- c(op, "~")
@@ -110,7 +113,7 @@ creg_partable <- function(input) {
         }
 
         # Regression coefficients for interactions of Zs
-        if (no_int_z) {
+        if (no_int_z & !cfa) {
             names_z_int <- combn(cvnames, 2) |> apply(2, paste, collapse = ":")
             model_z_int <- apply(intnames$z, 1, paste, collapse = ":")
             model_z_int2 <- apply(
@@ -136,7 +139,7 @@ creg_partable <- function(input) {
         }
 
         # Regression coefficients for interactions of LVs
-        if (no_int_lv) {
+        if (no_int_lv & !cfa) {
             names_lv_int <- combn(lvnames, 2) |> apply(2, paste, collapse = ":")
             model_lv_int <- apply(intnames$lv, 1, paste, collapse = ":")
             model_lv_int2 <- apply(
@@ -162,7 +165,7 @@ creg_partable <- function(input) {
         }
 
         # Regression coefficients for interactions of Zs and LVs
-        if (no_int_z_lv) {
+        if (no_int_z_lv & !cfa) {
             names_z_lv_int <- expand.grid(cvnames, lvnames) |> apply(1, paste, collapse = ":")
             model_z_lv_int <- apply(intnames$z_lv, 1, paste, collapse = ":")
             model_z_lv_int2 <- apply(
@@ -187,23 +190,23 @@ creg_partable <- function(input) {
             }
         }
 
-        # Overdispersion
-        lhs <- c(lhs, dvname)
-        op <- c(op, "~~")
-        rhs <- c(rhs, dvname)
-        dest <- c(dest, "overdis")
-        type <- c(type, NA)
-        group <- c(group, i)
-        if (family == "poisson") {
-            par_free <- c(par_free, 0)
-            par <- c(par, 0)
-        } else {
-            par_free_id <- par_free_id + 1L
-            par_free <- c(par_free, par_free_id)
-            par <- c(par, 1)
+        if (!cfa) {
+            # Overdispersion
+            lhs <- c(lhs, dvname)
+            op <- c(op, "~~")
+            rhs <- c(rhs, dvname)
+            dest <- c(dest, "overdis")
+            type <- c(type, NA)
+            group <- c(group, i)
+            if (family == "poisson") {
+                par_free <- c(par_free, 0)
+                par <- c(par, 0)
+            } else {
+                par_free_id <- par_free_id + 1L
+                par_free <- c(par_free, par_free_id)
+                par <- c(par, 1)
+            }
         }
-
-
 
 
         # Measurement model
@@ -328,7 +331,7 @@ creg_partable <- function(input) {
                 if (auto_fix_first) {
                     par_free_id <- par_free_id + 1L
                     par_free <- c(par_free, par_free_id)
-                    par <- c(par, 1)
+                    par <- c(par, 0.05) # aligning to lavaan
                 } else {
                     par_free <- c(par_free, 0)
                     par <- c(par, 1)

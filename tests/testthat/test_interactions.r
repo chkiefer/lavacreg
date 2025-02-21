@@ -812,7 +812,7 @@ test_that("two interacting manifest and additional latent variables in one group
 # ---------------------------------------------------
 # TEST 5 - two interacting latent variables - one group
 # ---------------------------------------------------
-test_that("two interacting manifest and additional latent variables in one group - Poisson", {
+test_that("two interacting latent variables in one group - Poisson", {
     skip_on_cran()
     fit <- countreg(
         forml = "dv ~ eta1*eta2",

@@ -1,10 +1,22 @@
-creg_vcov <- function(object) {
+creg_vcov <- function(object, information_only = FALSE) {
     fit <- object@fit@fit
     objective_function <- object@fit@objective
     se <- object@input@se
     silent <- object@input@silent
     n_cell <- object@input@n_cell
     constraints <- object@constraints
+    pt <- object@partable
+    par_est <- pt$par[pt$par_free > 0]
+
+    if (constraints@con_logical) {
+        # Transform x-vector to "shorter" version
+        par_est <- par_est %*% constraints@eq_constraints_Q2
+    }
+
+    gh_grid <- object@gh_grid
+    datalist <- object@datalist
+    family <- object@input@family
+    input <- object@input
 
     #####################################
     # Here starts the standard error part
@@ -14,8 +26,26 @@ creg_vcov <- function(object) {
             cat("Computing standard errors...")
             time_start <- Sys.time()
         }
-        information <- hessian(objective_function, fit$par)
-        pracma::grad(objective_function, fit$par)
+        # browser()
+        information <- hessian(objective_function, par_est)
+
+        if (information_only) {
+            if (constraints@con_logical) {
+                if (!is.null(information)) {
+                    information <-
+                        constraints@eq_constraints_Q2 %*%
+                        information %*%
+                        t(constraints@eq_constraints_Q2)
+                }
+            }
+            if (!silent) {
+                time_diff <- Sys.time() - time_start
+                units(time_diff) <- "secs"
+                cat("done. Took:", round(time_diff, 1), "s\n")
+            }
+            return(information)
+        }
+
         eigvals <- eigen(information,
             symmetric = TRUE,
             only.values = TRUE

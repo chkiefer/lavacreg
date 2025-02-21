@@ -28,6 +28,7 @@ setClass(
     data = "data.frame",
     silent = "logical",
     se = "logical",
+    cfa = "logical",
     creg_options = "list"
   )
 )
