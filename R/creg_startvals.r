@@ -225,6 +225,9 @@ creg_starts_lv <- function(object) {
                 ]
         }
 
+        # Overdispersion parameter
+        # pt$par[pt$dest == "overdis"] <-
+        #     pt_starts$par[pt_starts$dest == "overdis"] / 2
 
 
 

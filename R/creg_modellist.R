@@ -79,12 +79,24 @@ creg_modellist <- function(pt, datalist, gh_grid, family, input) {
         SIMPLIFY = FALSE
     )
 
+    factorization <- input@creg_options$factorization
+    if (is.null(factorization)) {
+        factorization <- "KM"
+    }
+
+    if (factorization == "KM") {
+        groupcond_obj <- compute_groupcond_logl
+    } else if (factorization == "SK") {
+        groupcond_obj <- compute_IRC_groupcond_logl
+    }
+
     list(
         groupw = groupw,
         n_cell = n_cell,
         family = family,
         gh_grid = gh_grid,
         cfa = input@cfa,
+        groupcond_obj = groupcond_obj,
         modellist_g = modellist_g
     )
 }

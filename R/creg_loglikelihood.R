@@ -156,6 +156,7 @@ creg_model_objective <- function(datalist, modellist) {
   family <- modellist$family
   gh_grid <- modellist$gh_grid
   cfa <- modellist$cfa
+  groupcond_obj <- modellist$groupcond_obj
 
   # if (length(gh_grid$W) > 0) {
   #   # browser()
@@ -199,7 +200,7 @@ creg_model_objective <- function(datalist, modellist) {
       }
     }
 
-    obj_i <- compute_groupcond_logl(
+    obj_i <- groupcond_obj(
       y = data$y, w = data$w,
       z = data$z, N = N_g,
       beta = beta, Beta = Beta, gamma = gamma, Gamma = Gamma, Omega = Omega,
