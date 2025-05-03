@@ -67,6 +67,7 @@ countreg <- function(forml,
     creg_options = creg_options
   )
 
+  start.time <- Sys.time()
   # Create partable
   object@partable <- creg_partable(object@input)
 
@@ -88,6 +89,10 @@ countreg <- function(forml,
 
   # Standard error estimation
   object@vcov <- creg_vcov(object)
+  end.time <- Sys.time()
+
+  object@time <- end.time - start.time
+
 
   # Return all information back to the user
   return(object)
@@ -125,6 +130,7 @@ countreg_sam <- function(forml,
   # Initialize new lavacreg object to store and process information
   object <- new("lavacreg")
 
+  start.time <- Sys.time()
   # Create, process and save function input
   # TODO: maybe use matchcall or something similar
   object@input <- creg_input(
@@ -245,6 +251,8 @@ countreg_sam <- function(forml,
       cat("done. Took:", round(time_diff, 1), "s\n")
     }
   }
+  end.time <- Sys.time()
+  object@time <- end.time - start.time
 
 
   # Return all information back to the user

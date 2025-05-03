@@ -94,6 +94,7 @@ setClass(
     gh_grid = "list",
     x_start = "matrix",
     fit = "creg_fit",
-    vcov = "MatrixOrNULL"
+    vcov = "MatrixOrNULL",
+    time = "difftime"
   )
 )
