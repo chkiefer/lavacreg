@@ -134,6 +134,40 @@ arma::colvec dnegbin_cpp(arma::colvec y, arma::colvec mu_beta,
   return arma::exp(out);
 }
 
+// Binomial Density
+arma::colvec dbinom_logis_cpp(arma::colvec y, arma::colvec mu_beta,
+                              arma::colvec mu_gamma, arma::colvec mu_Beta,
+                              arma::colvec mu_Gamma, arma::mat mu_Omega,
+                              int const cores = 1) {
+
+#if defined(_OPENMP)
+  omp_set_num_threads(cores);
+#endif
+
+  // Poisson density
+  int N = y.n_elem;
+  int n_gh = mu_gamma.n_elem;
+  arma::colvec out(N * n_gh);
+
+  double exppi;
+  double probi;
+  double yi, mu_y_z_i;
+  double mu_y_lv_g;
+
+#pragma omp parallel for schedule(static) private(yi, mu_y_z_i) shared(y)
+  for (int i = 0; i < N; i++) {
+    mu_y_z_i = mu_beta(i) * mu_Beta(i);
+    yi = y(i);
+    for (int g = 0; g < n_gh; g++) {
+      mu_y_lv_g = mu_gamma(g) * mu_Gamma(g) * mu_Omega(i, g);
+      exppi = mu_y_z_i * mu_y_lv_g;
+      probi = exppi / (1 + exppi);
+      out(g + i * n_gh) = probi * yi + (1 - probi) * (1 - yi);
+    }
+  }
+  return out;
+}
+
 arma::colvec dpois_IRC_cpp(arma::colvec y, arma::colvec mu_beta,
                            arma::mat mu_gamma, arma::colvec mu_Beta,
                            arma::mat mu_Gamma, arma::mat mu_Omega,
@@ -213,4 +247,38 @@ arma::colvec dnegbin_IRC_cpp(arma::colvec y, arma::colvec mu_beta,
     }
   }
   return arma::exp(out);
+}
+
+// Binomial Density
+arma::colvec dbinom_logis_IRC_cpp(arma::colvec y, arma::colvec mu_beta,
+                                  arma::mat mu_gamma, arma::colvec mu_Beta,
+                                  arma::mat mu_Gamma, arma::mat mu_Omega,
+                                  int const cores = 1) {
+
+#if defined(_OPENMP)
+  omp_set_num_threads(cores);
+#endif
+
+  // Poisson density
+  int N = y.n_elem;
+  int n_gh = mu_gamma.n_cols;
+  arma::colvec out(N * n_gh);
+
+  double exppi;
+  double probi;
+  double yi, mu_y_z_i;
+  double mu_y_lv_g;
+
+#pragma omp parallel for schedule(static) private(yi, mu_y_z_i) shared(y)
+  for (int i = 0; i < N; i++) {
+    mu_y_z_i = mu_beta(i) * mu_Beta(i);
+    yi = y(i);
+    for (int g = 0; g < n_gh; g++) {
+      mu_y_lv_g = mu_gamma(i, g) * mu_Gamma(i, g) * mu_Omega(i, g);
+      exppi = mu_y_z_i * mu_y_lv_g;
+      probi = exppi / (1 + exppi);
+      out(g + i * n_gh) = probi * yi + (1 - probi) * (1 - yi);
+    }
+  }
+  return out;
 }

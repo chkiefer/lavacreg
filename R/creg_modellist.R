@@ -144,7 +144,7 @@ modellist_testfun <- function(data, pt_g, N_g, modellist_info, family) {
     }
 
 
-    if (family == "poisson") {
+    if (family %in% c("poisson", "logistic")) {
         overdis <- 0
     } else {
         overdis <- pt_g[ind_pt_overdis]

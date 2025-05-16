@@ -156,6 +156,19 @@ creg_input <- function(forml,
     creg_options <- list()
   }
 
+  if (family %in% c("poisson", "Poisson")) {
+    family <- "poisson"
+  } else if (family %in% c("nbinom", "negbin", "nb")) {
+    family <- "nbinom"
+  } else if (family %in% c("logistic")) {
+    family <- "logistic"
+  } else {
+    stop(
+      "lavacreg Error: family argument is not known.
+      Please try poisson, nbinom, or logistic"
+    )
+  }
+
 
   #############
   # CHECKS
@@ -180,8 +193,10 @@ creg_input <- function(forml,
   # Check if dv is count variable
   if (cfa) {
     warning("No dependent variable specified; computing a CFA.")
-  } else if (!is_count(data[dvname])) {
+  } else if (family %in% c("poisson", "nbinom") & !is_count(data[dvname])) {
     stop("lavacreg Error: Dependent variable is not a count variable.")
+  } else if (family %in% c("logistic")) {
+    # Add check whether is binary and coded right 0/1
   }
 
   # Return final input object

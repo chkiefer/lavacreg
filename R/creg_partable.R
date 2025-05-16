@@ -198,7 +198,7 @@ creg_partable <- function(input) {
             dest <- c(dest, "overdis")
             type <- c(type, NA)
             group <- c(group, i)
-            if (family == "poisson") {
+            if (family %in% c("poisson", "logistic")) {
                 par_free <- c(par_free, 0)
                 par <- c(par, 0)
             } else {

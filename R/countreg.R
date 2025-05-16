@@ -190,10 +190,12 @@ countreg_sam <- function(forml,
   # Standard error estimation
   object@vcov <- creg_vcov(object)
 
+  # Write free parameters back to partable
+  object@partable$par_free <- ids_par_free_comlete
+
   if (se) {
     ## so far we have the first step and the uncorrected second step
     ## now to correct the SEs of the second step
-    object@partable$par_free <- ids_par_free_comlete
     object@constraints@con_logical <- con_logical_complete
     object2 <- creg_model_estimate(object, fit.model = FALSE)
 

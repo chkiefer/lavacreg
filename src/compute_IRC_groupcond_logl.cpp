@@ -27,7 +27,8 @@ double compute_IRC_groupcond_logl(
     double overdis, arma::colvec nu, arma::mat Lambda, arma::mat Theta,
     arma::colvec mu_eta, arma::mat Sigma_eta, arma::mat fixeta,
     arma::vec ghweight, arma::colvec mu_z, arma::mat Sigma_z,
-    arma::mat Sigma_z_lv, bool fixed_z, bool cfa, int const cores = 1) {
+    arma::mat Sigma_z_lv, String family, bool fixed_z, bool cfa,
+    int const cores = 1) {
 
 #if defined(_OPENMP)
   omp_set_num_threads(cores);
@@ -38,7 +39,8 @@ double compute_IRC_groupcond_logl(
   // If size (i.e., overdispersion parameter with size > 0) is provided
   // the indicator is set to FALSE (i.e., NOT Poisson), otherwise Poisson is
   // used
-  bool poisson = overdis ? 0 : 1;
+  // bool poisson = overdis ? 0 : 1;
+  // replaced by the family argument!
 
   // int N = y.n_elem;
   int N_gh = ghweight.n_elem;
@@ -211,8 +213,6 @@ double compute_IRC_groupcond_logl(
   if (verbose) {
     Rcpp::Rcout << "Regression part starts!\n";
   }
-  arma::colvec f_y(N * N_gh, arma::fill::ones);
-
   // beta
   arma::colvec one(N, arma::fill::ones);
   arma::mat zs = arma::join_rows(one, z);
@@ -247,7 +247,7 @@ double compute_IRC_groupcond_logl(
   }
 
   if (verbose) {
-    Rcpp::Rcout << "Value of mu_gamma : " << mu_gamma << "\n";
+    // Rcpp::Rcout << "Value of mu_gamma : " << mu_gamma << "\n";
     Rcpp::Rcout << "gamma worked!\n";
   }
 
@@ -280,21 +280,26 @@ double compute_IRC_groupcond_logl(
     Rcpp::Rcout << "Omega worked!\n";
   }
 
+  arma::colvec f_y(N * N_gh, arma::fill::ones);
   double alpha;
-  if (poisson) {
+  if (family == "poisson") {
     f_y =
         dpois_IRC_cpp(y, mu_beta, mu_gamma, mu_Beta, mu_Gamma, mu_Omega, cores);
-  } else {
+  } else if (family == "nbinom") {
     alpha = 1 / overdis;
     f_y = dnegbin_IRC_cpp(y, mu_beta, mu_gamma, mu_Beta, mu_Gamma, mu_Omega,
                           alpha, cores);
     if (verbose) {
       Rcpp::Rcout << "First Value of f_y : " << f_y(1) << "\n";
     }
+  } else if (family == "logistic") {
+    f_y = dbinom_logis_IRC_cpp(y, mu_beta, mu_gamma, mu_Beta, mu_Gamma,
+                               mu_Omega, cores);
   }
 
   if (verbose) {
     Rcpp::Rcout << "Regression part worked!\n";
+    Rcpp::Rcout << "size of double:" << sizeof(double) << "\n";
   }
 
   double out = 0.0;
@@ -308,13 +313,17 @@ double compute_IRC_groupcond_logl(
       int index = g + N_gh * i;
       tmp += ghweight(g) * f_y(index);
     }
+    if (tmp == 0.0) {
+      tmp = 1.7e-308; // close to minimum on my laptop
+      // Rcpp::Rcout << "Had to correct a value of tmp to : " << tmp << "\n";
+    }
     out += std::log(tmp);
   }
 
   // Scaling happens outside
   // out = -1 * out / N;
   if (verbose) {
-    Rcpp::Rcout << "The value of sum(f_wz) : " << sum(f_wz) << "\n";
+    Rcpp::Rcout << "The value of sum(f_y) : " << sum(f_y) << "\n";
     Rcpp::Rcout << "The value of out : " << out << "\n";
   }
 

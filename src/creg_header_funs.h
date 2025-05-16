@@ -17,6 +17,10 @@ arma::colvec dnegbin_cpp(arma::colvec y, arma::colvec mu_beta,
                          arma::colvec mu_gamma, arma::colvec mu_Beta,
                          arma::colvec mu_Gamma, arma::mat mu_Omega,
                          double alpha, int const cores);
+arma::colvec dbinom_logis_cpp(arma::colvec y, arma::colvec mu_beta,
+                              arma::colvec mu_gamma, arma::colvec mu_Beta,
+                              arma::colvec mu_Gamma, arma::mat mu_Omega,
+                              int const cores);
 arma::colvec dpois_IRC_cpp(arma::colvec y, arma::colvec mu_beta,
                            arma::mat mu_gamma, arma::colvec mu_Beta,
                            arma::mat mu_Gamma, arma::mat mu_Omega,
@@ -25,4 +29,8 @@ arma::colvec dnegbin_IRC_cpp(arma::colvec y, arma::colvec mu_beta,
                              arma::mat mu_gamma, arma::colvec mu_Beta,
                              arma::mat mu_Gamma, arma::mat mu_Omega,
                              double alpha, int const cores);
+arma::colvec dbinom_logis_IRC_cpp(arma::colvec y, arma::colvec mu_beta,
+                                  arma::mat mu_gamma, arma::colvec mu_Beta,
+                                  arma::mat mu_Gamma, arma::mat mu_Omega,
+                                  int const cores);
 #endif

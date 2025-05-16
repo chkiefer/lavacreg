@@ -56,10 +56,16 @@ creg_vcov <- function(object, information_only = FALSE) {
         the model may not be identified"
             )
         }
-        vcov_fit <- try(
+        vcov_fit <- tryCatch(
             solve(information) / sum(n_cell),
-            silent = TRUE
+            error = function(e) NULL
         )
+        if (is.null(vcov_fit)){
+            warning(
+            "lavacreg warning: Standard errors could not be computed."
+        )
+        }
+
         if (!silent) {
             time_diff <- Sys.time() - time_start
             units(time_diff) <- "secs"

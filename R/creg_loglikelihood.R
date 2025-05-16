@@ -209,6 +209,7 @@ creg_model_objective <- function(datalist, modellist) {
       mu_eta = mu_eta, Sigma_eta = Sigma_eta,
       fixeta = gh_grid$X, ghweight = gh_grid$W,
       mu_z = mu_z, Sigma_z = Sigma_z, Sigma_z_lv = Sigma_z_lv,
+      family = family,
       fixed_z = fixed_z, cfa = cfa, cores = 1
     )
 

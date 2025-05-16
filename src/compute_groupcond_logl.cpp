@@ -21,13 +21,16 @@ using namespace Rcpp;
 //' size, integration points, number of Z, and number of W
 // [[Rcpp::plugins(cpp11)]]
 // [[Rcpp::export]]
-double compute_groupcond_logl(
-    arma::colvec y, arma::mat w, arma::mat z, int N, arma::colvec beta,
-    arma::mat Beta, arma::colvec gamma, arma::mat Gamma, arma::mat Omega,
-    double overdis, arma::colvec nu, arma::mat Lambda, arma::mat Theta,
-    arma::colvec mu_eta, arma::mat Sigma_eta, arma::mat fixeta,
-    arma::vec ghweight, arma::colvec mu_z, arma::mat Sigma_z,
-    arma::mat Sigma_z_lv, bool fixed_z, bool cfa, int const cores = 1) {
+double compute_groupcond_logl(arma::colvec y, arma::mat w, arma::mat z, int N,
+                              arma::colvec beta, arma::mat Beta,
+                              arma::colvec gamma, arma::mat Gamma,
+                              arma::mat Omega, double overdis, arma::colvec nu,
+                              arma::mat Lambda, arma::mat Theta,
+                              arma::colvec mu_eta, arma::mat Sigma_eta,
+                              arma::mat fixeta, arma::vec ghweight,
+                              arma::colvec mu_z, arma::mat Sigma_z,
+                              arma::mat Sigma_z_lv, String family, bool fixed_z,
+                              bool cfa, int const cores = 1) {
 
 #if defined(_OPENMP)
   omp_set_num_threads(cores);
@@ -36,7 +39,8 @@ double compute_groupcond_logl(
   // If size (i.e., overdispersion parameter with size > 0) is provided
   // the indicator is set to FALSE (i.e., NOT Poisson), otherwise Poisson is
   // used
-  bool poisson = overdis ? 0 : 1;
+
+  // bool poisson = overdis ? 0 : 1;
 
   // int N = y.n_elem;
   int N_gh = ghweight.n_elem;
@@ -112,50 +116,51 @@ double compute_groupcond_logl(
 
   // Regression part
   arma::colvec f_y(N * N_gh, arma::fill::ones);
-  if (!cfa) {
-    // beta
-    arma::colvec one(N, arma::fill::ones);
-    arma::mat zs = arma::join_rows(one, z);
-    // arma::colvec mu_y_z = exp(zs * beta);
-    arma::colvec mu_beta = exp(zs * beta);
+  // beta
+  arma::colvec one(N, arma::fill::ones);
+  arma::mat zs = arma::join_rows(one, z);
+  // arma::colvec mu_y_z = exp(zs * beta);
+  arma::colvec mu_beta = exp(zs * beta);
 
-    // Beta
-    arma::colvec mu_Beta(N, arma::fill::ones);
-    if (Beta.n_rows) {
-      arma::mat tmp = arma::diagvec(z * Beta * z.t());
-      mu_Beta = exp(tmp);
-    }
+  // Beta
+  arma::colvec mu_Beta(N, arma::fill::ones);
+  if (Beta.n_rows) {
+    arma::mat tmp = arma::diagvec(z * Beta * z.t());
+    mu_Beta = exp(tmp);
+  }
 
-    // gamma
-    arma::colvec mu_gamma(N_gh, arma::fill::ones);
-    if (no_lv) {
-      mu_gamma = exp(GH * gamma);
-    }
+  // gamma
+  arma::colvec mu_gamma(N_gh, arma::fill::ones);
+  if (no_lv) {
+    mu_gamma = exp(GH * gamma);
+  }
 
-    // Gamma
-    // is that correct? Does Gamma have to be a matrix?
-    arma::colvec mu_Gamma(N_gh, arma::fill::ones);
-    if (Gamma.n_rows) {
-      // arma::mat tmp = arma::diagvec(GH * Gamma * GH.t());
-      arma::mat tmp = sum((GH * Gamma) % GH, 1);
-      mu_Gamma = exp(tmp);
-    }
+  // Gamma
+  // is that correct? Does Gamma have to be a matrix?
+  arma::colvec mu_Gamma(N_gh, arma::fill::ones);
+  if (Gamma.n_rows) {
+    // arma::mat tmp = arma::diagvec(GH * Gamma * GH.t());
+    arma::mat tmp = sum((GH * Gamma) % GH, 1);
+    mu_Gamma = exp(tmp);
+  }
 
-    // Omega
-    arma::mat mu_Omega(N, N_gh, arma::fill::ones);
-    if (Omega.n_rows) {
-      arma::mat tmp = z * Omega * GH.t();
-      mu_Omega = exp(tmp);
-    }
+  // Omega
+  arma::mat mu_Omega(N, N_gh, arma::fill::ones);
+  if (Omega.n_rows) {
+    arma::mat tmp = z * Omega * GH.t();
+    mu_Omega = exp(tmp);
+  }
 
-    double alpha;
-    if (poisson) {
-      f_y = dpois_cpp(y, mu_beta, mu_gamma, mu_Beta, mu_Gamma, mu_Omega, cores);
-    } else {
-      alpha = 1 / overdis;
-      f_y = dnegbin_cpp(y, mu_beta, mu_gamma, mu_Beta, mu_Gamma, mu_Omega,
-                        alpha, cores);
-    }
+  double alpha;
+  if (family == "poisson") {
+    f_y = dpois_cpp(y, mu_beta, mu_gamma, mu_Beta, mu_Gamma, mu_Omega, cores);
+  } else if (family == "nbinom") {
+    alpha = 1 / overdis;
+    f_y = dnegbin_cpp(y, mu_beta, mu_gamma, mu_Beta, mu_Gamma, mu_Omega, alpha,
+                      cores);
+  } else if (family == "logistic") {
+    f_y = dbinom_logis_cpp(y, mu_beta, mu_gamma, mu_Beta, mu_Gamma, mu_Omega,
+                           cores);
   }
 
   // Rcpp::Rcout << "Regression part worked!\n";
