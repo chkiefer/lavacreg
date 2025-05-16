@@ -1,8 +1,8 @@
 Package: lavacreg
 Type: Package
 Title: Latent Variable Count Regression Models
-Version: 0.2-3-9002
-Date: 2025-04-29
+Version: 0.2-3-9004
+Date: 2025-05-16
 Authors@R: c(person("Christoph", "Kiefer", 
                     email = "christoph.kiefer@uni-bielefeld.de", 
                     role = c("cre", "aut"), 
