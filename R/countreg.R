@@ -170,7 +170,15 @@ countreg_sam <- function(forml,
     creg_options = creg_options
   )
 
+
   mm_dest <- c("nu", "Lambda", "Theta", "mu_eta", "Sigma_eta")
+  if (!is.null(creg_options$testy)) {
+    testy <- creg_options$testy
+    if (testy == "SAM") {
+      mm_dest <- c("nu", "Lambda", "Theta")
+    }
+  }
+
   id_mm <- fit_mm@partable$dest %in% mm_dest
   id_object <- object@partable$dest %in% mm_dest
   object@partable$par[id_object] <- fit_mm@partable$par[id_mm]
