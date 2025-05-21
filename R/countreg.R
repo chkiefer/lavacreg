@@ -229,32 +229,44 @@ countreg_sam <- function(forml,
     sorty <- c(mm_ids, not_mm_ids)
     rev_sorty <- order(sorty)
 
-    superobj <- function(x, x_mm) {
-      tmp <- c(x_mm, x)[rev_sorty]
-      if (object@constraints@con_logical) {
-        # Transform x-vector to "shorter" version
-        tmp <- tmp %*% object@constraints@eq_constraints_Q2
+
+    seadjust <- TRUE
+    if (!is.null(creg_options$seadjust)) {
+      seadjust <- creg_options$seadjust
+    }
+
+    if (seadjust == FALSE) {
+      object@vcov <- lavaan:::lav_matrix_bdiag(Sigma11, Sigma22)[rev_sorty, rev_sorty]
+    } else if (seadjust == TRUE) {
+      superobj <- function(x, x_mm) {
+        tmp <- c(x_mm, x)[rev_sorty]
+        if (object@constraints@con_logical) {
+          # Transform x-vector to "shorter" version
+          tmp <- tmp %*% object@constraints@eq_constraints_Q2
+        }
+        testobj(tmp)
       }
-      testobj(tmp)
-    }
-    # testobj(testpar)
-    superobj(x = testpar[not_mm_ids], x_mm = testpar[mm_ids])
-    gradobj <- function(x, x_reg) {
-      grad(superobj, x = x_reg, x_mm = x)
-    }
-    I21 <- jacobian(gradobj, x = testpar[mm_ids], x_reg = testpar[not_mm_ids])
-    I12 <- t(I21)
-    I22_inv <- Sigma22 * sum(object@input@n_cell)
-    # I_joint_sorted <- information_joint[sorty, sorty]
-    # I11 <- I_joint_sorted[1:no_mm_ids, 1:no_mm_ids]
-    # I22 <- I_joint_sorted[(no_mm_ids + 1):(no_mm_ids + no_not_mm_ids), (no_mm_ids + 1):(no_mm_ids + no_not_mm_ids)]
-    # I21 <- I_joint_sorted[(no_mm_ids + 1):(no_mm_ids + no_not_mm_ids), 1:no_mm_ids]
-    # I12 <- I_joint_sorted[1:no_mm_ids, (no_mm_ids + 1):(no_mm_ids + no_not_mm_ids)]
-    # I22_inv <- solve(I22)
+      # testobj(testpar)
+      superobj(x = testpar[not_mm_ids], x_mm = testpar[mm_ids])
+      gradobj <- function(x, x_reg) {
+        grad(superobj, x = x_reg, x_mm = x)
+      }
+      I21 <- jacobian(gradobj, x = testpar[mm_ids], x_reg = testpar[not_mm_ids])
+      I12 <- t(I21)
+      I22_inv <- Sigma22 * sum(object@input@n_cell)
+      # I_joint_sorted <- information_joint[sorty, sorty]
+      # I11 <- I_joint_sorted[1:no_mm_ids, 1:no_mm_ids]
+      # I22 <- I_joint_sorted[(no_mm_ids + 1):(no_mm_ids + no_not_mm_ids), (no_mm_ids + 1):(no_mm_ids + no_not_mm_ids)]
+      # I21 <- I_joint_sorted[(no_mm_ids + 1):(no_mm_ids + no_not_mm_ids), 1:no_mm_ids]
+      # I12 <- I_joint_sorted[1:no_mm_ids, (no_mm_ids + 1):(no_mm_ids + no_not_mm_ids)]
+      # I22_inv <- solve(I22)
 
-    Sigma_corrected <- Sigma22 + I22_inv %*% I21 %*% Sigma11 %*% I12 %*% I22_inv
+      Sigma_corrected <- Sigma22 + I22_inv %*% I21 %*% Sigma11 %*% I12 %*% I22_inv
 
-    object@vcov <- lavaan:::lav_matrix_bdiag(Sigma11, Sigma_corrected)[rev_sorty, rev_sorty]
+      object@vcov <- lavaan:::lav_matrix_bdiag(Sigma11, Sigma_corrected)[rev_sorty, rev_sorty]
+    }
+
+
     if (!silent) {
       time_diff <- Sys.time() - time_start
       units(time_diff) <- "secs"
