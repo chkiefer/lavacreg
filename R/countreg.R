@@ -182,6 +182,12 @@ countreg_sam <- function(forml,
     "mu_z", "Sigma_z",
     "Sigma_z_lv"
   )
+  if (!is.null(creg_options$testy)) {
+    testy <- creg_options$testy
+    if (testy == "SAM") {
+      pm_dest <- c("nu", "Lambda", "Theta")
+    }
+  }
 
   # 2. Identify these parameters in PM and whole model
   id_pm <- fit_pm@partable$dest %in% pm_dest
