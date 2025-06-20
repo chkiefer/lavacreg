@@ -30,7 +30,7 @@ double compute_groupcond_logl(arma::colvec y, arma::mat w, arma::mat z, int N,
                               arma::mat fixeta, arma::vec ghweight,
                               arma::colvec mu_z, arma::mat Sigma_z,
                               arma::mat Sigma_z_lv, String family, bool fixed_z,
-                              bool cfa, int const cores = 1) {
+                              bool fst = 1, bool sst = 1, int const cores = 1) {
 
 #if defined(_OPENMP)
   omp_set_num_threads(cores);
@@ -52,7 +52,7 @@ double compute_groupcond_logl(arma::colvec y, arma::mat w, arma::mat z, int N,
   }
 
   // CFA PART : TO BE OUTSOURCED TO ITS OWN FUNCTION!!!
-  if (cfa) {
+  if (sst == 0) {
     arma::mat mu_implied = nu + Lambda * mu_eta;
     arma::mat Sigma_implied = Lambda * Sigma_eta * Lambda.t() + Theta;
     arma::colvec f_w =

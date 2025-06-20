@@ -57,7 +57,7 @@ setMethod(
       names(res) <- c("Estimate", "SE", "Est./SE", "p-value")
       print(res, digits = 3, print.gap = 3)
 
-      if (family != "poisson") {
+      if (family == "nbinom") {
         # Print overdispersion parameter if it exists
         cat("\n")
         res_rows <- pt_g$dest == "overdis"
@@ -125,7 +125,8 @@ setMethod(
         print(res, digits = 3, print.gap = 3)
 
         cat("\nLoadings:\n")
-        res_rows <- pt_g$dest == "Lambda"
+        res_rows <- pt_g$dest == "Lambda" &
+          (pt_g$par_free > 0L | pt_g$par != 0L)
         res_cols <- c("lhs", "op", "rhs", "par", "SE", "zval", "pval")
         res <- pt_g[res_rows, res_cols]
         rownames(res) <- paste(res$lhs, res$op, res$rhs)

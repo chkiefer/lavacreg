@@ -157,7 +157,8 @@ creg_starts_lv <- function(object) {
             data = d_ov_starts,
             family = object@input@family,
             silent = TRUE,
-            se = FALSE
+            se = FALSE,
+            creg_options = input@creg_options
         )
 
         # Extract "manifest" results for coefficients, means, variance, and

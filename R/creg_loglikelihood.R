@@ -9,7 +9,14 @@
 #' @importFrom pracma hessian
 #' @keywords internal
 #' @noRd
-creg_model_estimate <- function(object, fit.model = TRUE) {
+creg_model_estimate <- function(object, fit.model = TRUE, steps = c(1, 2)) {
+  #
+  # USING THE STEPS ARGUMENT IS ONLY USEFUL IF f_wz and the adapted grid are
+  # computed once and then passed to second step
+  # at the moment, everything happens in the same function, so skipping
+  # the first step is not useful
+  #
+
   input <- object@input
   family <- input@family
   no_groups <- input@no_groups
@@ -69,7 +76,7 @@ creg_model_estimate <- function(object, fit.model = TRUE) {
     )
 
     # Call loglikelihood function to compute actual likelihood
-    obj <- creg_model_objective(datalist, modellist)
+    obj <- creg_model_objective(datalist, modellist, steps)
     return(obj)
   }
 
@@ -86,9 +93,9 @@ creg_model_estimate <- function(object, fit.model = TRUE) {
       start = x_start,
       objective = objective_function,
       control = list(
-        rel.tol = 1e-10 # ,
-        # eval.max = 200, # 500
-        # iter.max = 150 # 300
+        # rel.tol = 1e-10 # ,
+        eval.max = 500, # 500
+        iter.max = 300 # 300
       )
     )
   } else {
@@ -149,7 +156,7 @@ creg_model_estimate <- function(object, fit.model = TRUE) {
 #' @importFrom stats dpois
 #' @keywords internal
 #' @noRd
-creg_model_objective <- function(datalist, modellist) {
+creg_model_objective <- function(datalist, modellist, steps) {
   kappas <- modellist$groupw
   n_cell <- modellist$n_cell
   no_groups <- length(kappas)
@@ -158,9 +165,9 @@ creg_model_objective <- function(datalist, modellist) {
   cfa <- modellist$cfa
   groupcond_obj <- modellist$groupcond_obj
 
-  # if (length(gh_grid$W) > 0) {
-  #   # browser()
-  # }
+  if (cfa) {
+    steps <- c(1)
+  }
 
   obj_outgroup <- sum(dpois(n_cell, exp(kappas), log = TRUE))
 
@@ -210,7 +217,7 @@ creg_model_objective <- function(datalist, modellist) {
       fixeta = gh_grid$X, ghweight = gh_grid$W,
       mu_z = mu_z, Sigma_z = Sigma_z, Sigma_z_lv = Sigma_z_lv,
       family = family,
-      fixed_z = fixed_z, cfa = cfa, cores = 1
+      fixed_z = fixed_z, fst = 1 %in% steps, sst = 2 %in% steps, cores = 1
     )
 
 

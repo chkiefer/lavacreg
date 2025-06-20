@@ -111,22 +111,6 @@ countreg_sam <- function(forml,
                          silent = FALSE,
                          se = TRUE,
                          creg_options = NULL) {
-  # ## Setting for testing the SAM function
-  # forml <- "dv ~ eta1 + eta2 + z11"
-  # data <- example01
-  # lv <- list(
-  #   eta1 = c("z21", "z22"),
-  #   eta2 = c("z41", "z42", "z43")
-  # )
-  # group <- "treat"
-  # family <- "poisson"
-  # silent <- FALSE
-  # se <- TRUE
-  # creg_options <- NULL
-
-
-
-
   # Initialize new lavacreg object to store and process information
   object <- new("lavacreg")
 
@@ -143,7 +127,20 @@ countreg_sam <- function(forml,
     se = se,
     creg_options = creg_options
   )
-  # SAM VARIANT!!
+
+  # Make SK factorization required for SAM
+  if (!is.null(creg_options$factorization)) {
+    if (creg_options$factorization == "KM") {
+      warning("lavacreg Warning: SAM is only implemented with SK factorization. Switching to that.")
+    }
+  }
+  creg_options$factorization <- "SK"
+
+  # Set default for number of integration points
+  if (is.null(creg_options$intPoints)) {
+    creg_options$intPoints <- 5L
+  }
+
   # Create partable
   object@partable <- creg_partable(object@input)
 
@@ -160,51 +157,78 @@ countreg_sam <- function(forml,
   # Start estimation process
   object@partable <- creg_startvals(object)
 
-  ## Estimation of Measurement Model
-  fit_mm <- creg_cfa(
+
+  # ADD CHECK FOR LV
+  # IF NO LV INVOLVED, CFA GIVES AN ERROR RIGHT NOW
+
+
+  ## Estimation of Predictor Model
+  fit_pm <- creg_cfa(
     lv = lv,
     data = data,
+    covariates = object@input@cvnames,
     group = group,
     silent = silent,
     se = se,
     creg_options = creg_options
   )
 
+  # Set predictor model estimates as fixed
+  # 1. Define which parameters are fixed
+  pm_dest <- c(
+    "groupw",
+    "nu", "Lambda", "Theta",
+    "mu_eta", "Sigma_eta",
+    "mu_z", "Sigma_z",
+    "Sigma_z_lv"
+  )
 
-  mm_dest <- c("nu", "Lambda", "Theta", "mu_eta", "Sigma_eta")
-  if (!is.null(creg_options$testy)) {
-    testy <- creg_options$testy
-    if (testy == "SAM") {
-      mm_dest <- c("nu", "Lambda", "Theta")
-    }
-  }
+  # 2. Identify these parameters in PM and whole model
+  id_pm <- fit_pm@partable$dest %in% pm_dest
+  id_object <- object@partable$dest %in% pm_dest
 
-  id_mm <- fit_mm@partable$dest %in% mm_dest
-  id_object <- object@partable$dest %in% mm_dest
-  object@partable$par[id_object] <- fit_mm@partable$par[id_mm]
+  # 3. Copy the PM estimates to whole model
+  object@partable$par[id_object] <- fit_pm@partable$par[id_pm]
+
+  # 4. Remember which parameters where free before fixing
   ids_par_free_comlete <- object@partable$par_free
-  object@partable$par_free[id_object] <- 0
-  no_par_free_rem <- sum(object@partable$par_free != 0)
-  object@partable$par_free[object@partable$par_free != 0] <- c(1:no_par_free_rem)
 
-  # because only allowed for measurement model at the moment!
+  # 5. Fix PM parameters in whole model
+  object@partable$par_free[id_object] <- 0
+
+  # 6. Generate new count for Outcome Model parameters
+  no_par_free_om <- sum(object@partable$par_free != 0)
+  object@partable$par_free[object@partable$par_free != 0] <- c(1:no_par_free_om)
+
+
+  # Deactivate linear constraints for second step
+  # These are currently only implemented in measurement model
+  # but remember status in whole model
   con_logical_complete <- object@constraints@con_logical
   object@constraints@con_logical <- FALSE
 
-
-  # model estimation
+  # ------------------------------------- #
+  # - Step 2 - Outcome Model Estimation - #
+  # ------------------------------------- #
+  # Estimate model on the remaining free parameters
   object <- creg_model_estimate(object)
 
   # Standard error estimation
+  # unadjusted vcov for OM parameters
+  # Note: only if object@input@se is true
   object@vcov <- creg_vcov(object)
 
   # Write free parameters back to partable
   object@partable$par_free <- ids_par_free_comlete
 
   if (se) {
-    ## so far we have the first step and the uncorrected second step
+    ## so far we have the first step and the uncorrected second step vcovs
     ## now to correct the SEs of the second step
+
+    # Reactivate the equality constraints
     object@constraints@con_logical <- con_logical_complete
+
+    # Get objective function for full model
     object2 <- creg_model_estimate(object, fit.model = FALSE)
 
     if (!silent) {
@@ -212,56 +236,74 @@ countreg_sam <- function(forml,
       time_start <- Sys.time()
     }
 
-    tmp_mm <- fit_mm@partable$par_free[id_mm & fit_mm@partable$par_free != 0]
-    Sigma11 <- fit_mm@vcov[tmp_mm, tmp_mm]
+    # Extract vcov of PM estimates
+    tmp_pm <- fit_pm@partable$par_free[id_pm & fit_pm@partable$par_free != 0]
+    Sigma11 <- fit_pm@vcov[tmp_pm, tmp_pm]
+
+    # Extract unadjusted vcov of OM estimates
     Sigma22 <- object@vcov
-    # information_joint <- creg_vcov(object2, information_only = TRUE)
 
-    testpar <- object2@partable$par[object2@partable$par_free > 0]
-    testobj <- object2@fit@objective
-
-    # hessian(testobj, testpar)[sorty, sorty] |> round(3)
-
-    not_mm_ids <- ids_par_free_comlete[!id_object & ids_par_free_comlete != 0]
-    mm_ids <- ids_par_free_comlete[id_object & ids_par_free_comlete != 0]
-    no_not_mm_ids <- length(not_mm_ids)
-    no_mm_ids <- length(mm_ids)
-    sorty <- c(mm_ids, not_mm_ids)
-    rev_sorty <- order(sorty)
-
-
+    # Check if adjustment is required
     seadjust <- TRUE
     if (!is.null(creg_options$seadjust)) {
       seadjust <- creg_options$seadjust
     }
 
+
+    # Identify which parameters are at which position
+    om_ids <- ids_par_free_comlete[!id_object & ids_par_free_comlete != 0]
+    pm_ids <- ids_par_free_comlete[id_object & ids_par_free_comlete != 0]
+
+    # Compute order of parameters to resort parameters in full model
+    sorty <- c(pm_ids, om_ids)
+    rev_sorty <- order(sorty)
+
     if (seadjust == FALSE) {
+      # if no adjustment is required, just return unadjusted vcov
       object@vcov <- lavaan:::lav_matrix_bdiag(Sigma11, Sigma22)[rev_sorty, rev_sorty]
     } else if (seadjust == TRUE) {
-      superobj <- function(x, x_mm) {
-        tmp <- c(x_mm, x)[rev_sorty]
+      # Construct two functions for estimating only part of the Hessian
+      # PM and OM parameters are switched
+      # First function takes PM est as free
+      # second function takes OM est as free
+      obj_om_grad <- function(x, x_pm) {
+        # This function has the full objective;
+        # x are the om par
+        # is called via grad function
+        # gives grad of om par for fixed pm pars
+        tmp <- c(x_pm, x)[rev_sorty]
         if (object@constraints@con_logical) {
           # Transform x-vector to "shorter" version
           tmp <- tmp %*% object@constraints@eq_constraints_Q2
         }
-        testobj(tmp)
-      }
-      # testobj(testpar)
-      superobj(x = testpar[not_mm_ids], x_mm = testpar[mm_ids])
-      gradobj <- function(x, x_reg) {
-        grad(superobj, x = x_reg, x_mm = x)
-      }
-      I21 <- jacobian(gradobj, x = testpar[mm_ids], x_reg = testpar[not_mm_ids])
-      I12 <- t(I21)
-      I22_inv <- Sigma22 * sum(object@input@n_cell)
-      # I_joint_sorted <- information_joint[sorty, sorty]
-      # I11 <- I_joint_sorted[1:no_mm_ids, 1:no_mm_ids]
-      # I22 <- I_joint_sorted[(no_mm_ids + 1):(no_mm_ids + no_not_mm_ids), (no_mm_ids + 1):(no_mm_ids + no_not_mm_ids)]
-      # I21 <- I_joint_sorted[(no_mm_ids + 1):(no_mm_ids + no_not_mm_ids), 1:no_mm_ids]
-      # I12 <- I_joint_sorted[1:no_mm_ids, (no_mm_ids + 1):(no_mm_ids + no_not_mm_ids)]
-      # I22_inv <- solve(I22)
 
-      Sigma_corrected <- Sigma22 + I22_inv %*% I21 %*% Sigma11 %*% I12 %*% I22_inv
+        fullobj <- object2@fit@objective
+        fullobj(tmp)
+      }
+
+      #
+      obj_pm_grad <- function(x, x_om) {
+        # this function is called via jacobian
+        # x are the pm par
+        # produces off-block-diagonal part of Hessian
+        grad(obj_om_grad, x = x_om, x_pm = x)
+      }
+
+
+
+      # Extract full parameter vector
+      fullpar <- object2@partable$par[object2@partable$par_free > 0]
+
+      # Compute I21 as part of the hessian (combination of Jacobian and Grad )
+      I21 <- jacobian(obj_pm_grad, x = fullpar[pm_ids], x_om = fullpar[om_ids])
+      I12 <- t(I21)
+
+      # I22 is computed from step 2 vcov
+      I22_inv <- Sigma22 * (-sum(object@input@n_cell))
+
+      # Compute corrected Sigma for step 2
+      Sigma_corrected <- Sigma22 +
+        I22_inv %*% I21 %*% Sigma11 %*% I12 %*% I22_inv
 
       object@vcov <- lavaan:::lav_matrix_bdiag(Sigma11, Sigma_corrected)[rev_sorty, rev_sorty]
     }

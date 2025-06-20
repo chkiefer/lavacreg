@@ -2,6 +2,7 @@
 creg_cfa <- function(
     lv,
     data,
+    covariates = NULL,
     group = NULL,
     silent = FALSE,
     se = FALSE,
@@ -11,7 +12,7 @@ creg_cfa <- function(
     lvnames <- names(lv)
     forml <- paste(
         ". ~ ",
-        paste(lvnames, collapse = " + ")
+        paste(c(lvnames, covariates), collapse = " + ")
     )
 
     object <- countreg(
@@ -19,7 +20,6 @@ creg_cfa <- function(
         data = data,
         lv = lv,
         group = group,
-        family = "poisson",
         silent = silent,
         se = se,
         creg_options = creg_options
