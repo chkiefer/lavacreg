@@ -7,6 +7,7 @@
 creg_cfa(
   lv,
   data,
+  covariates = NULL,
   group = NULL,
   silent = FALSE,
   se = FALSE,

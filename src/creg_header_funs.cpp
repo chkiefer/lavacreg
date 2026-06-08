@@ -56,6 +56,36 @@ arma::vec dmvnrm_arma_fast(arma::mat const &x, arma::mat const &mean,
   return exp(out);
 }
 
+// [[Rcpp::export]]
+arma::vec creg_dmvnrm(arma::mat const &x, arma::mat const &mean,
+                      arma::mat const &sigma, bool const logd = false,
+                      int const cores = 1) {
+  using arma::uword;
+
+#if defined(_OPENMP)
+  omp_set_num_threads(cores);
+#endif
+
+  uword const n = x.n_rows, xdim = x.n_cols;
+  arma::vec out(n);
+  arma::mat const rooti = arma::inv(trimatu(arma::chol(sigma)));
+  double const rootisum = arma::sum(log(rooti.diag())),
+               constants = -(double)xdim / 2.0 * log2pi,
+               other_terms = rootisum + constants;
+
+  arma::rowvec z;
+#pragma omp parallel for schedule(static) private(z)
+  for (uword i = 0; i < n; i++) {
+    z = (x.row(i) - mean.row(i));
+    inplace_tri_mat_mult(z, rooti);
+    out(i) = other_terms - 0.5 * arma::dot(z, z);
+  }
+
+  if (logd)
+    return out;
+  return exp(out);
+}
+
 // Poisson Density
 arma::colvec dpois_cpp(arma::colvec y, arma::colvec mu_beta,
                        arma::colvec mu_gamma, arma::colvec mu_Beta,

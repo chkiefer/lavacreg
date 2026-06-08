@@ -81,10 +81,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// creg_dmvnrm
+arma::vec creg_dmvnrm(arma::mat const& x, arma::mat const& mean, arma::mat const& sigma, bool const logd, int const cores);
+RcppExport SEXP _lavacreg_creg_dmvnrm(SEXP xSEXP, SEXP meanSEXP, SEXP sigmaSEXP, SEXP logdSEXP, SEXP coresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat const& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::mat const& >::type mean(meanSEXP);
+    Rcpp::traits::input_parameter< arma::mat const& >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< bool const >::type logd(logdSEXP);
+    Rcpp::traits::input_parameter< int const >::type cores(coresSEXP);
+    rcpp_result_gen = Rcpp::wrap(creg_dmvnrm(x, mean, sigma, logd, cores));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_lavacreg_compute_IRC_groupcond_logl", (DL_FUNC) &_lavacreg_compute_IRC_groupcond_logl, 25},
     {"_lavacreg_compute_groupcond_logl", (DL_FUNC) &_lavacreg_compute_groupcond_logl, 25},
+    {"_lavacreg_creg_dmvnrm", (DL_FUNC) &_lavacreg_creg_dmvnrm, 5},
     {NULL, NULL, 0}
 };
 

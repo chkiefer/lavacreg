@@ -9,3 +9,7 @@ compute_groupcond_logl <- function(y, w, z, N, beta, Beta, gamma, Gamma, Omega, 
     .Call('_lavacreg_compute_groupcond_logl', PACKAGE = 'lavacreg', y, w, z, N, beta, Beta, gamma, Gamma, Omega, overdis, nu, Lambda, Theta, mu_eta, Sigma_eta, fixeta, ghweight, mu_z, Sigma_z, Sigma_z_lv, family, fixed_z, fst, sst, cores)
 }
 
+creg_dmvnrm <- function(x, mean, sigma, logd = FALSE, cores = 1L) {
+    .Call('_lavacreg_creg_dmvnrm', PACKAGE = 'lavacreg', x, mean, sigma, logd, cores)
+}
+

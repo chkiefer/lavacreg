@@ -64,6 +64,10 @@ creg_init_grid <- function(Q = 2, ip = 6, type = "GH", prune = TRUE) {
         X <- x$nodes
         W <- log(x$weights)
         w <- NULL
+    } else if (type == "MC") {
+        X <- MASS::mvrnorm(ip, mu = rep(0, Q), Sigma = diag(Q))
+        W <- rep(1 / ip, ip)
+        w <- NULL
     }
 
     if (prune & type == "GH") {

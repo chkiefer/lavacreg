@@ -93,9 +93,9 @@ creg_model_estimate <- function(object, fit.model = TRUE, steps = c(1, 2)) {
       start = x_start,
       objective = objective_function,
       control = list(
-        # rel.tol = 1e-10 # ,
-        eval.max = 500, # 500
-        iter.max = 300 # 300
+        eval.max = 1000, # 500
+        iter.max = 1000, # 300
+        abs.tol = 1e-20
       )
     )
   } else {
